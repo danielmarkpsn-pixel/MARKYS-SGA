@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#087f8c">
+<meta name="robots" content="noindex,nofollow">
+<title>DIAGNÓSTICO REDIS | FAVMED</title>
+<style>
+:root{color-scheme:light;--bg:#f3f6f8;--panel:#fff;--line:#dce5e9;--text:#20313a;--muted:#637984;--teal:#087f8c;--red:#b42332;--green:#147a52}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at top right,#d9f0ef 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.5 "Segoe UI",Arial,sans-serif}.card{width:min(560px,100%);padding:clamp(22px,5vw,36px);background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 36px #1b3a4410}h1{font-size:25px;margin:0 0 6px}.muted{color:var(--muted);margin:0 0 22px}.note{padding:13px 15px;background:#f2f8f9;border:1px solid var(--line);border-radius:10px;font-size:13px;margin:18px 0}.btn{width:100%;border:0;border-radius:10px;padding:13px 16px;background:var(--teal);color:#fff;font:700 14px "Segoe UI",Arial,sans-serif;cursor:pointer}.btn:disabled{opacity:.6;cursor:wait}.result{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:#f8fafb;min-height:48px}.result.success{border-color:#a8d8c2;background:#f0faf5;color:var(--green)}.result.error{border-color:#edc1c5;background:#fff5f5;color:var(--red)}a{color:var(--teal)}
+
+/* PADRONIZAÇÃO VISUAL: TEXTOS EM MAIÚSCULAS, SEM ALTERAR VALORES DOS CAMPOS */
+body, body *:not(input):not(textarea):not(select) { text-transform: uppercase !important; }
+input, textarea, select { text-transform: none !important; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.81.1/dist/umd/supabase.min.js"></script>
+<script src="/favmed-cloud.js"></script>
+</head>
+<body>
+<main class="card">
+  <h1>Diagnóstico de conexão Redis</h1>
+  <p class="muted">FAVMED · Ambiente de Preview</p>
+  <p>Este teste verifica a sessão do usuário e faz uma operação temporária de gravação, leitura e exclusão no Redis.</p>
+  <div class="note"><strong>Segurança:</strong> não utiliza dados de pacientes, não altera a fila e não mostra nem armazena seu token de acesso. A chave de teste expira automaticamente em 30 segundos.</div>
+  <button class="btn" id="run" type="button">Testar conexão Redis</button>
+  <div class="result" id="result" role="status" aria-live="polite">Aguardando o teste.</div>
+  <div class="note"><strong>Etapa 2 — Cache da sala de espera:</strong> verifica duas leituras consecutivas da fila pública. A tela mostra somente a quantidade de registros e a versão, nunca os nomes. O cache expira em 5 segundos e o Supabase continua sendo a fonte oficial.</div>
+  <button class="btn" id="cacheRun" type="button">Testar cache da sala de espera</button>
+  <div class="result" id="cacheResult" role="status" aria-live="polite">Aguardando o teste do cache.</div>
+  <p class="muted" style="font-size:12px;margin:18px 0 0"><a href="/">Voltar ao FAVMED</a></p>
+</main>
+<script>
+(() => {
+  const button = document.getElementById("run");
+  const output = document.getElementById("result");
+  function show(message, kind) {
+    output.textContent = message;
+    output.className = "result" + (kind ? " " + kind : "");
+  }
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    button.textContent = "Testando...";
+    show("Verificando sessão e conexão segura...");
+    try {
+      const cloud = window.FAVMED_CLOUD;
+      if (!cloud || !cloud.client || !cloud.client.auth) {
+        throw new Error("Não foi possível inicializar a conexão do FAVMED. Atualize a página e tente novamente.");
+      }
+      const { data, error } = await cloud.client.auth.getSession();
+      if (error) throw new Error("Não foi possível verificar sua sessão. Entre novamente no FAVMED.");
+      const session = data && data.session;
+      if (!session || !session.access_token) {
+        throw new Error("Sessão não encontrada. Entre no FAVMED em outra aba e volte a esta página.");
+      }
+      const response = await fetch("/api/redis-check", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + session.access_token },
+        cache: "no-store",
+        credentials: "same-origin"
+      });
+      let result;
+      try { result = await response.json(); }
+      catch (_) { throw new Error("A API retornou uma resposta inválida (HTTP " + response.status + ")."); }
+      if (!response.ok || result.ok !== true) {
+        const messages = {
+          authentication_required: "Autenticação necessária. Entre novamente no FAVMED.",
+          invalid_session: "A sessão expirou ou não é válida. Entre novamente.",
+          profile_check_failed: "Não foi possível validar o perfil ativo no Supabase.",
+          active_profile_required: "É necessário ter um perfil ativo para executar o teste.",
+          redis_unavailable_or_configuration_error: "A API não conseguiu acessar o Redis. Confira as variáveis do Preview.",
+          redis_roundtrip_failed: "O Redis respondeu, mas a leitura não correspondeu ao valor gravado."
+        };
+        throw new Error((messages[result.error] || "O teste não foi concluído.") + " (HTTP " + response.status + "; " + (result.error || "erro desconhecido") + ")");
+      }
+      show("TESTE APROVADO\nHTTP " + response.status + "\nRedis: " + result.redis + "\nLeitura e gravação: " + result.read_write + "\nExpiração: " + result.ttl_seconds + " segundos\nDados de pacientes utilizados: não", "success");
+    } catch (error) {
+      show("TESTE NÃO CONCLUÍDO\n" + (error && error.message ? error.message : "Erro inesperado."), "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Testar novamente";
+    }
+  });
+
+  const cacheButton = document.getElementById("cacheRun");
+  const cacheOutput = document.getElementById("cacheResult");
+  cacheButton.addEventListener("click", async () => {
+    cacheButton.disabled = true;
+    cacheButton.textContent = "Testando cache...";
+    cacheOutput.textContent = "Fazendo duas leituras consecutivas...";
+    cacheOutput.className = "result";
+    try {
+      const checks = [];
+      for (let i = 0; i < 2; i++) {
+        const response = await fetch("/api/public-queue", {
+          method: "GET",
+          cache: "no-store",
+          credentials: "same-origin"
+        });
+        const payload = await response.json();
+        if (!response.ok || !Array.isArray(payload.queue)) {
+          throw new Error("A consulta pública falhou (HTTP " + response.status + ").");
+        }
+        checks.push({
+          status: response.status,
+          cache: response.headers.get("X-FAVMED-Redis-Cache") || "indisponível",
+          count: payload.queue.length,
+          version: payload.version
+        });
+      }
+      const lines = checks.map((item, index) =>
+        "Leitura " + (index + 1) + ": HTTP " + item.status +
+        " · Redis " + item.cache +
+        " · registros " + item.count +
+        " · versão " + item.version
+      );
+      const passed = checks[1].cache === "HIT";
+      cacheOutput.textContent = (passed ? "CACHE REDIS APROVADO" : "CACHE AINDA NÃO CONFIRMADO") +
+        "\\n" + lines.join("\\n") +
+        "\\nNenhum nome ou dado de paciente foi exibido.";
+      cacheOutput.className = "result " + (passed ? "success" : "error");
+    } catch (error) {
+      cacheOutput.textContent = "TESTE DO CACHE NÃO CONCLUÍDO\\n" +
+        (error && error.message ? error.message : "Erro inesperado.");
+      cacheOutput.className = "result error";
+    } finally {
+      cacheButton.disabled = false;
+      cacheButton.textContent = "Testar novamente o cache";
+    }
+  });
+})();
+</script>
+</body>
+</html>

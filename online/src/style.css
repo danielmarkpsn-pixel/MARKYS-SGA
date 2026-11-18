@@ -1,0 +1,341 @@
+:root {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  color: #20313a;
+  background: #f2f7f8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --teal: #087f8c;
+  --teal-dark: #075e68;
+  --muted: #637984;
+  --line: #dce7ea;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, input { font: inherit; }
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 28px 16px;
+  background: radial-gradient(ellipse at 50% 0%, #d9f0ef 0%, transparent 48%), #f2f7f8;
+}
+.login-card {
+  width: min(100%, 440px);
+  padding: clamp(24px, 5vw, 42px);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 20px 60px #183d4710;
+}
+.brand-mark {
+  width: 48px; height: 48px; display: grid; place-items: center;
+  border-radius: 15px; background: var(--teal); color: #fff;
+  font-size: 27px; font-weight: 850; box-shadow: 0 7px 18px #087f8c30;
+}
+.eyebrow { margin: 22px 0 7px; color: var(--teal); font-size: 11px; font-weight: 800; letter-spacing: 1.5px; }
+h1 { margin: 0; font-size: clamp(25px, 5vw, 31px); letter-spacing: -.7px; }
+.muted { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 10px 0 25px; }
+form label { display: block; margin: 17px 0 7px; font-size: 12px; font-weight: 750; color: #435b65; }
+input {
+  width: 100%; min-height: 47px; padding: 12px 13px; border-radius: 10px;
+  border: 1px solid #cbdadd; color: #20313a; background: #fff; outline: none;
+}
+input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px #087f8c20; }
+.password-wrap { display: flex; align-items: center; position: relative; }
+.password-wrap input { padding-right: 82px; }
+.reveal { position: absolute; right: 8px; border: 0; background: transparent; color: var(--teal-dark); font-size: 12px; font-weight: 750; padding: 8px; cursor: pointer; }
+.submit {
+  width: 100%; min-height: 48px; margin-top: 22px; border: 0; border-radius: 10px;
+  background: var(--teal); color: #fff; font-weight: 800; cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+.submit:hover { background: var(--teal-dark); }
+.submit:active { transform: translateY(1px); }
+.submit:disabled { opacity: .65; cursor: wait; }
+.message { min-height: 20px; margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
+.message.error { color: #a4212d; }
+.footnote { border-top: 1px solid #edf1f2; margin: 24px 0 0; padding-top: 17px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.notice { padding: 14px; border: 1px solid #e7d8ac; border-radius: 10px; background: #fff9e9; color: #73510d; font-size: 13px; line-height: 1.65; overflow-wrap: anywhere; }
+.notice code { font-size: 11px; }
+.home-card .notice { margin: 22px 0 0; }
+footer { margin-top: 22px; text-align: center; color: #7a8d94; font-size: 11px; }
+@media (max-width: 480px) { .shell { justify-content: flex-start; padding-top: 8vh; } .login-card { border-radius: 17px; } }
+
+
+/* Master administration */
+select {
+  width: 100%;
+  min-height: 47px;
+  padding: 11px 13px;
+  border: 1px solid #cbdadd;
+  border-radius: 10px;
+  color: #20313a;
+  background: #fff;
+  font: inherit;
+}
+select:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
+.dashboard-shell { justify-content: flex-start; }
+.dashboard-shell .login-card { width: min(100%, 1040px); margin: 12px auto; }
+.admin-panel { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
+.admin-panel h2 { margin: 0; font-size: 20px; letter-spacing: -.3px; }
+.admin-panel h3 { margin: 0; font-size: 16px; }
+.admin-panel > .muted { margin-bottom: 18px; }
+.admin-form { max-width: 620px; }
+.admin-form .submit { margin-top: 18px; }
+.users-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 30px 0 12px; }
+.secondary {
+  min-height: 38px; padding: 9px 13px; border: 1px solid #cbdadd; border-radius: 9px;
+  background: #fff; color: #24505b; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer;
+}
+.secondary:hover { background: #f0f8f8; border-color: #8bbdc2; }
+.secondary:disabled { opacity: .6; cursor: wait; }
+.table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.users-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+.users-table th, .users-table td { padding: 12px; border-bottom: 1px solid #edf1f2; vertical-align: middle; }
+.users-table th { background: #f7fafb; color: #536b74; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+.users-table tr:last-child td { border-bottom: 0; }
+.users-table small { display: inline-block; max-width: 220px; margin-top: 4px; color: #81939a; overflow-wrap: anywhere; font-size: 10px; }
+.status-pill { display: inline-block; border-radius: 999px; padding: 5px 9px; font-weight: 750; white-space: nowrap; }
+.status-pill.active { background: #e1f5ec; color: #176c4b; }
+.status-pill.inactive { background: #fff0ee; color: #a3332b; }
+@media (max-width: 640px) {
+  .dashboard-shell { padding: 12px 8px; }
+  .dashboard-shell .login-card { padding: 20px 14px; }
+  .users-heading { align-items: flex-start; flex-direction: column; }
+  .users-table th, .users-table td { padding: 9px 7px; }
+  .users-table small { max-width: 130px; }
+}
+
+
+/* FAVMED Online operational modules */
+.operational-panel { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
+.operational-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.operational-heading .eyebrow { margin-top: 0; }
+.operational-heading h2 { margin: 0; font-size: 22px; }
+.module-card { margin-top: 18px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: #fcfefe; }
+.module-card h3 { margin: 0; font-size: 16px; }
+.module-card > .muted { margin: 8px 0 18px; }
+.operational-form { max-width: none; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+.form-grid > div { min-width: 0; }
+textarea { width: 100%; min-height: 90px; padding: 12px 13px; border: 1px solid #cbdadd; border-radius: 10px; color: #20313a; font: inherit; resize: vertical; }
+textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
+.exam-pill { display: inline-block; margin: 2px 2px 2px 0; padding: 4px 7px; border-radius: 7px; background: #edf5f6; color: #3d5c65; font-size: 11px; }
+.operational-table td { min-width: 100px; }
+.operational-table td:nth-child(2) { min-width: 180px; }
+.operational-table td:last-child { min-width: 160px; }
+.operational-table .secondary { margin: 2px; }
+@media (max-width: 640px) {
+  .operational-heading { align-items: flex-start; flex-direction: column; }
+  .module-card { padding: 14px 10px; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+
+/* Identidade visual FAVMED e recepção alinhadas ao padrão local */
+.dashboard-shell { justify-content: flex-start; align-items: stretch; padding: 0; background: radial-gradient(ellipse at top right, #d9f0ef 0, transparent 42%), #f3f6f8; }
+.dashboard-shell .login-card { width: min(100%, 1400px); margin: 0 auto; padding: 0 clamp(14px, 3vw, 32px) 28px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.home-card > .brand-mark { display: none; }
+.brand-logo { display: block; width: 54px; height: 54px; object-fit: contain; flex: 0 0 54px; }
+.app-header { margin: 0 calc(clamp(14px, 3vw, 32px) * -1); padding: 22px clamp(16px, 4vw, 42px); border-bottom: 1px solid var(--line); background: #ffffffd9; }
+.brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+.brand-copy { min-width: 0; }
+.brand-copy h1 { margin: 0; font-size: clamp(18px, 2.4vw, 23px); line-height: 1.25; letter-spacing: .1px; }
+.brand-copy p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.operational-panel { display: grid; grid-template-columns: minmax(290px, .78fr) minmax(0, 1.22fr); gap: 0 18px; margin-top: 22px; padding-top: 0; border-top: 0; align-items: start; }
+.operational-heading { grid-column: 1 / -1; margin-bottom: 2px; padding: 0 0 8px; }
+.operational-panel > .module-card:first-of-type { grid-column: 1; grid-row: 2; margin-top: 12px; }
+.operational-panel > .module-card:last-of-type { grid-column: 2; grid-row: 2; margin-top: 12px; min-width: 0; }
+.operational-panel > .module-card:nth-of-type(2):not(:last-of-type) { grid-column: 1 / -1; }
+.operational-table { min-width: 600px; }
+#sign-out { margin-top: 22px; }
+.dashboard-shell footer { padding-bottom: 16px; }
+@media (max-width: 850px) {
+  .operational-panel { grid-template-columns: minmax(0, 1fr); }
+  .operational-heading, .operational-panel > .module-card:first-of-type,
+  .operational-panel > .module-card:last-of-type,
+  .operational-panel > .module-card:nth-of-type(2):not(:last-of-type) { grid-column: 1; grid-row: auto; }
+}
+@media (max-width: 640px) {
+  .dashboard-shell .login-card { padding: 0 12px 22px; }
+  .app-header { margin: 0 -12px; padding: 16px 14px; }
+  .brand-logo { width: 46px; height: 46px; flex-basis: 46px; }
+  .brand-copy h1 { font-size: 18px; }
+  .module-card { min-width: 0; }
+}
+
+
+/* Formulário de recepção no padrão modular do FAVMED local */
+.form-module { border: 1px solid var(--line); border-radius: 12px; background: #fff; margin: 10px 0; overflow: hidden; }
+.form-module > summary { cursor: pointer; list-style: none; padding: 14px 16px; font-weight: 800; color: var(--teal); background: #f0f8f8; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.form-module > summary::-webkit-details-marker { display: none; }
+.form-module > summary::after { content: "＋"; font-size: 20px; }
+.form-module[open] > summary::after { content: "−"; }
+.module-content { padding: 4px 12px 12px; }
+.module-content .field { margin: 13px 0; }
+.module-content .field label { display: block; margin: 0 0 7px; color: #536a74; font-size: 12px; font-weight: 700; }
+.module-content input[type="checkbox"] { width: auto; min-height: auto; accent-color: var(--teal); }
+.service-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #fbfdfe; align-items: center; }
+.service-option { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #405760; min-width: 0; overflow-wrap: anywhere; }
+.service-option input { flex: 0 0 auto; }
+.operational-form .submit { margin-top: 16px; }
+@media (max-width: 480px) { .service-options { grid-template-columns: 1fr; } }
+
+
+/* Public waiting-room display: call-only, no sign-in or clinical records */
+.waiting-screen { min-height: 100vh; padding: clamp(18px, 4vw, 48px); background: radial-gradient(ellipse at top right, #d9f0ef 0, transparent 42%), #f3f6f8; color: var(--ink); }
+.waiting-brand { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 16px; padding: 12px 0 26px; border-bottom: 1px solid var(--line); }
+.waiting-brand .brand-logo { width: 68px; height: 68px; object-fit: contain; }
+.waiting-brand h1 { margin: 0; font-size: clamp(22px, 3vw, 34px); }
+.waiting-brand p { margin: 5px 0 0; font-size: 12px; letter-spacing: .16em; color: var(--muted); font-weight: 800; }
+.public-live { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; color: #147d55; font-size: 12px; font-weight: 800; }
+.public-live i { width: 9px; height: 9px; border-radius: 50%; background: #22a06b; box-shadow: 0 0 0 5px #22a06b22; }
+.waiting-content { max-width: 1050px; margin: clamp(32px, 7vh, 70px) auto 0; text-align: center; }
+.waiting-content h2 { font-size: clamp(28px, 5vw, 48px); margin: 4px 0 28px; }
+.public-calls { display: grid; gap: 14px; text-align: left; }
+.call-card { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: clamp(18px, 3vw, 30px); border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 8px 28px #173c4a0c; }
+.call-card.current-call { border: 2px solid var(--teal); background: #f4ffff; }
+.call-label, .call-room span { color: var(--muted); font-size: 11px; letter-spacing: .1em; font-weight: 800; }
+.call-card h3 { font-size: clamp(24px, 4vw, 38px); margin: 7px 0 0; }
+.call-room { display: grid; gap: 6px; text-align: right; }
+.call-room strong { font-size: clamp(18px, 3vw, 27px); color: var(--teal); }
+.no-calls { padding: 38px 18px; border: 1px solid var(--line); border-radius: 18px; background: #fff; text-align: center; }
+.no-calls h3 { font-size: clamp(20px, 3vw, 30px); margin: 0 0 8px; }
+.no-calls p, .waiting-note { color: var(--muted); }
+.waiting-note { margin-top: 26px; font-size: 14px; }
+.waiting-screen footer { text-align: center; margin-top: 50px; color: var(--muted); font-size: 12px; }
+@media (max-width: 600px) { .waiting-brand .brand-logo { width: 48px; height: 48px; } .call-card { align-items: flex-start; flex-direction: column; } .call-room { text-align: left; } .public-live { font-size: 10px; } }
+
+.audio-enable { margin-left: auto; white-space: nowrap; }
+.waiting-brand .public-live { margin-left: 0; white-space: nowrap; }
+@media (max-width: 680px) {
+  .waiting-brand { flex-wrap: wrap; }
+  .audio-enable { margin-left: 0; }
+  .waiting-brand .public-live { margin-left: auto; }
+}
+
+
+/* Restored reception/professional tools */
+.operational-tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; align-items: center; }
+.operational-tools input[type="search"], .operational-tools select { flex: 1 1 220px; min-width: 170px; }
+.exam-room-menu { border: 1px solid var(--line); border-radius: 10px; background: #fbfdfe; margin: 8px 0; overflow: hidden; }
+.exam-room-menu > summary { cursor: pointer; padding: 10px 12px; font-size: 12px; font-weight: 800; color: var(--teal); background: #f0f8f8; }
+.exam-room-menu .service-options { border: 0; border-radius: 0; }
+.reception-flags { display: flex; flex-wrap: wrap; gap: 16px; padding: 14px 2px 0; }
+.priority-flag, .aso-flag { display: inline-flex; align-items: center; margin: 2px 4px; padding: 3px 7px; border-radius: 999px; font-size: 10px; font-weight: 850; white-space: nowrap; }
+.priority-flag, .aso-pending { color: #8a4b00; background: #fff0c2; }
+.aso-completed { color: #166534; background: #d9fbe5; }
+.aso-toggle-button.aso-pending { background: #fff0c2; border-color: #f4cf71; color: #8a4b00; }
+.aso-toggle-button.aso-completed { background: #d9fbe5; border-color: #8bd4a8; color: #166534; }
+.patient-sheet-dialog { width: min(560px, calc(100% - 28px)); max-height: 85vh; overflow: auto; border: 1px solid var(--line); border-radius: 16px; padding: 24px; color: var(--ink); background: white; box-shadow: 0 24px 80px #122c3c40; }
+.patient-sheet-dialog::backdrop { background: #102c3c80; }
+.patient-sheet-dialog h2 { margin-top: 0; }
+.patient-sheet-dialog dl { display: grid; grid-template-columns: minmax(130px, .7fr) minmax(0, 1.3fr); gap: 10px; }
+.patient-sheet-dialog dt { color: var(--muted); font-size: 12px; font-weight: 750; }
+.patient-sheet-dialog dd { margin: 0; overflow-wrap: anywhere; }
+.patient-sheet-dialog form { display: flex; justify-content: flex-end; }
+@media (max-width: 520px) { .patient-sheet-dialog dl { grid-template-columns: 1fr; gap: 3px; } .patient-sheet-dialog dd { margin-bottom: 10px; } }
+
+.patient-edit-dialog form > label { display: block; margin: 12px 0 5px; color: var(--muted); font-size: 12px; font-weight: 750; }
+.patient-edit-dialog form > input, .patient-edit-dialog form > textarea { width: 100%; min-width: 0; margin-bottom: 6px; }
+.patient-edit-dialog .submit { width: 100%; margin-top: 12px; }
+.patient-edit-dialog .users-heading { align-items: center; gap: 10px; }
+.patient-edit-dialog .users-heading h2 { font-size: 20px; }
+
+.operational-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.operational-heading-actions a { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; color: var(--teal); background: #fff; font-size: 13px; font-weight: 750; text-decoration: none; }
+.operational-heading-actions a:hover { background: #f0f8f8; }
+
+
+/* Recepção: menu de ações flutuante e grade de profissionais */
+.professional-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+.professional-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #dce5e9;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #f8fbfc, #fff);
+  box-shadow: 0 8px 24px #1b3a440b;
+}
+.professional-card.blinking {
+  border: 2px solid #087bff;
+  background: linear-gradient(120deg, #e8f2ff, #fff);
+  animation: favmedRoomPulse .9s steps(2, start) infinite;
+}
+.professional-card.attending {
+  border: 3px solid #b42332;
+  background: linear-gradient(120deg, #fff0f0, #fff);
+}
+.professional-card.completed { opacity: .72; }
+.professional-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.professional-card-head strong { display: block; overflow-wrap: anywhere; font-size: 15px; }
+.professional-card-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+.professional-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; color: #526872; font-size: 12px; }
+.professional-card-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: auto; }
+.professional-card-actions .secondary { flex: 1 1 auto; }
+.priority-flag { display: inline-block; margin: 4px 0 0 7px; padding: 3px 7px; border-radius: 6px; background: #fff0c2; color: #805600; font-size: 10px; font-weight: 900; }
+
+.favmed-room-screen .waiting-content { max-width: 1800px; margin-top: clamp(24px, 5vh, 56px); }
+.favmed-room-screen .waiting-content h2 { margin-bottom: 22px; }
+.room-call-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+  width: 100%;
+  align-content: start;
+  align-items: stretch;
+}
+.room-call-card {
+  min-width: 0;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(16px, 2vw, 26px);
+  border: 1px solid #b5dfdd;
+  border-radius: 18px;
+  background: linear-gradient(120deg, #e6f7f5, #fff);
+  text-align: center;
+  box-shadow: 0 15px 35px #1b3a440e;
+  animation: appear .35s ease;
+}
+.room-call-card.blinking {
+  border: 2px solid #087bff;
+  background: linear-gradient(120deg, #e8f2ff, #fff);
+  animation: favmedRoomPulse .9s steps(2, start) infinite;
+}
+.room-call-card.blinking .call-label, .room-call-card.blinking .call-name, .room-call-card.blinking .call-room { color: #075bd8; }
+.room-call-card.attending {
+  border: 3px solid #b42332;
+  background: linear-gradient(120deg, #fff0f0, #fff);
+  box-shadow: 0 12px 34px #b4233218;
+}
+.room-call-card.attending .call-label, .room-call-card.attending .call-name, .room-call-card.attending .call-room { color: #9d1c27; }
+.room-call-card .call-label { color: #58747c; letter-spacing: 2px; font-weight: 800; font-size: clamp(12px, 1.5vw, 16px); }
+.room-call-card .call-name { margin: 10px 0; font-size: clamp(22px, 3vw, 42px); line-height: 1.08; font-weight: 850; overflow-wrap: anywhere; }
+.room-call-card .call-room { font-size: clamp(16px, 1.8vw, 28px); color: var(--teal); font-weight: 750; overflow-wrap: anywhere; }
+.room-error { grid-column: 1 / -1; margin: 0; padding: 28px; border: 1px solid #efc8cc; border-radius: 14px; background: #fff0f0; color: #a01e2b; font-weight: 750; text-align: center; }
+#room-call-signal { display: none; }
+@keyframes favmedRoomPulse {
+  0%, 49% { background: #dbeaff; border-color: #087bff; box-shadow: 0 0 0 3px #087bff30; }
+  50%, 100% { background: #fff; border-color: #fff; box-shadow: 0 0 0 1px #087bff20; }
+}
+@media (max-width: 640px) {
+  .professional-cards, .room-call-grid { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+  .professional-card { padding: 12px; }
+  .professional-card-head { flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .professional-card.blinking, .room-call-card.blinking { animation: none; }
+}
