@@ -1,6 +1,5 @@
 # MARKYS SGA - SISTEMA DE GESTAO DE PACIENTES
-
-
+                    -MODO LOCAL-
    - Recepção: `http://IP:PORTA/`
    - Sala de espera: `http://IP:PORTA/?painel=1`
    - Profissional: `http://IP:PORTA/consultorio`
