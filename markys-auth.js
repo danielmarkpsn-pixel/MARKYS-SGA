@@ -177,7 +177,7 @@
   function addLogoutButton() {
     if (document.getElementById("markys-sga-logout")) return;
     const profile = cloud.profile;
-    if (profile && ["master", "financeiro"].includes(profile.role) && !publicMode && !document.getElementById("markys-sga-finance")) {
+    if (profile && ["master", "financeiro"].includes(profile.role) && !publicMode && !financeMode && !document.getElementById("markys-sga-finance")) {
       const financeButton = document.createElement("a");
       financeButton.id = "markys-sga-finance";
       financeButton.href = "/financeiro.html";
@@ -251,6 +251,10 @@
   }
 
   if (localMode) {
+    if (financeMode) {
+      showAccessMessage("O módulo Financeiro exige autenticação com perfil Master ou Financeiro.");
+      return;
+    }
     cloud.resolveAuth({ role: "local", active: true });
     root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
     return;
