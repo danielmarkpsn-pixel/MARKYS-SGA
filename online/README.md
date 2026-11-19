@@ -1,54 +1,44 @@
 # MARKYS SGA Online
 
-Aplicação online da Clínica MARKYS SGA, separada do MARKYS SGA Local. O servidor PowerShell e as páginas locais existentes não são substituídos.
+Aplicação online independente do MARKYS SGA. O modo local em HTML/PowerShell continua separado e não inicializa conexão Supabase. A aplicação Vite em `online/` é a única aplicação publicada no Vercel.
+
+## Ambientes exclusivos
+- GitHub: `danielmarkpsn-pixel/MARKYS-SGA`, branch oficial `main`.
+- Vercel: projeto `markyssga`, equipe `dan-markys`, diretório raiz `online/`.
+- URL: https://markyssga.vercel.app/
+- Supabase: projeto `MARKYS SGA`, ref `vibybosdqavejvqsuvph`.
+- URL Supabase: https://vibybosdqavejvqsuvph.supabase.co
 
 ## Executar localmente
-
 1. Copie `.env.example` para `.env.local`.
-2. Preencha `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` com os valores públicos do projeto.
+2. Preencha `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` com os valores públicos do projeto MARKYS SGA.
 3. Dentro desta pasta (`online`), execute `npm install` e `npm run dev`.
 4. Valide com `npm run check` e `npm run build`.
 
 Nunca coloque chaves secret/service_role no frontend, em variáveis `VITE_*` ou no Git. Variáveis `VITE_*` são incorporadas ao código entregue ao navegador e só podem conter valores públicos.
 
-## Estado atual verificado
+## Módulos e perfis
+- `/master`: administração de contas; somente Master ativo.
+- `/recepcao`: cadastro, fila, prioridade, ASO, documentos e configuração de salas.
+- `/profissional`: fila e status de atendimentos/exames conforme permissões RLS.
+- `/sala`: painel público de chamadas, sem login e somente leitura.
 
-- Login por e-mail e senha com Supabase Auth, recuperação de senha, convites e definição de senha inicial.
-- Cadastro público não faz parte do fluxo; a criação de contas é restrita ao Master.
-- A aplicação direciona cada perfil para seu próprio módulo: `/master` (administração de contas), `/recepcao` (cadastro, fila e configuração de salas) e `/profissional` (fila e status dos atendimentos). As páginas operacionais não são renderizadas dentro do Master.
-- O painel público `/sala` não exige login e é somente de leitura. Consulta a view `public_waiting_room_calls`, que retorna apenas nome abreviado, sala e horário de chamada de atendimentos em andamento. O painel atualiza automaticamente e permite ativar anúncio por voz no navegador.
-- A criação de novos usuários não oferece mais o perfil de login Sala de espera; a tela pública não deve usar uma conta compartilhada. Perfis antigos de sala não concedem acesso público aos dados pessoais.
-- A Edge Function `master-users` valida manualmente o token Bearer, exige perfil Master ativo e oferece `create_user`, `list_users` e `set_active` para contas que não são Master.
-- A Edge Function não usa CORS curinga. O segredo `MARKYS SGA_ALLOWED_ORIGIN` deve conter a origem exata da aplicação; o padrão local só serve para desenvolvimento.
-- A implantação de produção da Vercel foi criada a partir da `main`, commit `0488912da4964f7fa82ebc42d3129117d1a687ab`, e está em estado READY.
-- A migração operacional `operational_foundation` foi aplicada ao projeto Supabase `vibybosdqavejvqsuvph` em 2026-10-29. As tabelas `patients`, `professionals`, `rooms`, `patient_visits` e `visit_exams` existem com RLS habilitada e forçada.
-- Um teste transacional com dados sintéticos confirmou que a recepção pode inserir e ler um paciente durante a transação; a transação foi revertida e nenhum registro de teste foi mantido.
-- Testes transacionais com registros sintéticos e revertidos confirmaram: recepção consegue inserir/ler um paciente; profissional atribuído consegue ler o paciente, atendimento e exame vinculados; perfil de sala vê atendimento/exame da sala atribuída, mas não o registro pessoal do paciente; usuário inativo não consegue ler nem mesmo um paciente sintético.
-- Os testes de papéis foram simulados em transações SQL, não por sessões reais de navegador com JWT emitidos para cada perfil. Ainda é necessário validar login real, fluxos completos de cadastro/fila/atendimento/exames e erros de ponta a ponta antes de usar dados reais.
+A tela pública consulta `public.public_waiting_room_calls`. A view usa `security_invoker=true`; o papel `anon` recebe somente colunas necessárias, com políticas RLS limitadas às chamadas do dia. Nome completo, CPF, empresa, exames e documentos não são expostos.
+
+## Estado do novo banco
+- PostgreSQL 17 ativo na região `us-west-2`.
+- Seis tabelas operacionais criadas: `profiles`, `patients`, `professionals`, `rooms`, `patient_visits` e `visit_exams`.
+- RLS habilitada nas seis tabelas.
+- Três salas de recepção iniciais cadastradas.
+- Bucket privado `patient-documents`.
+- Edge Function `master-users` implantada com validação manual do token e CORS restrito.
+- Migrações versionadas aplicadas ao projeto novo. Não há dados de pacientes de produção.
+- O primeiro usuário Master ainda precisa ser provisionado; consulte [MASTER-BOOTSTRAP.md](supabase/MASTER-BOOTSTRAP.md).
+
+## Validação
+O build Vercel executa `npm run check && npm run build`. Os testes estáticos verificam os guardrails de autenticação, CORS, RLS, view pública e integridade de exames. A auditoria Supabase atual não apresenta alertas de segurança. Permanecem avisos informativos de índices ainda não usados porque o banco está vazio.
+
+Antes de inserir dados reais, validar login real, convite, bloqueio, recuperação de senha e os fluxos completos com contas sintéticas de Master, recepção e profissional.
 
 ## Migrações
-
-O histórico remoto contém migrações antigas cujos SQLs iniciais não estão todos versionados no repositório. Não apagar nem reconstruir essas migrações por suposição. Consulte [SCHEMA-RECONCILIATION.md](supabase/SCHEMA-RECONCILIATION.md) antes de reconciliar instalações novas ou alterar o histórico.
-
-- `20261028160000_restore_service_role_profiles_privileges.sql`: restaura privilégios de `service_role` em `public.profiles`.
-- `20261029150000_operational_foundation.sql`: cria a base operacional, restrições, índices, políticas RLS, grants por coluna e gatilhos para atualização de timestamps e conclusão de exames.
-- `20261029195000_visit_timestamp_integrity.sql`: reforça os campos de auditoria e faz o banco controlar os horários de início/conclusão do atendimento.
-- `20261029201000_public_waiting_room.sql`: cria uma view pública somente de leitura para o painel de chamadas, sem CPF, nascimento, empresa ou exames.
-- `20261029202000_visit_called_status.sql`: separa o estado de chamada do início do atendimento e alimenta o painel público com o estado `chamado`.
-- `20261029203000_reception_workflow_fields.sql`: adiciona convênio, função, prioridade e flags de ASO; um gatilho impede profissionais de alterar prioridade ou status do ASO.
-- `20261029204000_patient_documents_storage.sql`: configura bucket privado para PDFs, com limite de 10 MB e políticas de leitura/gravação por perfil.
-- `20261029205000_visit_exam_called_status.sql`: habilita chamada por exame individual e publica somente a chamada ativa, com sala e nome abreviado.
-- `20261029206000_public_calls_without_exams.sql`: mantém chamadas visíveis mesmo quando um atendimento não possui exames individualizados.
-
-## Segurança e integridade
-
-- O schema operacional usa RLS habilitada e forçada nas cinco tabelas de negócio.
-- Pacientes ficam visíveis para Master/recepção e para o profissional associado ao atendimento; usuários de sala não recebem acesso geral aos dados pessoais.
-- A view pública da sala de espera expõe apenas nome abreviado, nome da sala e horário do atendimento em andamento; a role `anon` só tem SELECT na view e não recebe acesso de escrita às tabelas operacionais.
-- A página `/sala` é um painel de chamadas, não uma tela de administração ou atendimento.
-- O banco define `completed_by` e `completed_at` quando um exame passa para `realizado`; o cliente não escolhe esses valores.
-- A interface cria paciente, atendimento e exames por chamadas REST separadas, não por uma transação atômica. Se uma etapa falhar, pode ser necessário reconciliar o cadastro incompleto. Esse fluxo deve ser aprimorado antes do uso operacional amplo.
-- Não usar dados reais de pacientes até concluir testes de ponta a ponta para todos os perfis e revisar a segurança e privacidade.
-- Nunca apagar contas Auth automaticamente para resolver erros de convite; confirme o vínculo com `profiles` antes de qualquer reparo.
-
-Consulte também [MASTER-BOOTSTRAP.md](supabase/MASTER-BOOTSTRAP.md) e [SCHEMA-RECONCILIATION.md](supabase/SCHEMA-RECONCILIATION.md).
+As migrações em `supabase/migrations/` são a fonte versionada do schema online. O banco remoto já recebeu a baseline, a estrutura operacional, os ajustes de integridade, permissões, Realtime, proteção da tela pública e consolidação de políticas. Migrações da antiga fila JSON e buckets de mídia foram excluídas do diretório de migrações online porque não são usadas por esta aplicação.
