@@ -17,7 +17,7 @@ Supabase `MARKYS SGA` — `vibybosdqavejvqsuvph`.
 - SMTP e entrega de convites devem ser testados antes de convidar usuários.
 
 ## CORS da Edge Function
-A função `master-users` aceita somente a origem oficial `https://markyssga.vercel.app` e `http://localhost:5173` para desenvolvimento. Não usar CORS curinga. Atualize a lista somente quando um domínio adicional for aprovado.
+A função `master-users` aceita somente a origem oficial `https://markyssga.vercel.app`, o preview protegido `https://markyssga-git-setup-markys-sga-cloud-dan-markys.vercel.app` e `http://localhost:5173` para desenvolvimento. Não usar CORS curinga. Atualize a lista somente quando um domínio adicional for aprovado.
 
 ## Testes obrigatórios
 - Sem sessão/token inválido: HTTP 401.
