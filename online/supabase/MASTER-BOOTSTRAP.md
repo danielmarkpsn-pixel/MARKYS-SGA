@@ -1,15 +1,15 @@
-# Provisionamento e segurança do FAVMED Online
+# Provisionamento e segurança do MARKYS SGA Online
 
-Este documento descreve o ambiente de desenvolvimento e os controles que ainda precisam ser validados. O sistema online é exclusivo da Clínica Favmed. A gestão de contas deve ser feita pelo Master; não habilitar cadastro público.
+Este documento descreve o ambiente de desenvolvimento e os controles que ainda precisam ser validados. O sistema online é exclusivo do MARKYS SGA. A gestão de contas deve ser feita pelo Master; não habilitar cadastro público.
 
 ## Estado observado em 2026-10-28
 
-- Projeto Supabase de desenvolvimento: `qzjkoyqmjueosevzhxqa`.
+- Projeto Supabase de desenvolvimento: `vibybosdqavejvqsuvph`.
 - `public.profiles` existe com RLS habilitada e forçada.
 - A política `profiles_select_own` permite SELECT apenas quando `auth.uid() = id`.
 - A Edge Function `master-users` está ativa na versão 3.
 - A função está implantada com `verify_jwt = false` por compatibilidade com chaves modernas. Isso exige que o código continue validando manualmente o token Bearer via Supabase Auth e verificando o perfil Master ativo em cada operação.
-- O histórico de migrações do banco lista `favmed_profiles_rls`, `secure_rls_auto_enable_function` e `restore_service_role_profiles_privileges`.
+- O histórico de migrações do banco lista `markys-sga_profiles_rls`, `secure_rls_auto_enable_function` e `restore_service_role_profiles_privileges`.
 - O repositório versiona somente `20261028160000_restore_service_role_profiles_privileges.sql`; os SQLs históricos não estão todos presentes na pasta de migrações. Não reaplicar nem reconstruir esses SQLs por suposição.
 - A auditoria só encontrou `public.profiles`; tabelas operacionais clínicas não existem no schema `public` verificado.
 - O Security Advisor reporta `auth_leaked_password_protection`: proteção contra senhas comprometidas desativada.
