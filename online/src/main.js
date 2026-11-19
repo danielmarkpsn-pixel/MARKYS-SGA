@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import './style.css';
-import logoMarkys from '../../markys-sga.svg';
+const logoMarkys = '/markys-sga.svg';
 import callSignalUrl from '../../chamador.mp3';
 
 const root = document.querySelector('#app');
