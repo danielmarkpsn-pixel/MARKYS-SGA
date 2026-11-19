@@ -1,48 +1,30 @@
-# FAVMED Online — Plano de migração segura
+# MARKYS SGA — arquitetura online
 
-## Objetivo
+## Ambientes independentes
+- Aplicação: repositório `danielmarkpsn-pixel/MARKYS-SGA`, branch oficial `main`.
+- Vercel: projeto `markyssga`, equipe `dan-markys`, raiz de aplicação `online/`.
+- Supabase: projeto `MARKYS SGA`, referência `vibybosdqavejvqsuvph`.
+- Região do banco: `us-west-2`.
+- Nenhuma conexão, credencial, tabela ou implantação de outro produto pode ser reutilizada.
 
-Evoluir o FAVMED Local para uma aplicação web online exclusiva da Clínica Favmed, preservando a versão atual e desenvolvendo tudo nesta branch. A branch `main` não deve ser alterada até revisão, testes e aprovação explícita.
+## Arquitetura
+- Frontend: Vite, aplicação em `online/`.
+- Autenticação: Supabase Auth, login por e-mail e senha, recuperação e convite.
+- Banco: PostgreSQL com RLS habilitada e forçada nas tabelas operacionais.
+- Administração: perfil Master provisionado por procedimento controlado; somente Master administra usuários.
+- Perfis: `master`, `recepcao`, `profissional` e `sala`.
+- Sala de espera: rota pública somente de leitura; view sanitizada sem CPF, nascimento, empresa, exames ou documentos.
+- Segredos: chaves secretas apenas em Supabase Edge Function Secrets; nunca em Vite, navegador ou Git.
 
-## Estado atual verificado
+## Critérios de liberação
+1. Baseline de perfis e migrações operacionais aplicadas no novo Supabase.
+2. Edge Function administrativa implantada e limitada ao domínio oficial.
+3. Variáveis públicas Vite configuradas no Vercel.
+4. CI de sintaxe, segurança e build aprovado.
+5. Testes reais com contas sintéticas para Master, recepção e profissional.
+6. Testes negativos de RLS, usuário inativo, sessão expirada e painel público.
+7. Revisão de segurança e advisors sem alertas críticos.
+8. Só então cadastrar dados reais e liberar uso operacional.
 
-O sistema atual é composto por páginas HTML/JavaScript e um servidor PowerShell local. O README informa que a versão de rede local não possui autenticação nem criptografia e que a fila é armazenada em arquivo JSON. Essa arquitetura não deve ser exposta diretamente à internet.
-
-## Arquitetura proposta
-
-- **Frontend:** interface web responsiva para Recepção, Profissional e Sala de Espera.
-- **Autenticação:** Supabase Auth; não implementar senhas próprias nem armazenar senhas no banco da aplicação.
-- **Banco:** Supabase PostgreSQL, com Row Level Security (RLS) habilitada e políticas testadas em todas as tabelas expostas.
-- **Administração:** perfil `master` exclusivo da Clínica Favmed, provisionado de forma segura por um administrador do projeto. Não haverá cadastro público de usuários nem escolha de clínica.
-- **Perfis iniciais:** `master`, `recepcao`, `profissional` e `sala`; cada perfil terá permissões mínimas necessárias.
-- **Sala de espera:** disponibilizar somente nome/identificador de chamada e destino; nunca CPF, nascimento, documentos ou dados clínicos no painel público.
-- **Segredos:** chaves administrativas e credenciais nunca serão incluídas no frontend ou no Git. A chave `service_role` jamais pode ser exposta ao navegador.
-- **Deploy:** configurar ambiente de preview antes de produção; produção só após testes e aprovação.
-
-## Fases de implementação
-
-1. **Preparação (esta fase):** registrar a arquitetura, regras de segurança e critérios de aceite na branch isolada.
-2. **Base de autenticação:** criar a tela de login e o fluxo de sessão usando Supabase Auth, sem cadastro público.
-3. **Permissões e administração:** definir perfis, ativação/bloqueio de contas e provisionamento do primeiro Master sem permitir autoelevação.
-4. **Dados online:** migrar pacientes e fila para tabelas protegidas, preservando o formato e as regras funcionais depois de documentar os dados existentes.
-5. **Integração das telas:** substituir o armazenamento JSON/local por operações autenticadas; adaptar recepção, profissional e sala.
-6. **Testes:** validar RLS para usuário anônimo, recepção, profissional, sala e Master; testar acesso cruzado, usuário bloqueado, sessão expirada, sincronização e exportações.
-7. **Publicação:** revisar exposição de dados, configurar variáveis de ambiente e deploy de preview; não publicar dados reais no repositório.
-
-## Regras de segurança obrigatórias
-
-- Não copiar `fila.json`, PDFs ou registros reais de pacientes para commits, issues, logs ou artefatos públicos.
-- Não expor o servidor PowerShell atual à internet.
-- Não criar conta Master com senha padrão embutida no código.
-- Não considerar esconder botões no frontend como controle de acesso; validar permissões no banco.
-- Não conectar nem alterar projetos ou bancos externos sem autorização específica.
-- Não mesclar esta branch na `main` sem validação e aprovação.
-
-## Critérios de aceite
-
-- Usuário sem sessão não acessa dados operacionais.
-- Usuário inativo não consegue continuar acessando os módulos.
-- Cada função só executa operações autorizadas no backend/banco.
-- Sala de espera não recebe CPF, documentos ou dados clínicos.
-- Nenhuma credencial administrativa aparece no bundle do frontend ou no Git.
-- Testes automatizados e CI passam antes de solicitar merge.
+## Regra de proteção
+Não conectar o MARKYS SGA a projetos, bancos ou credenciais de outros sistemas. Não copiar dados reais para testes, commits, logs ou artefatos.
