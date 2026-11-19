@@ -29,7 +29,10 @@ assert.match(frontend, /renderPasswordUpdate\(true\)/);
 // Patient data must never be committed to the legacy local queue file.
 assert.deepEqual(JSON.parse(queueFile), [], 'fila.json must remain empty in the repository; use synthetic fixtures outside tracked production data.');
 
-console.log('Security regression guardrails passed. Live RLS and session-revocation tests remain required.');
+assert.doesNotMatch(frontend, /qzjkoyqmjueosevzhxqa|favmed\.vercel\.app|FAVMED|Favmed/i, 'The MARKYS SGA frontend must not retain FAVMED branding or project endpoints.');
+assert.doesNotMatch(edge, /qzjkoyqmjueosevzhxqa|favmed\.vercel\.app|FAVMED|Favmed/i, 'The MARKYS SGA Edge Function must not retain FAVMED branding or project endpoints.');
+
+console.log('MARKYS SGA security regression guardrails passed. Live RLS and session-revocation tests remain required.');
 
 const operationalMigration = await readFile(new URL('../supabase/migrations/20261029150000_operational_foundation.sql', import.meta.url), 'utf8');
 assert.match(frontend, /renderOperationalModules\(profile, userId\)/);
