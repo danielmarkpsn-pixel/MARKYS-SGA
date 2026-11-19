@@ -14,7 +14,7 @@
 <script src="/markys-cloud.js"></script><script src="/markys-auth.js" defer></script>
 </head>
 <body>
-<header><div class="brand"><img src="/markys-sga.svg" alt="MARKYS SGA"><div><h1>MARKYS SGA · FINANCEIRO</h1><p>Gestão financeira clínica e ambulatorial</p></div></div><div class="head-actions"><a class="btn secondary" href="/">Recepção</a><a class="btn secondary" href="/admin-logins.html" id="adminLink" hidden>Administração de logins</a></div></header>
+<header><div class="brand"><img src="/markys-sga.svg" alt="MARKYS SGA"><div><h1>MARKYS SGA · FINANCEIRO</h1><p>Gestão financeira clínica e ambulatorial</p></div></div><div class="head-actions"><a class="btn secondary" href="/">← Voltar à recepção</a></div></header>
 <main>
  <div class="heading"><div><div class="eyebrow">GESTÃO E CONTROLE</div><h2>Financeiro</h2><p>Contas, recebimentos, pagamentos, caixa e relatórios em um só lugar.</p></div><div class="muted" id="today"></div></div>
  <nav class="tabs" aria-label="Seções do financeiro">
@@ -119,7 +119,7 @@ $("runReport").addEventListener("click",runReport);
 function downloadCSV(){const rows=reportRows.length?reportRows:entries;const cols=["description","direction","amount","competence_date","due_date","payment_date","status","patient_reference","counterparty","document_number","payment_method","notes"];const labels=["Descrição","Tipo","Valor","Competência","Vencimento","Liquidação","Status","Paciente/Cliente","Pagador/Fornecedor","Documento","Forma de pagamento","Observações"];const csv=[labels,...rows.map(e=>cols.map(k=>k==="direction"?typeLabels[e[k]]:k==="status"?statusLabels[effectiveStatus(e)]:e[k]??""))].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="markys-financeiro-"+today()+".csv";a.click();URL.revokeObjectURL(a.href)}
 $("exportCsv").addEventListener("click",downloadCSV);$("printReport").addEventListener("click",()=>window.print());
 $("today").textContent="DATA: "+fmtDate(today());
-(async()=>{try{profile=await window.MARKYS_AUTH_READY;if(!profile||!["master","financeiro"].includes(profile.role))throw new Error("Acesso não autorizado.");$("adminLink").hidden=profile.role!=="master";resetEntry();await load();}catch(e){console.error(e);toast("Não foi possível carregar o Financeiro: "+(e.message||"erro de conexão"));}})();
+(async()=>{try{profile=await window.MARKYS_AUTH_READY;if(!profile||!["master","financeiro"].includes(profile.role))throw new Error("Acesso não autorizado.");resetEntry();await load();}catch(e){console.error(e);toast("Não foi possível carregar o Financeiro: "+(e.message||"erro de conexão"));}})();
 })();
 </script>
 </body></html>
