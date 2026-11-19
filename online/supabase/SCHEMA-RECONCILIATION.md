@@ -25,6 +25,7 @@
 16. `enable_operational_realtime`
 17. `public_waiting_room_security_invoker`
 18. `consolidate_rls_policies`
+19. `public_waiting_room_rls_no_recursion`
 
 ## Estrutura verificada
 Tabelas públicas:
@@ -38,7 +39,7 @@ Tabelas públicas:
 RLS está habilitada nas seis tabelas. O banco contém três salas de recepção iniciais e nenhum cadastro de paciente.
 
 ## Tela pública
-A view `public_waiting_room_calls` foi alterada para `security_invoker=true`. A role `anon` não tem SELECT de tabela em `patients`; recebe apenas SELECT nas colunas `id` e `public_display_name`. Também não recebe colunas de CPF, empresa ou nome de exames. Políticas RLS limitam as linhas às chamadas ativas do dia.
+A view `public_waiting_room_calls` foi alterada para `security_invoker=true`. Funções auxiliares no schema privado evitam recursão entre as políticas anon de pacientes, atendimentos, exames e salas. A role `anon` não tem SELECT de tabela em `patients`; recebe apenas SELECT nas colunas `id` e `public_display_name`. Também não recebe colunas de CPF, empresa ou nome de exames. Políticas RLS limitam as linhas às chamadas ativas do dia.
 
 ## Migrações excluídas do diretório online
 A fila JSON antiga, RPCs `favmed_*` e buckets de mídia antigos não são usados pelo frontend Vite. Foram removidos do diretório `online/supabase/migrations` para evitar que uma futura execução de `supabase db push` crie estruturas desnecessárias. O banco novo não recebeu essas estruturas.
