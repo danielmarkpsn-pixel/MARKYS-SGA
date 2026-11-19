@@ -15,23 +15,23 @@ input, textarea, select { text-transform: none !important; }
 </style>
 
 <style>
-html.favmed-auth-checking body{visibility:hidden}
-.favmed-auth-overlay{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:18px;background:rgba(13,35,44,.78);font-family:"Segoe UI",Arial,sans-serif}
-.favmed-auth-card{width:min(420px,100%);background:#fff;border:1px solid #dce5e9;border-radius:16px;padding:28px;box-shadow:0 18px 60px #0004;color:#20313a}
-.favmed-auth-logo{display:block;width:56px;height:56px;object-fit:contain;margin:0 auto 12px}
-.favmed-auth-card h1{text-align:center;font-size:23px;margin:0 0 5px}
-.favmed-auth-card>p{text-align:center;color:#637984;margin:0 0 22px;font-size:13px}
-.favmed-auth-card label{display:block;font-size:12px;font-weight:700;color:#536a74;margin:12px 0 6px}
-.favmed-auth-card input{width:100%;padding:12px;border:1px solid #cbd9df;border-radius:10px;font:inherit;box-sizing:border-box}
-.favmed-auth-submit{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:800;font-size:14px;cursor:pointer}
-.favmed-auth-submit:disabled{opacity:.65;cursor:wait}
-.favmed-auth-message{min-height:18px;margin-top:12px;color:#b42332;font-size:12px;line-height:1.4}
+html.markys-auth-checking body{visibility:hidden}
+.markys-auth-overlay{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:18px;background:rgba(13,35,44,.78);font-family:"Segoe UI",Arial,sans-serif}
+.markys-auth-card{width:min(420px,100%);background:#fff;border:1px solid #dce5e9;border-radius:16px;padding:28px;box-shadow:0 18px 60px #0004;color:#20313a}
+.markys-auth-logo{display:block;width:56px;height:56px;object-fit:contain;margin:0 auto 12px}
+.markys-auth-card h1{text-align:center;font-size:23px;margin:0 0 5px}
+.markys-auth-card>p{text-align:center;color:#637984;margin:0 0 22px;font-size:13px}
+.markys-auth-card label{display:block;font-size:12px;font-weight:700;color:#536a74;margin:12px 0 6px}
+.markys-auth-card input{width:100%;padding:12px;border:1px solid #cbd9df;border-radius:10px;font:inherit;box-sizing:border-box}
+.markys-auth-submit{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:800;font-size:14px;cursor:pointer}
+.markys-auth-submit:disabled{opacity:.65;cursor:wait}
+.markys-auth-message{min-height:18px;margin-top:12px;color:#b42332;font-size:12px;line-height:1.4}
 </style>
 <script>(function(){
  const h=location.hostname.toLowerCase();
- window.FAVMED_LOCAL_MODE=location.protocol==="file:"||h==="localhost"||h==="127.0.0.1"||h==="::1"||
+ window.MARKYS_LOCAL_MODE=location.protocol==="file:"||h==="localhost"||h==="127.0.0.1"||h==="::1"||
   /^10\./.test(h)||/^192\.168\./.test(h)||/^172\.(1[6-9]|2\d|3[01])\./.test(h)||h.endsWith(".local");
- if(!window.FAVMED_LOCAL_MODE)document.documentElement.classList.add("favmed-auth-checking");
+ if(!window.MARKYS_LOCAL_MODE)document.documentElement.classList.add("markys-auth-checking");
 })();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.81.1/dist/umd/supabase.min.js"></script>
 <script src="/markys-cloud.js"></script>
@@ -55,12 +55,12 @@ const isLocalServer=location.hostname==="localhost"||location.hostname==="127.0.
 const serverMode=(location.protocol==="http:"||location.protocol==="https:")&&isLocalServer;
 async function readQueue(){
  if(serverMode){const r=await fetch("/api/state",{cache:"no-store"});if(!r.ok)throw Error("Não foi possível ler a fila.");const data=await r.json();return Array.isArray(data)?data:[];}
- if(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE)return await window.FAVMED_CLOUD.readQueue({publicMode:false});
+ if(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE)return await window.MARKYS_CLOUD.readQueue({publicMode:false});
  try{const data=JSON.parse(localStorage.getItem(QUEUE_KEY)||"[]");return Array.isArray(data)?data:[];}catch(_){return [];}
 }
 async function writeQueue(list){
  if(serverMode){const r=await fetch("/api/state",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(list)});if(!r.ok)throw Error("Não foi possível salvar a alteração.");return;}
- if(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE){await window.FAVMED_CLOUD.writeQueue(list);return;}
+ if(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE){await window.MARKYS_CLOUD.writeQueue(list);return;}
  localStorage.setItem(QUEUE_KEY,JSON.stringify(list));
 }
 const services=["RX","Coleta / laboratório","Audiometria","Exames complementares","ASO"];
@@ -79,7 +79,7 @@ if(action==="attend"){p.serviceStates[service]={...current,status:"Atendendo",up
 if(action==="release"){p.serviceStates[service]={...current,status:"Liberado",updatedAt:now};const workItems=workItemsOf(p);const allDone=workItems.length>0&&workItems.every(s=>(p.serviceStates[s]||{}).status==="Liberado");const anotherActive=workItems.some(s=>["Chamado","Atendendo"].includes((p.serviceStates[s]||{}).status));if(allDone){p.status="Atendido";p.attendedAt=now;p.exitTime=new Date(now).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}else{p.status=anotherActive?"Chamado":"Aguardando";}p.activeService=service;p.releasedAt=now;}
 
 await writeQueue(list);patients=list;render();}catch(e){
-if(e&&e.code==="QUEUE_CONFLICT"&&!serverMode&&window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE){try{patients=await readQueue();render();}catch(_){}}
+if(e&&e.code==="QUEUE_CONFLICT"&&!serverMode&&window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE){try{patients=await readQueue();render();}catch(_){}}
 alert(e.message||"Falha de comunicação com o servidor.");
 }finally{busy=false;}}
 function render(){const selected=$("service").value,selectedOption=$("service").selectedOptions[0];$("heading").textContent=(selected==="__all__"?"Todas as salas":selectedOption.textContent)+" — painel do profissional";const today=new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0")+"-"+String(new Date().getDate()).padStart(2,"0"),term=$("patientSearch").value.trim().toLocaleLowerCase("pt-BR");const attendanceFilter=$("attendanceFilter").value;const rows=patients.filter(p=>p.day===today&&workItemsOf(p).length).flatMap(p=>workItemsOf(p).filter(service=>(selected==="__all__"||service===selected)&&(!term||String(p.name||"").toLocaleLowerCase("pt-BR").includes(term))).map(service=>({p,service}))).filter(({p,service})=>{const done=stateFor(p,service).status==="Liberado";return attendanceFilter==="all"||(attendanceFilter==="attended"?done:!done);});rows.sort((a,b)=>(Number(!!b.p.priority)-Number(!!a.p.priority))||(a.p.created||0)-(b.p.created||0));let waiting=0,active=0,released=0;for(const {p,service} of rows){const st=stateFor(p,service);if(st.status==="Liberado")released++;else if(st.status==="Atendendo")active++;else waiting++;}const cards=rows.map(({p,service})=>{const st=stateFor(p,service),statusClass=st.status==="Atendendo"?"attending":st.status==="Liberado"?"released":"";let buttons="";if(st.status==="Aguardando")buttons='<button class="btn blue" data-action="call" data-service="'+esc(service)+'" data-id="'+esc(p.id)+'">🔊 Chamar paciente</button>';else if(st.status==="Chamado")buttons='<button class="btn red" data-action="attend" data-service="'+esc(service)+'" data-id="'+esc(p.id)+'">▶ Atender</button><button class="btn blue" data-action="repeat" data-service="'+esc(service)+'" data-id="'+esc(p.id)+'">🔊 Chamar novamente</button><button class="btn gray" data-action="cancel" data-service="'+esc(service)+'" data-id="'+esc(p.id)+'">↩ Cancelar chamado</button>';else if(st.status==="Atendendo")buttons='<button class="btn green" data-action="release" data-service="'+esc(service)+'" data-id="'+esc(p.id)+'">✓ Liberar</button>';const ficha='<button class="btn gray" data-action="ficha" data-id="'+esc(p.id)+'">📋 Visualizar Ficha</button>'+(p.document&&p.document.url?'<a class="btn gray" href="'+esc(p.document.url)+'" target="_blank" rel="noopener noreferrer">📎 PDF do paciente</a>':""),examList=Object.entries(p.examsByRoom||{}).filter(([,v])=>v&&v.length).map(([r,v])=>r+": "+v.join(", ")).join(" · ");const baseType=(Array.isArray(p.examTypes)?p.examTypes:[]).join(", ")||"Tipo de atendimento não informado",room=(Array.isArray(p.rooms)?p.rooms.find(r=>ROOM_SERVICES[r]===service):"")||(p.room&&ROOM_SERVICES[p.room]===service?p.room:"")||Object.keys(ROOM_SERVICES).find(r=>ROOM_SERVICES[r]===service)||"Sala não definida";return '<article class="patient'+(st.status==="Atendendo"?" attending-card":st.status==="Liberado"?" released-card":"")+(p.priority?" priority-card":"")+'"><div><div class="name">'+esc(p.name||"Nome não informado")+(p.priority?'<span class="priority-flag">PRIORIDADE</span>':"")+(p.asoPending?'<span class="priority-flag">ASO PENDENTE</span>':"")+'</div><div class="meta">Sala: '+esc(room)+' · Tipo de atendimento: '+esc(baseType)+'</div><span class="status '+statusClass+'">'+(st.status==="Liberado"?"Atendimento Realizado":st.status==="Atendendo"?"Em Atendimento":st.status==="Chamado"?"Chamado":"Aguardando")+'</span></div><div class="actions">'+ficha+buttons+'</div></article>';});$("list").innerHTML=cards.length?cards.join(""):'<div class="empty">Não há pacientes para os filtros escolhidos hoje.</div>';$("waiting").textContent="Aguardando: "+waiting;$("active").textContent="Em atendimento: "+active;$("released").textContent="Atendimento realizado: "+released;}
@@ -108,10 +108,10 @@ function exportProfessionalDashboard(){
  a.download="markys-sga-dashboard-profissional-"+(selected==="__all__"?"todas-as-salas":selected.replace(/[^a-z0-9]+/gi,"-").toLowerCase())+"-"+today+".xlsx";
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
-$("exportProfessionalCsv").addEventListener("click",exportProfessionalDashboard);$("service").addEventListener("change",render);$("attendanceFilter").addEventListener("change",render);$("patientSearch").addEventListener("input",render);$("list").addEventListener("click",e=>{const b=e.target.closest("button[data-action]");if(!b)return;if(b.dataset.action==="ficha"){const p=patients.find(x=>String(x.id)===String(b.dataset.id));if(p)showFicha(p);return;}mutate(b.dataset.id,b.dataset.action,b.dataset.service);});function showFicha(p){const examRows=Object.entries(p.examsByRoom||{}).filter(([,v])=>v&&v.length).map(([r,v])=>r+": "+v.join(", ")).join("\n")||"Não informado",content="Nome: "+(p.name||"—")+"\nCPF: "+(p.cpf||"—")+"\nData de nascimento: "+(p.birthDate||"—")+"\nConvênio: "+(p.insurance||"—")+"\nFunção: "+(p.job||"—")+"\nTipo de atendimento: "+((p.examTypes||[]).join(", ")||"—")+"\nSalas: "+(Array.isArray(p.rooms)?p.rooms.join(", "):p.room||"—")+"\nExames selecionados:\n"+examRows;const w=window.open("","_blank");if(!w){alert("Permita pop-ups para visualizar a ficha.");return;}const safe=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));w.document.write("<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><title>Ficha - "+safe(p.name||"Paciente")+"</title><style>@page{size:A4 portrait;margin:18mm}body{font:15px Arial;color:#20313a;line-height:1.6}h1{color:#2563eb}section{border:1px solid #dce5e9;border-radius:10px;padding:20px;white-space:pre-line}</style></head><body><button onclick='print()'>Imprimir / Salvar em PDF</button><h1>MARKYS SGA — Ficha do paciente</h1><section>"+safe(content)+"</section></body></html>");w.document.close();}const cloudQueueMode=!!(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE&&!serverMode);
+$("exportProfessionalCsv").addEventListener("click",exportProfessionalDashboard);$("service").addEventListener("change",render);$("attendanceFilter").addEventListener("change",render);$("patientSearch").addEventListener("input",render);$("list").addEventListener("click",e=>{const b=e.target.closest("button[data-action]");if(!b)return;if(b.dataset.action==="ficha"){const p=patients.find(x=>String(x.id)===String(b.dataset.id));if(p)showFicha(p);return;}mutate(b.dataset.id,b.dataset.action,b.dataset.service);});function showFicha(p){const examRows=Object.entries(p.examsByRoom||{}).filter(([,v])=>v&&v.length).map(([r,v])=>r+": "+v.join(", ")).join("\n")||"Não informado",content="Nome: "+(p.name||"—")+"\nCPF: "+(p.cpf||"—")+"\nData de nascimento: "+(p.birthDate||"—")+"\nConvênio: "+(p.insurance||"—")+"\nFunção: "+(p.job||"—")+"\nTipo de atendimento: "+((p.examTypes||[]).join(", ")||"—")+"\nSalas: "+(Array.isArray(p.rooms)?p.rooms.join(", "):p.room||"—")+"\nExames selecionados:\n"+examRows;const w=window.open("","_blank");if(!w){alert("Permita pop-ups para visualizar a ficha.");return;}const safe=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));w.document.write("<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><title>Ficha - "+safe(p.name||"Paciente")+"</title><style>@page{size:A4 portrait;margin:18mm}body{font:15px Arial;color:#20313a;line-height:1.6}h1{color:#2563eb}section{border:1px solid #dce5e9;border-radius:10px;padding:20px;white-space:pre-line}</style></head><body><button onclick='print()'>Imprimir / Salvar em PDF</button><h1>MARKYS SGA — Ficha do paciente</h1><section>"+safe(content)+"</section></body></html>");w.document.close();}const cloudQueueMode=!!(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE&&!serverMode);
 let queueRealtimeRefreshTimer=null;
-if(cloudQueueMode&&typeof window.FAVMED_CLOUD.subscribeQueueChanges==="function"){
- window.FAVMED_CLOUD.subscribeQueueChanges(()=>{
+if(cloudQueueMode&&typeof window.MARKYS_CLOUD.subscribeQueueChanges==="function"){
+ window.MARKYS_CLOUD.subscribeQueueChanges(()=>{
   if(document.visibilityState!=="visible")return;
   clearTimeout(queueRealtimeRefreshTimer);
   queueRealtimeRefreshTimer=setTimeout(()=>{if(!busy)load();},250);
