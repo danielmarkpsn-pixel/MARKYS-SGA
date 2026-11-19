@@ -193,7 +193,7 @@ try {
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "consultorio.html")); $type = "text/html; charset=utf-8"
       } elseif ($path -eq "/markys-sga.svg" -and (Test-Path (Join-Path $Root "markys-sga.svg"))) {
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "markys-sga.svg")); $type = "image/svg+xml; charset=utf-8"
-      } elseif ($path -eq "/favmed-cloud.js" -or $path -eq "/favmed-auth.js") {
+      } elseif ($path -eq "/markys-cloud.js" -or $path -eq "/markys-auth.js") {
         $fileName = [System.IO.Path]::GetFileName($path)
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root $fileName)); $type = "application/javascript; charset=utf-8"
       } elseif ($path -eq "/chamador.mp3" -and (Test-Path (Join-Path $Root "chamador.mp3"))) {
