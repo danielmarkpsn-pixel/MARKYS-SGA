@@ -23,7 +23,7 @@ Nunca coloque chaves secret/service_role no frontend, em variáveis `VITE_*` ou 
 - `/profissional`: fila e status de atendimentos/exames conforme permissões RLS.
 - `/sala`: painel público de chamadas, sem login e somente leitura.
 
-A tela pública consulta `public.public_waiting_room_calls`. A view usa `security_invoker=true`; o papel `anon` recebe somente colunas necessárias, com políticas RLS limitadas às chamadas do dia. Funções auxiliares privadas evitam recursão entre as políticas de atendimentos e exames. Nome completo, CPF, empresa, exames e documentos não são expostos.
+A tela pública consulta `public.public_waiting_room_calls`. A view usa `security_invoker=true`; o papel `anon` recebe somente colunas necessárias, com políticas RLS limitadas às chamadas do dia. Funções auxiliares privadas evitam recursão entre as políticas de atendimentos e exames. A tela pública exibe o nome completo do paciente chamado ou em atendimento e a sala correspondente. Aguardando e liberado não aparecem. CPF, empresa, exames e documentos não são expostos.
 
 ## Estado do novo banco
 - PostgreSQL 17 ativo na região `us-west-2`.
