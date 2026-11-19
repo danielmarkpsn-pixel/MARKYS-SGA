@@ -1,4 +1,4 @@
-# FAVMED local HTTP server - Windows PowerShell 5.1+
+# MARKYS SGA local HTTP server - Windows PowerShell 5.1+
 $ErrorActionPreference = "Stop"
 $Port = 2222
 $PortCandidates = @(2222)
@@ -26,13 +26,13 @@ foreach ($candidatePort in $PortCandidates) {
 }
 if ($null -eq $listener) {
   Write-Host "ERRO: a porta fixa 2222 não está disponível." -ForegroundColor Red
-  Write-Host "Feche outra instância do FAVMED ou libere a porta 2222 e tente novamente."
+  Write-Host "Feche outra instância do MARKYS SGA ou libere a porta 2222 e tente novamente."
   exit 1
 }
 try {
   Write-Host ""
   Write-Host "===============================================" -ForegroundColor Cyan
-  Write-Host " FAVMED - Servidor da rede local" -ForegroundColor Cyan
+  Write-Host " MARKYS SGA - Servidor da rede local" -ForegroundColor Cyan
   Write-Host "===============================================" -ForegroundColor Cyan
   Write-Host "Recepcao: http://127.0.0.1:$Port/"
   Write-Host "Tela sala de espera: http://127.0.0.1:$Port/sala"
@@ -191,8 +191,11 @@ try {
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "index.html")); $type = "text/html; charset=utf-8"
       } elseif ($path -eq "/consultorio" -or $path -eq "/consultorio.html") {
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "consultorio.html")); $type = "text/html; charset=utf-8"
-      } elseif ($path -eq "/logo-favmed.png" -and (Test-Path (Join-Path $Root "logo-favmed.png"))) {
-        $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "logo-favmed.png")); $type = "image/png"
+      } elseif ($path -eq "/markys-sga.svg" -and (Test-Path (Join-Path $Root "markys-sga.svg"))) {
+        $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "markys-sga.svg")); $type = "image/svg+xml; charset=utf-8"
+      } elseif ($path -eq "/markys-cloud.js" -or $path -eq "/markys-auth.js") {
+        $fileName = [System.IO.Path]::GetFileName($path)
+        $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root $fileName)); $type = "application/javascript; charset=utf-8"
       } elseif ($path -eq "/chamador.mp3" -and (Test-Path (Join-Path $Root "chamador.mp3"))) {
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "chamador.mp3")); $type = "audio/mpeg"
       } elseif ($path -eq "/sala-espera") {

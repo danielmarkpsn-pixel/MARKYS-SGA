@@ -1,9 +1,9 @@
 {
-  "name": "favmed",
+  "name": "markys-sga",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Aplicação FAVMED com páginas estáticas e funções de servidor na Vercel",
+  "description": "MARKYS SGA — sistema de gestão de atendimento com páginas estáticas e funções de servidor na Vercel",
   "engines": {
     "node": "24.x"
   },

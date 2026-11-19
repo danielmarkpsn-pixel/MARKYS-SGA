@@ -1,18 +1,18 @@
-FAVMED — CONFIGURAÇÃO E ACESSO ÀS TELAS PELA REDE LOCAL
-Clínica Favmed · Medicina Ocupacional
+MARKYS SGA — CONFIGURAÇÃO E ACESSO ÀS TELAS PELA REDE LOCAL
+MARKYS SGA · Sistema de Gestão de Atendimento
 Desenvolvido por Daniel Marques via IA
 
 IMPORTANTE
 Esta versão compartilha a fila por HTTP dentro da rede local. Não tem login nem criptografia. Use somente uma rede interna confiável; não use Wi-Fi de visitantes e não encaminhe a porta para a internet. A tela pública exibe nomes e atendimentos; mantenha-a voltada à sala de espera e mostre apenas os dados mínimos necessários.
 
 1. BAIXAR E PREPARAR
-1. Abra o repositório FAVMED no GitHub e selecione a branch favmed-local-chamador-windows.
-2. Clique em Code > Download ZIP e extraia o ZIP para uma pasta permanente, por exemplo Documentos\FAVMED. Não execute dentro do ZIP.
-3. Na pasta local, confirme a presença de index.html, consultorio.html, logo-favmed.png, servidor-favmed.ps1 e INICIAR-SERVIDOR-FAVMED.bat.
+1. Abra o repositório MARKYS SGA no GitHub e selecione a branch main.
+2. Clique em Code > Download ZIP e extraia o ZIP para uma pasta permanente, por exemplo Documentos\MARKYS SGA. Não execute dentro do ZIP.
+3. Na pasta local, confirme a presença de index.html, consultorio.html, markys-sga.svg, servidor-markys-sga.ps1 e INICIAR-MARKYS-SGA.bat.
 4. Quando houver uma versão nova, substitua os arquivos antigos pelos atualizados. Não substitua fila.json se quiser manter os registros locais.
 
 2. INICIAR O SERVIDOR
-1. No computador principal da recepção, execute INICIAR-SERVIDOR-FAVMED.bat.
+1. No computador principal da recepção, execute INICIAR-MARKYS-SGA.bat.
 2. Se o Firewall do Windows perguntar, permita acesso somente em redes privadas confiáveis.
 3. Mantenha a janela do PowerShell aberta. O computador principal precisa permanecer ligado e sem suspensão.
 4. A janela mostra os endereços reais e a porta selecionada (normalmente 8080; se ocupada, tenta 8081, 8082, 8090 ou 8765).
@@ -28,9 +28,9 @@ Para outros computadores, tablets ou TVs, use o IP da rede mostrado pelo servido
 4. CONFIGURAR O FIREWALL SE NECESSÁRIO
 1. Abra “Firewall do Windows Defender com Segurança Avançada”.
 2. Entre em “Regras de Entrada” > “Nova Regra...”.
-3. Selecione “Porta”, TCP e a porta que aparece na janela do FAVMED.
+3. Selecione “Porta”, TCP e a porta que aparece na janela do MARKYS SGA.
 4. Selecione “Permitir a conexão” e marque somente “Privado” (ou peça à TI para avaliar uma rede corporativa de domínio).
-5. Nomeie a regra “FAVMED - Servidor local TCP [porta]”.
+5. Nomeie a regra “MARKYS SGA - Servidor local TCP [porta]”.
 Não desative o firewall inteiro e não permita acesso em redes públicas. Se não tiver permissão administrativa, peça ajuda à TI.
 
 5. COMO USAR O SISTEMA
@@ -59,7 +59,7 @@ Não desative o firewall inteiro e não permita acesso em redes públicas. Se n�
 8. SOLUÇÃO DE PROBLEMAS
 - Uma tela não abre: confirme que o servidor continua aberto, que os dispositivos estão na mesma rede e que usou o IP/porta corretos.
 - A tela não atualiza: atualize a página com Ctrl+R e confirme que o servidor está ativo.
-- A porta está ocupada: o FAVMED tenta portas alternativas e mostra a porta selecionada; use-a nos links e na regra do firewall.
+- A porta está ocupada: o MARKYS SGA tenta portas alternativas e mostra a porta selecionada; use-a nos links e na regra do firewall.
 - A voz não fala: clique em “Ativar voz nesta tela”, confira o volume e teste a voz. Navegadores podem bloquear áudio até ocorrer um clique.
 - O profissional não consegue chamar: confirme que abriu /consultorio e que o paciente tem o serviço ou consultório selecionado no filtro.
 - O endereço IP mudou: reinicie o servidor e use os links exibidos na janela.
@@ -69,6 +69,6 @@ Não desative o firewall inteiro e não permita acesso em redes públicas. Se n�
 - A rede não tem login nem criptografia; qualquer dispositivo autorizado na rede pode consultar a fila.
 - Não encaminhe a porta no roteador e não exponha o servidor à internet.
 - Para encerrar, volte à janela do PowerShell e pressione Ctrl+C.
-- Proteja a pasta do FAVMED e faça backups conforme a política da clínica.
+- Proteja a pasta do MARKYS SGA e faça backups conforme a política da clínica.
 
 FIM

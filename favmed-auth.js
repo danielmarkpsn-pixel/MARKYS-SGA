@@ -21,7 +21,7 @@
     overlay.className = "favmed-auth-overlay";
     overlay.innerHTML = `
       <section class="favmed-auth-card" aria-labelledby="favmed-auth-title">
-        <img src="/logo-favmed.png" alt="Clínica Favmed" class="favmed-auth-logo">
+        <img src="/markys-sga.svg" alt="MARKYS SGA" class="favmed-auth-logo">
         <h1 id="favmed-auth-title">Sala de espera</h1>
         <p id="favmed-auth-info"></p>
       </section>`;
@@ -36,9 +36,9 @@
     overlay.className = "favmed-auth-overlay";
     overlay.innerHTML = `
       <section class="favmed-auth-card" aria-labelledby="favmed-auth-title">
-        <img src="/logo-favmed.png" alt="Clínica Favmed" class="favmed-auth-logo">
+        <img src="/markys-sga.svg" alt="MARKYS SGA" class="favmed-auth-logo">
         <h1 id="favmed-auth-title">Definir senha</h1>
-        <p>Crie uma senha para acessar o FAVMED. Use pelo menos 8 caracteres.</p>
+        <p>Crie uma senha para acessar o MARKYS SGA. Use pelo menos 8 caracteres.</p>
         <form id="favmed-password-form">
           <label for="favmed-new-password">Nova senha</label>
           <input id="favmed-new-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
@@ -89,7 +89,7 @@
     overlay.className = "favmed-auth-overlay";
     overlay.innerHTML = `
       <section class="favmed-auth-card" aria-labelledby="favmed-auth-title">
-        <img src="/logo-favmed.png" alt="Clínica Favmed" class="favmed-auth-logo">
+        <img src="/markys-sga.svg" alt="MARKYS SGA" class="favmed-auth-logo">
         <h1 id="favmed-auth-title">Esqueci a senha</h1>
         <p>Informe seu e-mail. Enviaremos um link para criar uma nova senha.</p>
         <form id="favmed-recovery-form">
@@ -133,8 +133,8 @@
     overlay.className = "favmed-auth-overlay";
     overlay.innerHTML = `
       <section class="favmed-auth-card" aria-labelledby="favmed-auth-title">
-        <img src="/logo-favmed.png" alt="Clínica Favmed" class="favmed-auth-logo">
-        <h1 id="favmed-auth-title">Clínica Favmed</h1>
+        <img src="/markys-sga.svg" alt="MARKYS SGA" class="favmed-auth-logo">
+        <h1 id="favmed-auth-title">MARKYS SGA</h1>
         <p>Acesse sua conta para entrar no aplicativo.</p>
         <form id="favmed-auth-form">
           <label for="favmed-auth-email">E-mail</label>
