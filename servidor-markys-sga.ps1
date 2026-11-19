@@ -191,8 +191,11 @@ try {
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "index.html")); $type = "text/html; charset=utf-8"
       } elseif ($path -eq "/consultorio" -or $path -eq "/consultorio.html") {
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "consultorio.html")); $type = "text/html; charset=utf-8"
-      } elseif ($path -eq "/logo-favmed.png" -and (Test-Path (Join-Path $Root "logo-favmed.png"))) {
-        $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "logo-favmed.png")); $type = "image/png"
+      } elseif ($path -eq "/markys-sga.svg" -and (Test-Path (Join-Path $Root "markys-sga.svg"))) {
+        $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "markys-sga.svg")); $type = "image/svg+xml; charset=utf-8"
+      } elseif ($path -eq "/favmed-cloud.js" -or $path -eq "/favmed-auth.js") {
+        $fileName = [System.IO.Path]::GetFileName($path)
+        $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root $fileName)); $type = "application/javascript; charset=utf-8"
       } elseif ($path -eq "/chamador.mp3" -and (Test-Path (Join-Path $Root "chamador.mp3"))) {
         $responseBytes = [System.IO.File]::ReadAllBytes((Join-Path $Root "chamador.mp3")); $type = "audio/mpeg"
       } elseif ($path -eq "/sala-espera") {
