@@ -39,19 +39,19 @@
         <img src="/markys-sga.svg" alt="MARKYS SGA" class="markys-auth-logo">
         <h1 id="markys-auth-title">Definir senha</h1>
         <p>Crie uma senha para acessar o MARKYS SGA. Use pelo menos 8 caracteres.</p>
-        <form id="favmed-password-form">
-          <label for="favmed-new-password">Nova senha</label>
-          <input id="favmed-new-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
-          <label for="favmed-confirm-password">Confirmar senha</label>
-          <input id="favmed-confirm-password" name="confirm" type="password" autocomplete="new-password" minlength="8" required>
+        <form id="markys-password-form">
+          <label for="markys-new-password">Nova senha</label>
+          <input id="markys-new-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+          <label for="markys-confirm-password">Confirmar senha</label>
+          <input id="markys-confirm-password" name="confirm" type="password" autocomplete="new-password" minlength="8" required>
           <button type="submit" class="markys-auth-submit">Salvar senha</button>
-          <div class="markys-auth-message" id="favmed-password-message" role="alert"></div>
+          <div class="markys-auth-message" id="markys-password-message" role="alert"></div>
         </form>
       </section>`;
     document.body.appendChild(overlay);
     root.classList.remove("markys-auth-checking");
-    const form = overlay.querySelector("#favmed-password-form");
-    const messageBox = overlay.querySelector("#favmed-password-message");
+    const form = overlay.querySelector("#markys-password-form");
+    const messageBox = overlay.querySelector("#markys-password-message");
     if (message) messageBox.textContent = message;
     form.addEventListener("submit", async event => {
       event.preventDefault();
@@ -92,20 +92,20 @@
         <img src="/markys-sga.svg" alt="MARKYS SGA" class="markys-auth-logo">
         <h1 id="markys-auth-title">Esqueci a senha</h1>
         <p>Informe seu e-mail. Enviaremos um link para criar uma nova senha.</p>
-        <form id="favmed-recovery-form">
-          <label for="favmed-recovery-email">E-mail</label>
-          <input id="favmed-recovery-email" name="email" type="email" autocomplete="username" required>
+        <form id="markys-recovery-form">
+          <label for="markys-recovery-email">E-mail</label>
+          <input id="markys-recovery-email" name="email" type="email" autocomplete="username" required>
           <button type="submit" class="markys-auth-submit">Enviar link</button>
-          <button type="button" id="favmed-back-login" class="markys-auth-submit" style="margin-top:8px;background:#647780">Voltar ao login</button>
-          <div class="markys-auth-message" id="favmed-recovery-message" role="alert"></div>
+          <button type="button" id="markys-back-login" class="markys-auth-submit" style="margin-top:8px;background:#647780">Voltar ao login</button>
+          <div class="markys-auth-message" id="markys-recovery-message" role="alert"></div>
         </form>
       </section>`;
     document.body.appendChild(overlay);
     root.classList.remove("markys-auth-checking");
-    const form = overlay.querySelector("#favmed-recovery-form");
-    const messageBox = overlay.querySelector("#favmed-recovery-message");
+    const form = overlay.querySelector("#markys-recovery-form");
+    const messageBox = overlay.querySelector("#markys-recovery-message");
     if (message) messageBox.textContent = message;
-    overlay.querySelector("#favmed-back-login").addEventListener("click", () => showLogin(""));
+    overlay.querySelector("#markys-back-login").addEventListener("click", () => showLogin(""));
     form.addEventListener("submit", async event => {
       event.preventDefault();
       const button = form.querySelector('button[type="submit"]');
@@ -142,7 +142,7 @@
           <label for="markys-auth-password">Senha</label>
           <input id="markys-auth-password" name="password" type="password" autocomplete="current-password" required>
           <button type="submit" class="markys-auth-submit">Entrar</button>
-          <button type="button" id="favmed-forgot-password" class="markys-auth-submit" style="margin-top:8px;background:#647780">Esqueci a senha</button>
+          <button type="button" id="markys-forgot-password" class="markys-auth-submit" style="margin-top:8px;background:#647780">Esqueci a senha</button>
           <div class="markys-auth-message" id="markys-auth-message" role="alert"></div>
         </form>
       </section>`;
@@ -150,7 +150,7 @@
     root.classList.remove("markys-auth-checking");
     if (message) overlay.querySelector("#markys-auth-message").textContent = message;
     const form = overlay.querySelector("#markys-auth-form");
-    overlay.querySelector("#favmed-forgot-password").addEventListener("click", () => showRecovery(""));
+    overlay.querySelector("#markys-forgot-password").addEventListener("click", () => showRecovery(""));
     form.addEventListener("submit", async event => {
       event.preventDefault();
       const button = form.querySelector('button[type="submit"]');
@@ -174,11 +174,11 @@
   }
 
   function addLogoutButton() {
-    if (document.getElementById("favmed-logout")) return;
+    if (document.getElementById("markys-logout")) return;
     const profile = cloud.profile;
-    if (profile && profile.role === "master" && !publicMode && !document.getElementById("favmed-admin-logins")) {
+    if (profile && profile.role === "master" && !publicMode && !document.getElementById("markys-admin-logins")) {
       const adminButton = document.createElement("a");
-      adminButton.id = "favmed-admin-logins";
+      adminButton.id = "markys-admin-logins";
       adminButton.href = "/admin-logins.html";
       adminButton.textContent = "Administrar logins";
       adminButton.setAttribute("aria-label", "Abrir administração de logins");
@@ -186,7 +186,7 @@
       document.body.appendChild(adminButton);
     }
     const button = document.createElement("button");
-    button.id = "favmed-logout";
+    button.id = "markys-logout";
     button.type = "button";
     button.textContent = "Sair da conta";
     button.setAttribute("aria-label", "Sair da conta");
