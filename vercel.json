@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/consultorio",
+      "destination": "/consultorio.html"
+    },
+    {
+      "source": "/consultorio/",
+      "destination": "/consultorio.html"
+    },
+    {
+      "source": "/admin-logins",
+      "destination": "/admin-logins.html"
+    },
+    {
+      "source": "/admin-logins/",
+      "destination": "/admin-logins.html"
+    }
+  ]
+}
