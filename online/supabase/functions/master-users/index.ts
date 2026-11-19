@@ -2,8 +2,9 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 // Invitations may return only to these exact application origins; arbitrary request origins are rejected.
 const productionAppUrl = "https://markyssga.vercel.app";
+const previewAppUrl = "https://markyssga-git-setup-markys-sga-cloud-dan-markys.vercel.app";
 const localDevelopmentUrl = "http://localhost:5173";
-const allowedOrigins = new Set([productionAppUrl, localDevelopmentUrl]);
+const allowedOrigins = new Set([productionAppUrl, previewAppUrl, localDevelopmentUrl]);
 function corsHeaders(origin = productionAppUrl) {
   const allowedOrigin = allowedOrigins.has(origin) ? origin : productionAppUrl;
   return {
