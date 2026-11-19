@@ -8,11 +8,11 @@ Esta versão compartilha a fila por HTTP dentro da rede local. Não tem login ne
 1. BAIXAR E PREPARAR
 1. Abra o repositório MARKYS SGA no GitHub e selecione a branch main.
 2. Clique em Code > Download ZIP e extraia o ZIP para uma pasta permanente, por exemplo Documentos\MARKYS SGA. Não execute dentro do ZIP.
-3. Na pasta local, confirme a presença de index.html, consultorio.html, markys-sga.svg, servidor-markys-sga.ps1 e INICIAR-SERVIDOR-MARKYS SGA.bat.
+3. Na pasta local, confirme a presença de index.html, consultorio.html, markys-sga.svg, servidor-markys-sga.ps1 e INICIAR-MARKYS-SGA.bat.
 4. Quando houver uma versão nova, substitua os arquivos antigos pelos atualizados. Não substitua fila.json se quiser manter os registros locais.
 
 2. INICIAR O SERVIDOR
-1. No computador principal da recepção, execute INICIAR-SERVIDOR-MARKYS SGA.bat.
+1. No computador principal da recepção, execute INICIAR-MARKYS-SGA.bat.
 2. Se o Firewall do Windows perguntar, permita acesso somente em redes privadas confiáveis.
 3. Mantenha a janela do PowerShell aberta. O computador principal precisa permanecer ligado e sem suspensão.
 4. A janela mostra os endereços reais e a porta selecionada (normalmente 8080; se ocupada, tenta 8081, 8082, 8090 ou 8765).
