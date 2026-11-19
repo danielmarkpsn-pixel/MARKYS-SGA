@@ -431,3 +431,13 @@ input:focus, select:focus, textarea:focus { border-color: var(--navy); box-shado
   .master-access-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .master-access-nav > * { justify-content: center; text-align: center; }
 }
+
+
+/* Controles de voz da recepção — recurso funcional inspirado no fluxo FAVMED */
+.reception-voice-card { border-color: #cbd7e5; background: linear-gradient(135deg, #fff, #f4f7fb); }
+.reception-voice-card .form-grid { align-items: end; }
+.reception-voice-card .form-grid > div:first-child { min-width: min(100%, 240px); }
+.reception-voice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.reception-voice-actions button { flex: 1 1 145px; min-height: 42px; }
+.reception-voice-actions button:disabled { opacity: .58; cursor: not-allowed; }
+#reception-voice-status { margin: 10px 0 0; font-size: 12px; }
