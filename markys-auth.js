@@ -3,7 +3,7 @@
   const cloud = window.MARKYS_CLOUD;
   const client = cloud.client;
   const root = document.documentElement;
-  const localMode = !!window.MARKYS SGA_LOCAL_MODE;
+  const localMode = !!window.MARKYS_LOCAL_MODE;
   const params = new URLSearchParams(location.search);
   const publicMode = params.get("painel") === "1" || location.pathname === "/sala" || location.pathname === "/sala/";
   const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
