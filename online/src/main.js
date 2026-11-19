@@ -236,6 +236,54 @@ function operationalMessage(target, message, isError = false) {
   node.className = isError ? 'message error' : 'message';
 }
 
+let receptionVoiceEnabled = false;
+let lastReceptionAnnouncement = '';
+let selectedReceptionVoice = null;
+
+function availablePortugueseVoices() {
+  if (!('speechSynthesis' in window)) return [];
+  return window.speechSynthesis.getVoices().filter((voice) => /^pt(-|_)/i.test(voice.lang));
+}
+
+function chooseReceptionVoice() {
+  const voices = availablePortugueseVoices();
+  const preferred = voices.find((voice) => /feminina|female|maria|francisca|luciana|camila|google português/i.test(voice.name))
+    || voices.find((voice) => /^pt-BR$/i.test(voice.lang))
+    || voices[0]
+    || null;
+  selectedReceptionVoice = preferred;
+  return preferred;
+}
+
+function speakReceptionAnnouncement(message) {
+  if (!('speechSynthesis' in window) || !message) return false;
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.lang = 'pt-BR';
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+  const voice = selectedReceptionVoice || chooseReceptionVoice();
+  if (voice) utterance.voice = voice;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+  return true;
+}
+
+function renderReceptionVoiceControls() {
+  const voices = availablePortugueseVoices();
+  chooseReceptionVoice();
+  const select = document.querySelector('#reception-voice-select');
+  if (select) {
+    select.innerHTML = voices.length
+      ? voices.map((voice, index) => '<option value="' + index + '">' + escapeHtml(voice.name) + ' · ' + escapeHtml(voice.lang) + '</option>').join('')
+      : '<option value="">Voz padrão do navegador</option>';
+    const preferredIndex = voices.indexOf(selectedReceptionVoice);
+    if (preferredIndex >= 0) select.value = String(preferredIndex);
+  }
+  const status = document.querySelector('#reception-voice-status');
+  if (status && !voices.length) status.textContent = 'O navegador ainda não disponibilizou vozes em português. A voz padrão será utilizada.';
+}
+
 async function renderOperationalModules(profile, userId) {
   const panel = document.querySelector('#operational-panel');
   if (!panel) return;
@@ -246,6 +294,20 @@ async function renderOperationalModules(profile, userId) {
       <div><p class="eyebrow">OPERAÇÃO CLÍNICA</p><h2>Módulos operacionais: ${profile.role === 'recepcao' ? 'RECEPÇÃO' : 'PROFISSIONAIS'}</h2><p class="muted">${profile.role === 'recepcao' ? 'Cadastro de pacientes, organização de salas, chamadas e acompanhamento da fila.' : 'Fila de atendimentos, chamadas, execução e conclusão dos exames.'}</p></div>
       <div class="operational-heading-actions"><a class="secondary" href="/sala" target="_blank" rel="noopener noreferrer">Abrir tela de chamadas</a><button class="secondary" id="refresh-operational" type="button">Atualizar dados</button></div>
     </div>
+    ${canRegister ? `
+      <section class="module-card reception-voice-card">
+        <div class="users-heading"><h3>Áudio da recepção</h3><span class="muted">Anúncio por voz dos chamados</span></div>
+        <div class="form-grid">
+          <div><label for="reception-voice-select">VOZ EM PORTUGUÊS</label><select id="reception-voice-select" aria-label="Selecionar voz para chamadas"></select></div>
+          <div class="reception-voice-actions">
+            <button class="secondary" id="enable-reception-voice" type="button">Ativar voz automática</button>
+            <button class="secondary" id="test-reception-voice" type="button">Testar voz</button>
+            <button class="secondary" id="repeat-reception-voice" type="button" disabled>Repetir última chamada</button>
+          </div>
+        </div>
+        <p class="message" id="reception-voice-status" role="status">Ative a voz neste navegador para anunciar os chamados feitos pela recepção.</p>
+      </section>` : ''}
+
     ${canRegister ? `
       <section class="module-card">
         <h3>Recepção · Cadastrar paciente e atendimento</h3>
@@ -328,6 +390,36 @@ async function renderOperationalModules(profile, userId) {
         : '<div class="table-wrap"><table class="users-table operational-table"><thead><tr><th>Paciente</th><th>Salas</th><th>Status</th><th>Ação</th></tr></thead><tbody id="operational-rows"><tr><td colspan="4">Carregando dados…</td></tr></table></div>'}
       <p id="operational-message" class="message" role="status"></p>
     </section>`;
+
+  if (canRegister) {
+    renderReceptionVoiceControls();
+    if ('speechSynthesis' in window) window.speechSynthesis.addEventListener('voiceschanged', renderReceptionVoiceControls);
+    const voiceSelect = document.querySelector('#reception-voice-select');
+    voiceSelect?.addEventListener('change', () => {
+      const voices = availablePortugueseVoices();
+      selectedReceptionVoice = voices[Number(voiceSelect.value)] || chooseReceptionVoice();
+    });
+    document.querySelector('#enable-reception-voice')?.addEventListener('click', () => {
+      if (!('speechSynthesis' in window)) {
+        operationalMessage('#reception-voice-status', 'Este navegador não oferece suporte à leitura por voz.', true);
+        return;
+      }
+      receptionVoiceEnabled = true;
+      const button = document.querySelector('#enable-reception-voice');
+      button.textContent = 'Voz automática ativada';
+      button.disabled = true;
+      operationalMessage('#reception-voice-status', 'Voz automática ativada. Os próximos chamados da recepção serão anunciados neste computador.');
+      speakReceptionAnnouncement('Áudio da recepção ativado. Aguardando chamadas.');
+    });
+    document.querySelector('#test-reception-voice')?.addEventListener('click', () => {
+      if (!speakReceptionAnnouncement('Teste de áudio da recepção do MARKYS SGA.')) {
+        operationalMessage('#reception-voice-status', 'Este navegador não oferece suporte à leitura por voz.', true);
+      }
+    });
+    document.querySelector('#repeat-reception-voice')?.addEventListener('click', () => {
+      if (lastReceptionAnnouncement) speakReceptionAnnouncement(lastReceptionAnnouncement);
+    });
+  }
 
   const editPatientSelect = document.querySelector('#edit-patient-select');
   const editPatientOpen = document.querySelector('#edit-patient-open');
@@ -825,6 +917,15 @@ async function renderOperationalModules(profile, userId) {
         }
         const { error: visitError } = await supabase.from('patient_visits').update({ status: 'chamado', room_id: roomId }).eq('id', visitId);
         if (visitError) throw visitError;
+        const calledVisit = lastVisitsById.get(visitId);
+        const calledPatient = calledVisit && lastPatientsById.get(calledVisit.patient_id);
+        const calledRoom = (roomResult.data || []).find((room) => room.id === roomId);
+        if (calledPatient?.full_name && calledRoom?.name) {
+          lastReceptionAnnouncement = 'Paciente ' + calledPatient.full_name + ', comparecer à ' + calledRoom.name + '.';
+          const repeatButton = document.querySelector('#repeat-reception-voice');
+          if (repeatButton) repeatButton.disabled = false;
+          if (receptionVoiceEnabled) speakReceptionAnnouncement(lastReceptionAnnouncement);
+        }
         operationalMessage('#operational-message', 'Paciente chamado pela recepção.');
         await loadOperationalRows();
       } else if (examButton) {
