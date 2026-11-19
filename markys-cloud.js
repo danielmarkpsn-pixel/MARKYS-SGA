@@ -9,7 +9,7 @@
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   // The public waiting-room queue is fetched through the same-origin API,
-  // which applies a short-lived Redis cache and falls back to Supabase.
+  // which applies a short in-memory cache and reads from the MARKYS SGA Supabase project.
   let queueVersion = 0;
   let lastQueueSnapshot = null;
   let queueReadSequence = 0;
