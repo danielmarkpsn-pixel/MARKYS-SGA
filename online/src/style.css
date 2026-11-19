@@ -403,3 +403,31 @@ input:focus, select:focus, textarea:focus { border-color: var(--navy); box-shado
   0%, 49% { background: #e1ebf8; border-color: #245b96; box-shadow: 0 0 0 3px #245b9630; }
   50%, 100% { background: #fff; border-color: #fff; box-shadow: 0 0 0 1px #245b9620; }
 }
+
+
+/* Navegação entre todos os módulos disponível exclusivamente ao Master */
+.master-access-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 20px 0 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fff;
+}
+.master-access-nav [aria-pressed="true"] {
+  border-color: #102a4c;
+  background: #102a4c;
+  color: #fff;
+}
+.master-access-nav a {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+[hidden] { display: none !important; }
+@media (max-width: 560px) {
+  .master-access-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .master-access-nav > * { justify-content: center; text-align: center; }
+}
