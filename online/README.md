@@ -1,6 +1,6 @@
-# FAVMED Online
+# MARKYS SGA Online
 
-Aplicação online da Clínica Favmed, separada do FAVMED Local. O servidor PowerShell e as páginas locais existentes não são substituídos.
+Aplicação online da Clínica MARKYS SGA, separada do MARKYS SGA Local. O servidor PowerShell e as páginas locais existentes não são substituídos.
 
 ## Executar localmente
 
@@ -19,9 +19,9 @@ Nunca coloque chaves secret/service_role no frontend, em variáveis `VITE_*` ou 
 - O painel público `/sala` não exige login e é somente de leitura. Consulta a view `public_waiting_room_calls`, que retorna apenas nome abreviado, sala e horário de chamada de atendimentos em andamento. O painel atualiza automaticamente e permite ativar anúncio por voz no navegador.
 - A criação de novos usuários não oferece mais o perfil de login Sala de espera; a tela pública não deve usar uma conta compartilhada. Perfis antigos de sala não concedem acesso público aos dados pessoais.
 - A Edge Function `master-users` valida manualmente o token Bearer, exige perfil Master ativo e oferece `create_user`, `list_users` e `set_active` para contas que não são Master.
-- A Edge Function não usa CORS curinga. O segredo `FAVMED_ALLOWED_ORIGIN` deve conter a origem exata da aplicação; o padrão local só serve para desenvolvimento.
+- A Edge Function não usa CORS curinga. O segredo `MARKYS SGA_ALLOWED_ORIGIN` deve conter a origem exata da aplicação; o padrão local só serve para desenvolvimento.
 - A implantação de produção da Vercel foi criada a partir da `main`, commit `0488912da4964f7fa82ebc42d3129117d1a687ab`, e está em estado READY.
-- A migração operacional `operational_foundation` foi aplicada ao projeto Supabase `qzjkoyqmjueosevzhxqa` em 2026-10-29. As tabelas `patients`, `professionals`, `rooms`, `patient_visits` e `visit_exams` existem com RLS habilitada e forçada.
+- A migração operacional `operational_foundation` foi aplicada ao projeto Supabase `vibybosdqavejvqsuvph` em 2026-10-29. As tabelas `patients`, `professionals`, `rooms`, `patient_visits` e `visit_exams` existem com RLS habilitada e forçada.
 - Um teste transacional com dados sintéticos confirmou que a recepção pode inserir e ler um paciente durante a transação; a transação foi revertida e nenhum registro de teste foi mantido.
 - Testes transacionais com registros sintéticos e revertidos confirmaram: recepção consegue inserir/ler um paciente; profissional atribuído consegue ler o paciente, atendimento e exame vinculados; perfil de sala vê atendimento/exame da sala atribuída, mas não o registro pessoal do paciente; usuário inativo não consegue ler nem mesmo um paciente sintético.
 - Os testes de papéis foram simulados em transações SQL, não por sessões reais de navegador com JWT emitidos para cada perfil. Ainda é necessário validar login real, fluxos completos de cadastro/fila/atendimento/exames e erros de ponta a ponta antes de usar dados reais.
