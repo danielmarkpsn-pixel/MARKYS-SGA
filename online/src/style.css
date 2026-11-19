@@ -336,9 +336,6 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
   .professional-card { padding: 12px; }
   .professional-card-head { flex-direction: column; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .professional-card.blinking, .room-call-card.blinking { animation: none; }
-}
 
 
 /* Identidade visual MARKYS SGA — azul-marinho e branco */
