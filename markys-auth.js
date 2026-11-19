@@ -244,7 +244,7 @@
       overlay = null;
     }
     cloud.resolveAuth(profile);
-    await cloud.readQueue({ publicMode });
+    if (!financeMode) await cloud.readQueue({ publicMode });
     addLogoutButton();
     root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
     return true;
