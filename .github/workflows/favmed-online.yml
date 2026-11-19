@@ -8,7 +8,6 @@ on:
       - "index.html"
       - "consultorio.html"
       - "financeiro.html"
-      - "financeiro.html"
       - "admin-logins.html"
       - "importar-backup.html"
       - "markys-*.js"
