@@ -1,18 +1,20 @@
 {
-  "name": "favmed-online",
+  "name": "markys-sga-web",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "check": "node --check src/main.js && node scripts/security-regression-check.mjs"
+    "check": "node --check src/main.js && node scripts/security-regression-check.mjs",
+    "test": "npm run check && npm run build"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.57.4"
   },
   "devDependencies": {
     "vite": "6.3.5"
-  }
+  },
+  "description": "MARKYS SGA — Sistema de Gestão de Atendimento"
 }

@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import './style.css';
-import logoFavmed from '../../logo-favmed.png';
+const logoMarkys = '/markys-sga.svg';
 import callSignalUrl from '../../chamador.mp3';
 
 const root = document.querySelector('#app');
@@ -31,8 +31,8 @@ function escapeHtml(value = '') {
 function renderSetup() {
   root.innerHTML = `
     <main class="shell"><section class="login-card">
-      <img class="brand-logo" src="${logoFavmed}" alt="Logo Clínica Favmed" />
-      <p class="eyebrow">CLÍNICA FAVMED</p><h1>FAVMED Online</h1>
+      <img class="brand-logo" src="${logoMarkys}" alt="Logo Clínica MARKYS SGA" />
+      <p class="eyebrow">CLÍNICA MARKYS SGA</p><h1>MARKYS SGA Online</h1>
       <p class="muted">Acesso centralizado e seguro à clínica.</p>
       <div class="notice" role="alert">O ambiente ainda não foi configurado. Defina
         <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>.
@@ -43,9 +43,9 @@ function renderSetup() {
 function renderLogin(message = '', isError = false) {
   root.innerHTML = `
     <main class="shell"><section class="login-card" aria-labelledby="page-title">
-      <img class="brand-logo" src="${logoFavmed}" alt="Logo Clínica Favmed" />
-      <p class="eyebrow">CLÍNICA FAVMED · MEDICINA OCUPACIONAL</p>
-      <h1 id="page-title">Bem-vindo ao FAVMED</h1>
+      <img class="brand-logo" src="${logoMarkys}" alt="Logo Clínica MARKYS SGA" />
+      <p class="eyebrow">CLÍNICA MARKYS SGA · MEDICINA OCUPACIONAL</p>
+      <h1 id="page-title">Bem-vindo ao MARKYS SGA</h1>
       <p class="muted">Entre com a conta fornecida pelo administrador da clínica.</p>
       <form id="login-form" novalidate>
         <label for="email">E-mail de acesso</label>
@@ -60,7 +60,7 @@ function renderLogin(message = '', isError = false) {
         <p id="form-message" class="message ${isError ? 'error' : ''}" role="status">${escapeHtml(message)}</p>
       </form>
       <p class="footnote">A criação de contas é restrita ao administrador Master. Não há cadastro público.</p>
-    </section><footer>FAVMED Online · Acesso restrito à Clínica Favmed</footer></main>`;
+    </section><footer>MARKYS SGA Online · Acesso restrito à Clínica MARKYS SGA</footer></main>`;
 
   const form = document.querySelector('#login-form');
   const submit = document.querySelector('#submit-button');
@@ -141,13 +141,13 @@ function renderLogin(message = '', isError = false) {
 function renderPasswordUpdate(isRecovery = false) {
   const heading = isRecovery ? 'Redefinir senha' : 'Concluir seu acesso';
   const description = isRecovery
-    ? 'Crie uma nova senha para voltar a acessar o FAVMED.'
+    ? 'Crie uma nova senha para voltar a acessar o MARKYS SGA.'
     : 'Defina uma senha para concluir o convite.';
   const submitLabel = isRecovery ? 'Salvar nova senha' : 'Salvar senha e concluir';
   const expiredMessage = isRecovery
     ? 'O link de recuperação expirou ou já foi utilizado. Solicite outro link e tente novamente.'
     : 'O convite expirou ou já foi utilizado. Solicite um novo convite ao administrador.';
-  root.innerHTML = `<main class="shell"><section class="login-card"><img class="brand-logo" src="${logoFavmed}" alt="Logo Clínica Favmed" /><p class="eyebrow">CLÍNICA FAVMED</p><h1>${heading}</h1><p class="muted">${description}</p><form id="update-password-form"><label for="new-password">Nova senha</label><input id="new-password" name="password" type="password" minlength="8" autocomplete="new-password" required><label for="confirm-new-password">Confirmar nova senha</label><input id="confirm-new-password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required><button class="submit" id="update-password-submit" type="submit">${submitLabel}</button><p id="update-password-message" class="message" role="status"></p></form></section><footer>FAVMED Online · Acesso restrito à Clínica Favmed</footer></main>`;
+  root.innerHTML = `<main class="shell"><section class="login-card"><img class="brand-logo" src="${logoMarkys}" alt="Logo Clínica MARKYS SGA" /><p class="eyebrow">CLÍNICA MARKYS SGA</p><h1>${heading}</h1><p class="muted">${description}</p><form id="update-password-form"><label for="new-password">Nova senha</label><input id="new-password" name="password" type="password" minlength="8" autocomplete="new-password" required><label for="confirm-new-password">Confirmar nova senha</label><input id="confirm-new-password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required><button class="submit" id="update-password-submit" type="submit">${submitLabel}</button><p id="update-password-message" class="message" role="status"></p></form></section><footer>MARKYS SGA Online · Acesso restrito à Clínica MARKYS SGA</footer></main>`;
   const form = document.querySelector('#update-password-form');
   const button = document.querySelector('#update-password-submit');
   const status = document.querySelector('#update-password-message');
@@ -236,6 +236,54 @@ function operationalMessage(target, message, isError = false) {
   node.className = isError ? 'message error' : 'message';
 }
 
+let receptionVoiceEnabled = false;
+let lastReceptionAnnouncement = '';
+let selectedReceptionVoice = null;
+
+function availablePortugueseVoices() {
+  if (!('speechSynthesis' in window)) return [];
+  return window.speechSynthesis.getVoices().filter((voice) => /^pt(-|_)/i.test(voice.lang));
+}
+
+function chooseReceptionVoice() {
+  const voices = availablePortugueseVoices();
+  const preferred = voices.find((voice) => /feminina|female|maria|francisca|luciana|camila|google português/i.test(voice.name))
+    || voices.find((voice) => /^pt-BR$/i.test(voice.lang))
+    || voices[0]
+    || null;
+  selectedReceptionVoice = preferred;
+  return preferred;
+}
+
+function speakReceptionAnnouncement(message) {
+  if (!('speechSynthesis' in window) || !message) return false;
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.lang = 'pt-BR';
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+  const voice = selectedReceptionVoice || chooseReceptionVoice();
+  if (voice) utterance.voice = voice;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+  return true;
+}
+
+function renderReceptionVoiceControls() {
+  const voices = availablePortugueseVoices();
+  chooseReceptionVoice();
+  const select = document.querySelector('#reception-voice-select');
+  if (select) {
+    select.innerHTML = voices.length
+      ? voices.map((voice, index) => '<option value="' + index + '">' + escapeHtml(voice.name) + ' · ' + escapeHtml(voice.lang) + '</option>').join('')
+      : '<option value="">Voz padrão do navegador</option>';
+    const preferredIndex = voices.indexOf(selectedReceptionVoice);
+    if (preferredIndex >= 0) select.value = String(preferredIndex);
+  }
+  const status = document.querySelector('#reception-voice-status');
+  if (status && !voices.length) status.textContent = 'O navegador ainda não disponibilizou vozes em português. A voz padrão será utilizada.';
+}
+
 async function renderOperationalModules(profile, userId) {
   const panel = document.querySelector('#operational-panel');
   if (!panel) return;
@@ -246,6 +294,20 @@ async function renderOperationalModules(profile, userId) {
       <div><p class="eyebrow">OPERAÇÃO CLÍNICA</p><h2>Módulos operacionais: ${profile.role === 'recepcao' ? 'RECEPÇÃO' : 'PROFISSIONAIS'}</h2><p class="muted">${profile.role === 'recepcao' ? 'Cadastro de pacientes, organização de salas, chamadas e acompanhamento da fila.' : 'Fila de atendimentos, chamadas, execução e conclusão dos exames.'}</p></div>
       <div class="operational-heading-actions"><a class="secondary" href="/sala" target="_blank" rel="noopener noreferrer">Abrir tela de chamadas</a><button class="secondary" id="refresh-operational" type="button">Atualizar dados</button></div>
     </div>
+    ${canRegister ? `
+      <section class="module-card reception-voice-card">
+        <div class="users-heading"><h3>Áudio da recepção</h3><span class="muted">Anúncio por voz dos chamados</span></div>
+        <div class="form-grid">
+          <div><label for="reception-voice-select">VOZ EM PORTUGUÊS</label><select id="reception-voice-select" aria-label="Selecionar voz para chamadas"></select></div>
+          <div class="reception-voice-actions">
+            <button class="secondary" id="enable-reception-voice" type="button">Ativar voz automática</button>
+            <button class="secondary" id="test-reception-voice" type="button">Testar voz</button>
+            <button class="secondary" id="repeat-reception-voice" type="button" disabled>Repetir última chamada</button>
+          </div>
+        </div>
+        <p class="message" id="reception-voice-status" role="status">Ative a voz neste navegador para anunciar os chamados feitos pela recepção.</p>
+      </section>` : ''}
+
     ${canRegister ? `
       <section class="module-card">
         <h3>Recepção · Cadastrar paciente e atendimento</h3>
@@ -328,6 +390,36 @@ async function renderOperationalModules(profile, userId) {
         : '<div class="table-wrap"><table class="users-table operational-table"><thead><tr><th>Paciente</th><th>Salas</th><th>Status</th><th>Ação</th></tr></thead><tbody id="operational-rows"><tr><td colspan="4">Carregando dados…</td></tr></table></div>'}
       <p id="operational-message" class="message" role="status"></p>
     </section>`;
+
+  if (canRegister) {
+    renderReceptionVoiceControls();
+    if ('speechSynthesis' in window) window.speechSynthesis.addEventListener('voiceschanged', renderReceptionVoiceControls);
+    const voiceSelect = document.querySelector('#reception-voice-select');
+    voiceSelect?.addEventListener('change', () => {
+      const voices = availablePortugueseVoices();
+      selectedReceptionVoice = voices[Number(voiceSelect.value)] || chooseReceptionVoice();
+    });
+    document.querySelector('#enable-reception-voice')?.addEventListener('click', () => {
+      if (!('speechSynthesis' in window)) {
+        operationalMessage('#reception-voice-status', 'Este navegador não oferece suporte à leitura por voz.', true);
+        return;
+      }
+      receptionVoiceEnabled = true;
+      const button = document.querySelector('#enable-reception-voice');
+      button.textContent = 'Voz automática ativada';
+      button.disabled = true;
+      operationalMessage('#reception-voice-status', 'Voz automática ativada. Os próximos chamados da recepção serão anunciados neste computador.');
+      speakReceptionAnnouncement('Áudio da recepção ativado. Aguardando chamadas.');
+    });
+    document.querySelector('#test-reception-voice')?.addEventListener('click', () => {
+      if (!speakReceptionAnnouncement('Teste de áudio da recepção do MARKYS SGA.')) {
+        operationalMessage('#reception-voice-status', 'Este navegador não oferece suporte à leitura por voz.', true);
+      }
+    });
+    document.querySelector('#repeat-reception-voice')?.addEventListener('click', () => {
+      if (lastReceptionAnnouncement) speakReceptionAnnouncement(lastReceptionAnnouncement);
+    });
+  }
 
   const editPatientSelect = document.querySelector('#edit-patient-select');
   const editPatientOpen = document.querySelector('#edit-patient-open');
@@ -654,7 +746,7 @@ async function renderOperationalModules(profile, userId) {
     const tableRows = [...document.querySelectorAll('#operational-rows tr')].map((tr) => [...tr.cells].slice(0, 3).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim()));
     const csv = tableRows.map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8;' }));
-    const link = document.createElement('a'); link.href = url; link.download = `favmed-atendimentos-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(url);
+    const link = document.createElement('a'); link.href = url; link.download = `markys-sga-atendimentos-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(url);
   });
   document.querySelector('#backup-operational-json')?.addEventListener('click', async (event) => {
     const button = event.currentTarget;
@@ -673,7 +765,7 @@ async function renderOperationalModules(profile, userId) {
       if (patientsResult.error || examsResult.error) throw patientsResult.error || examsResult.error;
       const payload = { exported_at: new Date().toISOString(), date: todayLocal(), visits: visits || [], patients: patientsResult.data || [], exams: examsResult.data || [] };
       const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' }));
-      const link = document.createElement('a'); link.href = url; link.download = `favmed-backup-${todayLocal()}.json`; link.click(); URL.revokeObjectURL(url);
+      const link = document.createElement('a'); link.href = url; link.download = `markys-sga-backup-${todayLocal()}.json`; link.click(); URL.revokeObjectURL(url);
       operationalMessage('#operational-message', 'Backup JSON gerado. Guarde o arquivo em local seguro.');
     } catch (error) { operationalMessage('#operational-message', error.message || 'Não foi possível gerar o backup.', true); }
     finally { button.disabled = false; button.textContent = 'Backup JSON'; }
@@ -825,6 +917,15 @@ async function renderOperationalModules(profile, userId) {
         }
         const { error: visitError } = await supabase.from('patient_visits').update({ status: 'chamado', room_id: roomId }).eq('id', visitId);
         if (visitError) throw visitError;
+        const calledVisit = lastVisitsById.get(visitId);
+        const calledPatient = calledVisit && lastPatientsById.get(calledVisit.patient_id);
+        const calledRoom = (roomResult.data || []).find((room) => room.id === roomId);
+        if (calledPatient?.full_name && calledRoom?.name) {
+          lastReceptionAnnouncement = 'Paciente ' + calledPatient.full_name + ', comparecer à ' + calledRoom.name + '.';
+          const repeatButton = document.querySelector('#repeat-reception-voice');
+          if (repeatButton) repeatButton.disabled = false;
+          if (receptionVoiceEnabled) speakReceptionAnnouncement(lastReceptionAnnouncement);
+        }
         operationalMessage('#operational-message', 'Paciente chamado pela recepção.');
         await loadOperationalRows();
       } else if (examButton) {
@@ -934,7 +1035,7 @@ async function renderOperationalModules(profile, userId) {
       void loadOperationalRows();
     }, 300);
   };
-  operationalRealtimeChannel = supabase.channel(`favmed-operational-${userId}`)
+  operationalRealtimeChannel = supabase.channel(`markys-sga-operational-${userId}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'patients' }, scheduleRealtimeRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'patient_visits' }, scheduleRealtimeRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'visit_exams' }, scheduleRealtimeRefresh)
@@ -947,22 +1048,33 @@ async function renderOperationalModules(profile, userId) {
 function renderHome(profile, userId) {
   const label = roleLabels[profile.role];
   const isMaster = profile.role === 'master';
-  const requiredPath = ({ master: '/master', recepcao: '/recepcao', profissional: '/profissional', sala: '/sala' })[profile.role];
+  const masterPaths = ['/master', '/recepcao', '/profissional'];
+  const requiredPath = isMaster && masterPaths.includes(window.location.pathname)
+    ? window.location.pathname
+    : ({ master: '/master', recepcao: '/recepcao', profissional: '/profissional', sala: '/sala' })[profile.role];
   if (window.location.pathname !== requiredPath) window.history.replaceState({}, document.title, requiredPath);
+  const initialMasterView = isMaster && requiredPath === '/recepcao' ? 'recepcao'
+    : isMaster && requiredPath === '/profissional' ? 'profissional' : 'admin';
   root.innerHTML = `
     <main class="shell dashboard-shell">
       <section class="login-card home-card">
         <header class="app-header">
           <div class="brand">
-            <img class="brand-logo" src="${logoFavmed}" alt="Logo Clínica Favmed" />
+            <img class="brand-logo" src="${logoMarkys}" alt="Logo Clínica MARKYS SGA" />
             <div class="brand-copy">
-              <h1>Clínica Favmed - Medicina Ocupacional</h1>
+              <h1>Clínica MARKYS SGA - Medicina Ocupacional</h1>
               <p>Olá, ${escapeHtml(profile.display_name || label)} · Sessão autenticada · Perfil: ${escapeHtml(label)}</p>
             </div>
           </div>
         </header>
         ${isMaster ? `
-          <section class="admin-panel" aria-labelledby="admin-title">
+          <nav class="master-access-nav" aria-label="Acesso completo do Master">
+            <button class="secondary master-view-button" type="button" data-master-view="admin" aria-pressed="${initialMasterView === 'admin'}">ADMINISTRAÇÃO</button>
+            <button class="secondary master-view-button" type="button" data-master-view="recepcao" aria-pressed="${initialMasterView === 'recepcao'}">RECEPÇÃO</button>
+            <button class="secondary master-view-button" type="button" data-master-view="profissional" aria-pressed="${initialMasterView === 'profissional'}">PROFISSIONAIS</button>
+            <a class="secondary" href="/sala" target="_blank" rel="noopener noreferrer">SALA DE ESPERA</a>
+          </nav>
+          <section class="admin-panel" id="master-admin-panel" aria-labelledby="admin-title" ${initialMasterView === 'admin' ? '' : 'hidden'}>
             <h2 id="admin-title">Administração de usuários</h2>
             <p class="muted">Convide usuários por e-mail e controle contas da equipe. O perfil Master não pode ser criado nesta tela.</p>
             <form id="create-user-form" class="admin-form">
@@ -986,10 +1098,10 @@ function renderHome(profile, userId) {
               <tbody id="users-body"><tr><td colspan="4">Carregando contas…</td></tr></tbody>
             </table></div>
           </section>` : ``}
-        ${isMaster ? '' : '<section id="operational-panel" class="operational-panel" aria-label="Módulo operacional"></section>'}
+        ${isMaster ? '<section id="operational-panel" class="operational-panel" aria-label="Módulo operacional" hidden></section>' : '<section id="operational-panel" class="operational-panel" aria-label="Módulo operacional"></section>'}
         <button class="secondary" id="sign-out" type="button">Sair da conta</button>
       </section>
-      <footer>FAVMED Online · Acesso restrito à Clínica Favmed</footer>
+      <footer>MARKYS SGA Online · Acesso restrito à Clínica MARKYS SGA</footer>
     </main>`;
 
   document.querySelector('#sign-out').addEventListener('click', async () => {
@@ -998,6 +1110,24 @@ function renderHome(profile, userId) {
   });
 
   if (!isMaster) { renderOperationalModules(profile, userId); return; }
+  const adminPanel = document.querySelector('#master-admin-panel');
+  const operationalPanel = document.querySelector('#operational-panel');
+  const masterViewButtons = [...document.querySelectorAll('[data-master-view]')];
+  function activateMasterView(view) {
+    const nextView = ['admin', 'recepcao', 'profissional'].includes(view) ? view : 'admin';
+    const nextPath = ({ admin: '/master', recepcao: '/recepcao', profissional: '/profissional' })[nextView];
+    window.history.replaceState({}, document.title, nextPath);
+    adminPanel.hidden = nextView !== 'admin';
+    operationalPanel.hidden = nextView === 'admin';
+    masterViewButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.masterView === nextView)));
+    if (nextView !== 'admin') {
+      void renderOperationalModules({ ...profile, role: nextView }, userId);
+    }
+  }
+  masterViewButtons.forEach((button) => {
+    button.addEventListener('click', () => activateMasterView(button.dataset.masterView));
+  });
+  if (initialMasterView !== 'admin') activateMasterView(initialMasterView);
   const adminMessage = document.querySelector('#admin-message');
   const usersBody = document.querySelector('#users-body');
   const refreshButton = document.querySelector('#refresh-users');
@@ -1078,8 +1208,8 @@ function renderHome(profile, userId) {
 }
 
 async function renderPublicWaitingRoom() {
-  root.innerHTML = '<main class="waiting-screen favmed-room-screen">' +
-    '<header class="waiting-brand"><img class="brand-logo" src="' + escapeHtml(logoFavmed) + '" alt="Clínica Favmed"/><div><h1>Clínica Favmed</h1><p>PAINEL DE CHAMADAS</p></div><button class="secondary audio-enable" id="enable-call-audio" type="button">Ativar som</button><span class="public-live"><i></i> AO VIVO</span></header>' +
+  root.innerHTML = '<main class="waiting-screen markys-sga-room-screen">' +
+    '<header class="waiting-brand"><img class="brand-logo" src="' + escapeHtml(logoMarkys) + '" alt="Clínica MARKYS SGA"/><div><h1>Clínica MARKYS SGA</h1><p>PAINEL DE CHAMADAS</p></div><button class="secondary audio-enable" id="enable-call-audio" type="button">Ativar som</button><span class="public-live"><i></i> AO VIVO</span></header>' +
     '<section class="waiting-content"><p class="eyebrow">ATENÇÃO</p><h2>Chamadas da clínica</h2><div id="public-calls" class="room-call-grid" aria-live="polite"><div class="no-calls"><strong>Aguardando próxima chamada</strong>Por favor, aguarde.</div></div><p id="room-audio-status" class="waiting-note">Ative o som uma vez para liberar o áudio de chamadas neste navegador.</p></section>' +
     '<audio id="room-call-signal" src="' + escapeHtml(callSignalUrl) + '" preload="auto" playsinline></audio></main>';
   const calls = document.querySelector('#public-calls');
@@ -1154,7 +1284,7 @@ async function renderPublicWaitingRoom() {
       if (document.visibilityState === 'visible') void refreshCalls();
     }, 250);
   };
-  const publicRealtimeChannel = supabase.channel('favmed-public-waiting-room')
+  const publicRealtimeChannel = supabase.channel('markys-sga-public-waiting-room')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'patient_visits' }, schedulePublicRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'visit_exams' }, schedulePublicRefresh)
     .subscribe();
@@ -1170,6 +1300,9 @@ async function renderPublicWaitingRoom() {
 }
 async function start() {
   if (!configured) return renderSetup();
+  // The waiting-room display is intentionally public and exposes only its
+  // restricted public view; it must also be reachable from the Master menu.
+  if (window.location.pathname === '/sala') return renderPublicWaitingRoom();
   // Supabase may return the flow type in the URL hash (implicit flow)
   // or the query string (depending on the email template / redirect setup).
   // Capture it before deciding whether an authenticated session may reach the panel.

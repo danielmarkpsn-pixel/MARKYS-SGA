@@ -1,4 +1,7 @@
 {
+  "buildCommand": "npm run check && npm run build",
+  "installCommand": "npm install --no-audit --no-fund",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",

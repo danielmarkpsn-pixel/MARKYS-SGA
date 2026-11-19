@@ -110,7 +110,7 @@ select:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
 }
 
 
-/* FAVMED Online operational modules */
+/* MARKYS SGA Online operational modules */
 .operational-panel { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
 .operational-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .operational-heading .eyebrow { margin-top: 0; }
@@ -135,7 +135,7 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
 }
 
 
-/* Identidade visual FAVMED e recepção alinhadas ao padrão local */
+/* Identidade visual MARKYS SGA e recepção alinhadas ao padrão local */
 .dashboard-shell { justify-content: flex-start; align-items: stretch; padding: 0; background: radial-gradient(ellipse at top right, #d9f0ef 0, transparent 42%), #f3f6f8; }
 .dashboard-shell .login-card { width: min(100%, 1400px); margin: 0 auto; padding: 0 clamp(14px, 3vw, 32px) 28px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .home-card > .brand-mark { display: none; }
@@ -168,7 +168,7 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
 }
 
 
-/* Formulário de recepção no padrão modular do FAVMED local */
+/* Formulário de recepção no padrão modular do MARKYS SGA local */
 .form-module { border: 1px solid var(--line); border-radius: 12px; background: #fff; margin: 10px 0; overflow: hidden; }
 .form-module > summary { cursor: pointer; list-style: none; padding: 14px 16px; font-weight: 800; color: var(--teal); background: #f0f8f8; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .form-module > summary::-webkit-details-marker { display: none; }
@@ -271,7 +271,7 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
 .professional-card.blinking {
   border: 2px solid #087bff;
   background: linear-gradient(120deg, #e8f2ff, #fff);
-  animation: favmedRoomPulse .9s steps(2, start) infinite;
+  animation: markys-sgaRoomPulse .9s steps(2, start) infinite;
 }
 .professional-card.attending {
   border: 3px solid #b42332;
@@ -286,8 +286,8 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
 .professional-card-actions .secondary { flex: 1 1 auto; }
 .priority-flag { display: inline-block; margin: 4px 0 0 7px; padding: 3px 7px; border-radius: 6px; background: #fff0c2; color: #805600; font-size: 10px; font-weight: 900; }
 
-.favmed-room-screen .waiting-content { max-width: 1800px; margin-top: clamp(24px, 5vh, 56px); }
-.favmed-room-screen .waiting-content h2 { margin-bottom: 22px; }
+.markys-sga-room-screen .waiting-content { max-width: 1800px; margin-top: clamp(24px, 5vh, 56px); }
+.markys-sga-room-screen .waiting-content h2 { margin-bottom: 22px; }
 .room-call-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -313,7 +313,7 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
 .room-call-card.blinking {
   border: 2px solid #087bff;
   background: linear-gradient(120deg, #e8f2ff, #fff);
-  animation: favmedRoomPulse .9s steps(2, start) infinite;
+  animation: markys-sgaRoomPulse .9s steps(2, start) infinite;
 }
 .room-call-card.blinking .call-label, .room-call-card.blinking .call-name, .room-call-card.blinking .call-room { color: #075bd8; }
 .room-call-card.attending {
@@ -327,7 +327,7 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
 .room-call-card .call-room { font-size: clamp(16px, 1.8vw, 28px); color: var(--teal); font-weight: 750; overflow-wrap: anywhere; }
 .room-error { grid-column: 1 / -1; margin: 0; padding: 28px; border: 1px solid #efc8cc; border-radius: 14px; background: #fff0f0; color: #a01e2b; font-weight: 750; text-align: center; }
 #room-call-signal { display: none; }
-@keyframes favmedRoomPulse {
+@keyframes markys-sgaRoomPulse {
   0%, 49% { background: #dbeaff; border-color: #087bff; box-shadow: 0 0 0 3px #087bff30; }
   50%, 100% { background: #fff; border-color: #fff; box-shadow: 0 0 0 1px #087bff20; }
 }
@@ -336,6 +336,105 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
   .professional-card { padding: 12px; }
   .professional-card-head { flex-direction: column; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .professional-card.blinking, .room-call-card.blinking { animation: none; }
+
+
+/* Identidade visual MARKYS SGA — azul-marinho e branco */
+:root {
+  color: #102544;
+  background: #f4f7fb;
+  --navy: #102a4c;
+  --navy-deep: #091b33;
+  --navy-soft: #1b426e;
+  --teal: var(--navy);
+  --teal-dark: var(--navy-deep);
+  --muted: #61738a;
+  --line: #d9e2ed;
 }
+body { color: #102544; background: #f4f7fb; }
+.shell {
+  color: #102544;
+  background: radial-gradient(ellipse at 50% 0%, #e4edf8 0%, transparent 48%), #f4f7fb;
+}
+.dashboard-shell {
+  background: radial-gradient(ellipse at top right, #e4edf8 0, transparent 42%), #f4f7fb;
+}
+.brand-mark { background: var(--navy); box-shadow: 0 7px 18px #102a4c30; }
+input:focus, select:focus, textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px #102a4c18; }
+.submit { background: var(--navy); }
+.submit:hover { background: var(--navy-deep); }
+.reveal, .form-module > summary, .exam-room-menu > summary,
+.operational-heading-actions a { color: var(--navy); }
+.secondary { color: var(--navy); border-color: #cbd7e5; }
+.secondary:hover { background: #edf3fa; border-color: #9eb3cc; }
+.app-header { background: #ffffffed; border-bottom-color: #d9e2ed; }
+.module-card, .form-module, .login-card, .call-card, .no-calls,
+.patient-sheet-dialog { background-color: #fff; }
+.form-module > summary, .exam-room-menu > summary { background: #edf3fa; }
+.service-options, .exam-room-menu { background: #f8fafd; }
+.exam-pill { background: #eaf0f7; color: #294766; }
+.users-table th { background: #edf3fa; color: #294766; }
+.users-table td { border-bottom-color: #e8edf4; }
+.operational-heading-actions a:hover { background: #edf3fa; }
+.waiting-screen {
+  color: #102544;
+  background: radial-gradient(ellipse at top right, #e4edf8 0, transparent 42%), #f4f7fb;
+}
+.call-card.current-call { border-color: var(--navy); background: #f1f5fb; }
+.call-room strong, .room-call-card .call-room { color: var(--navy); }
+.professional-card {
+  border-color: #d9e2ed;
+  background: linear-gradient(120deg, #f4f7fb, #fff);
+}
+.room-call-card {
+  border-color: #cbd7e5;
+  background: linear-gradient(120deg, #edf3fa, #fff);
+}
+.professional-card.blinking, .room-call-card.blinking {
+  border-color: #245b96;
+  background: linear-gradient(120deg, #e5eef9, #fff);
+}
+.room-call-card.blinking .call-label,
+.room-call-card.blinking .call-name,
+.room-call-card.blinking .call-room { color: #173f6b; }
+@keyframes markys-sgaRoomPulse {
+  0%, 49% { background: #e1ebf8; border-color: #245b96; box-shadow: 0 0 0 3px #245b9630; }
+  50%, 100% { background: #fff; border-color: #fff; box-shadow: 0 0 0 1px #245b9620; }
+}
+
+
+/* Navegação entre todos os módulos disponível exclusivamente ao Master */
+.master-access-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 20px 0 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fff;
+}
+.master-access-nav [aria-pressed="true"] {
+  border-color: #102a4c;
+  background: #102a4c;
+  color: #fff;
+}
+.master-access-nav a {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+[hidden] { display: none !important; }
+@media (max-width: 560px) {
+  .master-access-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .master-access-nav > * { justify-content: center; text-align: center; }
+}
+
+
+/* Controles de voz da recepção — recurso funcional inspirado no fluxo FAVMED */
+.reception-voice-card { border-color: #cbd7e5; background: linear-gradient(135deg, #fff, #f4f7fb); }
+.reception-voice-card .form-grid { align-items: end; }
+.reception-voice-card .form-grid > div:first-child { min-width: min(100%, 240px); }
+.reception-voice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.reception-voice-actions button { flex: 1 1 145px; min-height: 42px; }
+.reception-voice-actions button:disabled { opacity: .58; cursor: not-allowed; }
+#reception-voice-status { margin: 10px 0 0; font-size: 12px; }

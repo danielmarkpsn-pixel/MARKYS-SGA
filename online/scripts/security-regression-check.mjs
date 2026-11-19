@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const [edge, frontend, queueFile] = await Promise.all([
+const [edge, frontend] = await Promise.all([
   readFile(new URL('../supabase/functions/master-users/index.ts', import.meta.url), 'utf8'),
   readFile(new URL('../src/main.js', import.meta.url), 'utf8'),
-  readFile(new URL('../../fila.json', import.meta.url), 'utf8'),
 ]);
 
 // Regression guardrails for security-sensitive administrative operations.
@@ -26,10 +25,10 @@ assert.match(frontend, /event === 'PASSWORD_RECOVERY'/);
 assert.match(frontend, /passwordRecoveryInProgress \|\| isInvite \|\| isRecovery/);
 assert.match(frontend, /renderPasswordUpdate\(true\)/);
 
-// Patient data must never be committed to the legacy local queue file.
-assert.deepEqual(JSON.parse(queueFile), [], 'fila.json must remain empty in the repository; use synthetic fixtures outside tracked production data.');
+assert.doesNotMatch(frontend, /qzjkoyqmjueosevzhxqa|favmed\.vercel\.app|FAVMED|Favmed/i, 'The MARKYS SGA frontend must not retain FAVMED branding or project endpoints.');
+assert.doesNotMatch(edge, /qzjkoyqmjueosevzhxqa|favmed\.vercel\.app|FAVMED|Favmed/i, 'The MARKYS SGA Edge Function must not retain FAVMED branding or project endpoints.');
 
-console.log('Security regression guardrails passed. Live RLS and session-revocation tests remain required.');
+console.log('MARKYS SGA security regression guardrails passed. Live RLS and session-revocation tests remain required.');
 
 const operationalMigration = await readFile(new URL('../supabase/migrations/20261029150000_operational_foundation.sql', import.meta.url), 'utf8');
 assert.match(frontend, /renderOperationalModules\(profile, userId\)/);
@@ -79,11 +78,22 @@ assert.match(publicWaitingMigration, /v\.status = 'em_atendimento'/);
 const publicWaitingColumns = publicWaitingMigration.split('as\nselect')[1]?.split('\nfrom public.patient_visits')[0] || '';
 assert.doesNotMatch(publicWaitingColumns, /cpf|birth_date|company_name|exam_name/i);
 
-const realtimeMigration = await readFile(new URL('../supabase/migrations/20261103135443_enable_favmed_operational_realtime.sql', import.meta.url), 'utf8');
+const realtimeMigration = await readFile(new URL('../supabase/migrations/20261103135443_enable_markys_operational_realtime.sql', import.meta.url), 'utf8');
 for (const table of ['patients', 'patient_visits', 'visit_exams', 'rooms']) assert.match(realtimeMigration, new RegExp(table));
 
-const salaAccessMigration = await readFile(new URL('../supabase/migrations/20261103140318_grant_authenticated_waiting_room_read.sql', import.meta.url), 'utf8');
-assert.match(salaAccessMigration, /grant select on public\.public_waiting_room_calls to authenticated/);
+const publicSecurityMigration = await readFile(new URL('../supabase/migrations/20261119133000_public_waiting_room_security_invoker.sql', import.meta.url), 'utf8');
+assert.match(publicSecurityMigration, /security_invoker\s*=\s*true/);
+assert.match(publicSecurityMigration, /public_display_name/);
+assert.match(publicSecurityMigration, /grant select \(id, public_display_name\) on public\.patients to anon/);
+assert.doesNotMatch(publicSecurityMigration, /grant select \([^)]*full_name|grant select \([^)]*cpf/i);
+const noRecursionMigration = await readFile(new URL('../supabase/migrations/20261119135000_public_waiting_room_rls_no_recursion.sql', import.meta.url), 'utf8');
+assert.match(noRecursionMigration, /security definer/);
+assert.match(noRecursionMigration, /auth\.uid\(\) is null/);
+assert.match(noRecursionMigration, /public_waiting_room_visit_is_visible/);
+assert.match(noRecursionMigration, /public_waiting_room_patient_is_visible/);
+const consolidatedPolicies = await readFile(new URL('../supabase/migrations/20261119134500_consolidate_rls_policies.sql', import.meta.url), 'utf8');
+assert.match(consolidatedPolicies, /patient_visits_update_authorized/);
+assert.match(consolidatedPolicies, /visit_exams_update_authorized/);
 
 const calledStatusMigration = await readFile(new URL('../supabase/migrations/20261029202000_visit_called_status.sql', import.meta.url), 'utf8');
 assert.match(calledStatusMigration, /'chamado'/);

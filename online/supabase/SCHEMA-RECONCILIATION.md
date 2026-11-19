@@ -1,59 +1,52 @@
-# Auditoria de schema e reconciliação de migrações — FAVMED Online
+# MARKYS SGA — histórico e reconciliação do schema
 
-Data da verificação: 2026-10-28  
-Projeto Supabase de desenvolvimento: `qzjkoyqmjueosevzhxqa`  
-Branch de código: `feature/favmed-online-master-login`
+## Projeto remoto
+- Supabase `MARKYS SGA`, ref `vibybosdqavejvqsuvph`.
+- PostgreSQL 17, região `us-west-2`.
+- Banco criado em 19/11/2026, inicialmente sem tabelas operacionais.
+- A baseline e as migrações abaixo foram aplicadas diretamente ao projeto novo e registradas no histórico remoto.
 
-## Escopo e segurança
+## Migrações aplicadas
+1. `markys_sga_profiles_baseline`
+2. `restore_service_role_profiles_privileges`
+3. `operational_foundation`
+4. `visit_timestamp_integrity`
+5. `public_waiting_room`
+6. `visit_called_status`
+7. `reception_workflow_fields`
+8. `patient_documents_storage`
+9. `visit_exam_called_status`
+10. `public_calls_without_exams`
+11. `reception_multisala_and_call_stations`
+12. `professional_shared_queue_read_access`
+13. `shared_queue_privileges_and_rls`
+14. `reception_room_professional_alignment`
+15. `professionals_all_rooms_access`
+16. `enable_operational_realtime`
+17. `public_waiting_room_security_invoker`
+18. `consolidate_rls_policies`
+19. `public_waiting_room_rls_no_recursion`
 
-Esta auditoria usou consultas somente de leitura ao projeto Supabase. Nenhuma tabela foi criada, alterada ou apagada e nenhuma migração foi aplicada durante a auditoria. Não usar dados reais de pacientes neste estágio.
+## Estrutura verificada
+Tabelas públicas:
+- `profiles`
+- `patients`
+- `professionals`
+- `rooms`
+- `patient_visits`
+- `visit_exams`
 
-## Estado observado no Supabase
+RLS está habilitada nas seis tabelas. O banco contém três salas de recepção iniciais e nenhum cadastro de paciente.
 
-- A única tabela encontrada no schema `public` é `public.profiles`.
-- `profiles` tem RLS habilitada e forçada.
-- Colunas observadas: `id` (UUID, PK e FK para `auth.users.id`), `display_name`, `role`, `active`, `created_at`, `updated_at`.
-- Restrição de role: `master`, `recepcao`, `profissional` ou `sala`.
-- A única política encontrada é `profiles_select_own`, para SELECT por usuários autenticados, com condição `auth.uid() = id`.
-- Não foram encontradas políticas de escrita para clientes em `profiles`.
-- A função Edge `master-users` foi implantada e verificada na versão 4. O código ativo não contém CORS curinga; rejeita origens diferentes da origem configurada e diferencia limite de convites (429) de e-mail já existente (409). O padrão sem segredo `FAVMED_ALLOWED_ORIGIN` é `http://localhost:5173`, portanto outros endereços de desenvolvimento e a produção exigem configurar a origem exata.
-- Auditoria somente de leitura de `auth.users` versus `public.profiles`: 2 contas Auth, 2 perfis correspondentes e 0 contas Auth sem perfil no momento da consulta.
-- Os logs das últimas 24 horas mostraram respostas recentes HTTP 201 (convite criado) e HTTP 200 (operações administrativas), além de respostas HTTP 400/500 anteriores. Os logs agregados não comprovam a entrega de todos os e-mails; o painel de Auth/SMTP ainda é a fonte para investigar limites e entregabilidade.
-- O histórico de migrações do banco lista:
-  - `20261028134244 / favmed_profiles_rls`
-  - `20261028134308 / secure_rls_auto_enable_function`
-  - `20261028154747 / restore_service_role_profiles_privileges`
-- O repositório contém atualmente apenas `20261028160000_restore_service_role_profiles_privileges.sql` na pasta `online/supabase/migrations`. Portanto, o histórico SQL do banco não é reproduzido integralmente pelo Git.
-- A busca pelo SQL histórico exato também foi feita no histórico de commits e nas árvores das branches acessíveis (`main` e branches de funcionalidades revisadas); os três arquivos históricos registrados pelo Supabase não foram encontrados nesses locais. Não é seguro reconstruir seu conteúdo por suposição.
+## Tela pública
+A view `public_waiting_room_calls` foi alterada para `security_invoker=true`. Funções auxiliares no schema privado evitam recursão entre as políticas anon de pacientes, atendimentos, exames e salas. A role `anon` não tem SELECT de tabela em `patients`; recebe apenas SELECT nas colunas `id` e `public_display_name`. Também não recebe colunas de CPF, empresa ou nome de exames. Políticas RLS limitam as linhas às chamadas ativas do dia.
 
-## Conclusão
+## Migrações excluídas do diretório online
+A fila JSON antiga, RPCs `favmed_*` e buckets de mídia antigos não são usados pelo frontend Vite. Foram removidos do diretório `online/supabase/migrations` para evitar que uma futura execução de `supabase db push` crie estruturas desnecessárias. O banco novo não recebeu essas estruturas.
 
-O schema atual é somente a base de autenticação/perfis. Não há ainda tabelas de pacientes, fila, atendimentos, profissionais ou salas no schema `public`. Os módulos operacionais não devem ser habilitados.
-
-## Plano seguro de reconciliação
-
-1. Preservar as migrações já registradas no Supabase; não apagar nem editar o histórico remoto.
-2. Recuperar o SQL exato das migrações iniciais a partir do histórico confiável do repositório, backups ou definição validada. Não reconstruir migrações históricas por suposição.
-3. Comparar o SQL recuperado com o schema real, incluindo grants, RLS, policies e funções.
-4. Se o SQL original não puder ser recuperado, criar uma migração de baseline/documentação revisada, explicitamente destinada a novas instalações, sem reaplicá-la sobre o projeto existente.
-5. Testar em um projeto de desenvolvimento descartável ou branch de banco antes de qualquer alteração remota.
-6. Criar tabelas operacionais em migrações novas e incrementais, com chaves estrangeiras, restrições, índices e RLS desde a primeira implantação.
-7. Testar acesso permitido e negado para Master, recepção, profissional, sala e usuário inativo antes de liberar módulos.
-
-## Validações de segurança pendentes
-
-- A proteção nativa contra senhas comprometidas não está disponível no plano Supabase atual. Essa limitação está documentada e **não é requisito bloqueante**; não solicitar upgrade nem afirmar que o recurso foi ativado.
-- Confirmar cadastro público e login anônimo desativados.
-- Testar que usuários não-Master recebem 403 nas operações administrativas.
-- Testar o comportamento de sessão de usuário inativo, incluindo tokens já emitidos.
-- Confirmar que segredos administrativos nunca são entregues ao frontend.
-- Configurar CORS para o domínio de produção somente quando ele for definido.
-- Fazer testes de RLS com usuários de teste distintos; uma consulta administrativa executada com privilégios elevados não substitui esses testes.
-
-## Aviso adicional sobre dados no Git
-
-O arquivo legado `fila.json` foi esvaziado na branch `feature/favmed-online-master-login`, e o CI agora bloqueia a inclusão de registros nesse arquivo nessa branch. Isso **não apaga versões anteriores do histórico Git**, nem altera `main` ou outras branches. A limpeza do histórico remoto, caso necessária, exige uma operação coordenada de reescrita de histórico e verificação de todas as referências; não foi executada para preservar `main` e evitar alterações destrutivas não autorizadas.
-
-## Regra de liberação
-
-Não implantar dados reais de pacientes nem liberar recepção, profissional, sala, fila ou atendimentos até que as migrações sejam reproduzíveis, o conjunto de policies esteja testado e o CI esteja aprovado.
+## Regras para mudanças futuras
+- Não apagar nem editar migrações já aplicadas; adicionar novas migrações incrementais.
+- Aplicar migrações em ordem e conferir o histórico remoto após cada lote.
+- Toda tabela exposta no schema `public` precisa de RLS e políticas específicas.
+- Não usar SECURITY DEFINER em views. Funções privilegiadas devem ficar em schema não exposto e validar a identidade quando aplicável.
+- Não inserir dados reais antes dos testes de autenticação e autorização com contas sintéticas.
