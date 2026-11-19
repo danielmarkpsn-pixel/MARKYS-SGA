@@ -339,3 +339,67 @@ textarea:focus { outline: 3px solid #087f8c20; border-color: var(--teal); }
 @media (prefers-reduced-motion: reduce) {
   .professional-card.blinking, .room-call-card.blinking { animation: none; }
 }
+
+
+/* Identidade visual MARKYS SGA — azul-marinho e branco */
+:root {
+  color: #102544;
+  background: #f4f7fb;
+  --navy: #102a4c;
+  --navy-deep: #091b33;
+  --navy-soft: #1b426e;
+  --teal: var(--navy);
+  --teal-dark: var(--navy-deep);
+  --muted: #61738a;
+  --line: #d9e2ed;
+}
+body { color: #102544; background: #f4f7fb; }
+.shell {
+  color: #102544;
+  background: radial-gradient(ellipse at 50% 0%, #e4edf8 0%, transparent 48%), #f4f7fb;
+}
+.dashboard-shell {
+  background: radial-gradient(ellipse at top right, #e4edf8 0, transparent 42%), #f4f7fb;
+}
+.brand-mark { background: var(--navy); box-shadow: 0 7px 18px #102a4c30; }
+input:focus, select:focus, textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px #102a4c18; }
+.submit { background: var(--navy); }
+.submit:hover { background: var(--navy-deep); }
+.reveal, .form-module > summary, .exam-room-menu > summary,
+.operational-heading-actions a { color: var(--navy); }
+.secondary { color: var(--navy); border-color: #cbd7e5; }
+.secondary:hover { background: #edf3fa; border-color: #9eb3cc; }
+.app-header { background: #ffffffed; border-bottom-color: #d9e2ed; }
+.module-card, .form-module, .login-card, .call-card, .no-calls,
+.patient-sheet-dialog { background-color: #fff; }
+.form-module > summary, .exam-room-menu > summary { background: #edf3fa; }
+.service-options, .exam-room-menu { background: #f8fafd; }
+.exam-pill { background: #eaf0f7; color: #294766; }
+.users-table th { background: #edf3fa; color: #294766; }
+.users-table td { border-bottom-color: #e8edf4; }
+.operational-heading-actions a:hover { background: #edf3fa; }
+.waiting-screen {
+  color: #102544;
+  background: radial-gradient(ellipse at top right, #e4edf8 0, transparent 42%), #f4f7fb;
+}
+.call-card.current-call { border-color: var(--navy); background: #f1f5fb; }
+.call-room strong, .room-call-card .call-room { color: var(--navy); }
+.professional-card {
+  border-color: #d9e2ed;
+  background: linear-gradient(120deg, #f4f7fb, #fff);
+}
+.room-call-card {
+  border-color: #cbd7e5;
+  background: linear-gradient(120deg, #edf3fa, #fff);
+}
+.professional-card.blinking, .room-call-card.blinking {
+  border-color: #245b96;
+  background: linear-gradient(120deg, #e5eef9, #fff);
+}
+.room-call-card.blinking .call-label,
+.room-call-card.blinking .call-name,
+.room-call-card.blinking .call-room { color: #173f6b; }
+@keyframes markys-sgaRoomPulse {
+  0%, 49% { background: #e1ebf8; border-color: #245b96; box-shadow: 0 0 0 3px #245b9630; }
+  50%, 100% { background: #fff; border-color: #fff; box-shadow: 0 0 0 1px #245b9620; }
+}
