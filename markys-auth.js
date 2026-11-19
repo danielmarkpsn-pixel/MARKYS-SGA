@@ -183,7 +183,7 @@
       financeButton.href = "/financeiro.html";
       financeButton.textContent = "Financeiro";
       financeButton.setAttribute("aria-label", "Abrir módulo Financeiro");
-      financeButton.style.cssText = "position:fixed;right:280px;bottom:18px;z-index:9998;border:0;border-radius:10px;padding:11px 16px;background:#173b73;color:#fff;text-decoration:none;font:700 13px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
+      financeButton.style.cssText = "position:fixed;right:238px;bottom:14px;z-index:9998;border:0;border-radius:9px;padding:9px 12px;background:#173b73;color:#fff;text-decoration:none;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
       document.body.appendChild(financeButton);
     }
     if (profile && profile.role === "master" && !publicMode && !document.getElementById("markys-sga-admin-logins")) {
@@ -192,7 +192,7 @@
       adminButton.href = "/admin-logins.html";
       adminButton.textContent = "Administrar logins";
       adminButton.setAttribute("aria-label", "Abrir administração de logins");
-      adminButton.style.cssText = "position:fixed;right:154px;bottom:18px;z-index:9998;border:0;border-radius:10px;padding:11px 16px;background:#087f8c;color:#fff;text-decoration:none;font:700 13px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
+      adminButton.style.cssText = "position:fixed;right:126px;bottom:14px;z-index:9998;border:0;border-radius:9px;padding:9px 12px;background:#087f8c;color:#fff;text-decoration:none;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
       document.body.appendChild(adminButton);
     }
     const button = document.createElement("button");
@@ -200,7 +200,7 @@
     button.type = "button";
     button.textContent = "Sair da conta";
     button.setAttribute("aria-label", "Sair da conta");
-    button.style.cssText = "position:fixed;right:18px;bottom:18px;z-index:9998;border:0;border-radius:10px;padding:11px 16px;background:#20313a;color:#fff;font:700 13px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
+    button.style.cssText = "position:fixed;right:14px;bottom:14px;z-index:9998;border:0;border-radius:9px;padding:9px 12px;background:#20313a;color:#fff;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
     button.addEventListener("click", async () => {
       button.disabled = true;
       button.textContent = "Saindo...";
