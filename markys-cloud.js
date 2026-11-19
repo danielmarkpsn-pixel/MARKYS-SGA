@@ -121,8 +121,8 @@
     });
   }
 
-  window.FAVMED_AUTH_READY = authReady;
-  window.FAVMED_CLOUD = {
+  window.MARKYS_AUTH_READY = authReady;
+  window.MARKYS_CLOUD = {
     client,
     get profile() { return currentProfile; },
     resolveAuth(profile) {
