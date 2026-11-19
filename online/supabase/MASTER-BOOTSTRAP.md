@@ -1,59 +1,48 @@
-# Provisionamento e segurança do MARKYS SGA Online
+# Provisionamento do primeiro Master — MARKYS SGA
 
-Este documento descreve o ambiente de desenvolvimento e os controles que ainda precisam ser validados. O sistema online é exclusivo do MARKYS SGA. A gestão de contas deve ser feita pelo Master; não habilitar cadastro público.
+## Ambiente
+- Supabase: `MARKYS SGA`
+- Project ref: `vibybosdqavejvqsuvph`
+- Aplicação: https://markyssga.vercel.app/
+- Edge Function: `master-users`, ativa, com `verify_jwt=false` porque valida o Bearer token no próprio código.
 
-## Estado observado em 2026-10-28
+## Estado
+O schema e a Edge Function estão implantados. Nenhuma conta Master foi criada automaticamente. Não há senha padrão ou credencial administrativa gravada no repositório.
 
-- Projeto Supabase de desenvolvimento: `vibybosdqavejvqsuvph`.
-- `public.profiles` existe com RLS habilitada e forçada.
-- A política `profiles_select_own` permite SELECT apenas quando `auth.uid() = id`.
-- A Edge Function `master-users` está ativa na versão 3.
-- A função está implantada com `verify_jwt = false` por compatibilidade com chaves modernas. Isso exige que o código continue validando manualmente o token Bearer via Supabase Auth e verificando o perfil Master ativo em cada operação.
-- O histórico de migrações do banco lista `markys-sga_profiles_rls`, `secure_rls_auto_enable_function` e `restore_service_role_profiles_privileges`.
-- O repositório versiona somente `20261028160000_restore_service_role_profiles_privileges.sql`; os SQLs históricos não estão todos presentes na pasta de migrações. Não reaplicar nem reconstruir esses SQLs por suposição.
-- A auditoria só encontrou `public.profiles`; tabelas operacionais clínicas não existem no schema `public` verificado.
-- O Security Advisor reporta `auth_leaked_password_protection`: proteção contra senhas comprometidas desativada.
+## Criar o primeiro usuário
+1. No Supabase, abra Authentication → Users.
+2. Use Add user para criar/convidar o endereço de e-mail que será o administrador inicial. Não habilite cadastro público.
+3. Confirme o UUID do usuário criado.
+4. No SQL Editor do projeto MARKYS SGA, execute o comando abaixo, substituindo os dois valores indicados.
 
-Consulte [SCHEMA-RECONCILIATION.md](SCHEMA-RECONCILIATION.md) para o relatório e o plano de reconciliação.
+```sql
+insert into public.profiles (id, display_name, role, active)
+select
+  id,
+  'NOME DO ADMINISTRADOR',
+  'master',
+  true
+from auth.users
+where lower(email) = lower('EMAIL_DO_MASTER')
+on conflict (id) do update
+set display_name = excluded.display_name,
+    role = 'master',
+    active = true;
+```
 
-## Configuração de autenticação
+5. Confirme que exatamente um perfil Master ativo foi criado:
+```sql
+select id, display_name, role, active
+from public.profiles
+where role = 'master';
+```
+6. Acesse https://markyssga.vercel.app/master e teste o login.
+7. Depois de entrar, crie usuários de Recepção e Profissional pela administração Master.
 
-Em Authentication → Sign In / Providers → Email, confirme no painel:
-
-- Cadastro público desativado.
-- Logins anônimos desativados.
-- Confirmação de e-mail conforme a política aprovada.
-- URLs de redirecionamento limitadas aos ambientes necessários.
-- SMTP personalizado configurado e testado, sem compartilhar credenciais.
-
-Ative a proteção contra senhas comprometidas se o recurso estiver disponível no plano/configuração. Confirme a alteração no Security Advisor; não considerar corrigido apenas por ter aberto a configuração.
-
-## Segredos da Edge Function
-
-A função `master-users` aceita as variáveis modernas:
-
-- `SUPABASE_URL`
-- `SUPABASE_PUBLISHABLE_KEYS`: objeto JSON de chaves publicáveis, com a chave padrão em `default`
-- `SUPABASE_SECRET_KEYS`: objeto JSON de chaves secretas, com a chave padrão em `default`
-
-Há fallback para `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` legadas, quando fornecidas pelo ambiente. Chaves secretas nunca podem ser colocadas em variáveis `VITE_*`, no navegador ou no Git. Não registrar tokens ou segredos em logs.
-
-## Provisionamento do Master
-
-O Master inicial é provisionado por processo administrativo controlado. Antes de alterar contas, confirme que o UUID do perfil corresponde ao usuário correto em Authentication → Users. Não crie um segundo Master sem revisão explícita.
-
-## Plano de validação antes de liberar módulos
-
-1. Reconciliar o histórico de migrações com SQL confiável e schema real; não modificar migrações históricas já aplicadas.
-2. Testar em ambiente isolado que as migrações são reproduzíveis.
-3. Testar login do Master, leitura do próprio perfil e logout.
-4. Testar listagem, convite, ativação e desativação com contas de teste.
-5. Confirmar HTTP 403 para perfis não-Master em operações administrativas.
-6. Testar políticas RLS usando sessões de usuários de teste distintos, inclusive tentativas de ler/alterar dados alheios.
-7. Testar o comportamento de usuário inativo e o tempo de validade/revogação de sessões existentes.
-8. Implementar novas tabelas operacionais em migrações incrementais, com RLS desde o início.
-9. Garantir que erros e logs não exponham tokens, segredos ou dados clínicos.
-10. Restringir CORS ao domínio oficial quando ele estiver definido.
-11. Somente depois de CI e testes de integração aprovados, planejar implantação da aplicação e liberar módulos.
-
-O sistema não está pronto para produção. Não usar dados reais de pacientes nem habilitar recepção, profissional, sala, fila ou atendimentos até que o schema operacional, a autorização e as políticas RLS estejam implantados e testados.
+## Regras de segurança
+- Não criar segundo Master sem aprovação.
+- Não usar senha padrão compartilhada.
+- Não expor `service_role` ou `sb_secret_*` no navegador, em variáveis `VITE_*` ou no Git.
+- A Edge Function valida token Bearer, perfil Master ativo e CORS exato.
+- Usuários comuns são criados somente pelo Master; cadastro público permanece desativado.
+- Testar bloqueio de usuário inativo e acesso negado para perfis não-Master antes de liberar a operação.
