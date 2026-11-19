@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import './style.css';
-import logoFavmed from '../../logo-favmed.png';
+import logoMarkys from '../../markys-sga.svg';
 import callSignalUrl from '../../chamador.mp3';
 
 const root = document.querySelector('#app');
@@ -31,8 +31,8 @@ function escapeHtml(value = '') {
 function renderSetup() {
   root.innerHTML = `
     <main class="shell"><section class="login-card">
-      <img class="brand-logo" src="${logoFavmed}" alt="Logo Clínica Favmed" />
-      <p class="eyebrow">CLÍNICA FAVMED</p><h1>FAVMED Online</h1>
+      <img class="brand-logo" src="${logoMarkys}" alt="Logo Clínica MARKYS SGA" />
+      <p class="eyebrow">CLÍNICA MARKYS SGA</p><h1>MARKYS SGA Online</h1>
       <p class="muted">Acesso centralizado e seguro à clínica.</p>
       <div class="notice" role="alert">O ambiente ainda não foi configurado. Defina
         <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>.
@@ -43,9 +43,9 @@ function renderSetup() {
 function renderLogin(message = '', isError = false) {
   root.innerHTML = `
     <main class="shell"><section class="login-card" aria-labelledby="page-title">
-      <img class="brand-logo" src="${logoFavmed}" alt="Logo Clínica Favmed" />
-      <p class="eyebrow">CLÍNICA FAVMED · MEDICINA OCUPACIONAL</p>
-      <h1 id="page-title">Bem-vindo ao FAVMED</h1>
+      <img class="brand-logo" src="${logoMarkys}" alt="Logo Clínica MARKYS SGA" />
+      <p class="eyebrow">CLÍNICA MARKYS SGA · MEDICINA OCUPACIONAL</p>
+      <h1 id="page-title">Bem-vindo ao MARKYS SGA</h1>
       <p class="muted">Entre com a conta fornecida pelo administrador da clínica.</p>
       <form id="login-form" novalidate>
         <label for="email">E-mail de acesso</label>
@@ -60,7 +60,7 @@ function renderLogin(message = '', isError = false) {
         <p id="form-message" class="message ${isError ? 'error' : ''}" role="status">${escapeHtml(message)}</p>
       </form>
       <p class="footnote">A criação de contas é restrita ao administrador Master. Não há cadastro público.</p>
-    </section><footer>FAVMED Online · Acesso restrito à Clínica Favmed</footer></main>`;
+    </section><footer>MARKYS SGA Online · Acesso restrito à Clínica MARKYS SGA</footer></main>`;
 
   const form = document.querySelector('#login-form');
   const submit = document.querySelector('#submit-button');
@@ -141,13 +141,13 @@ function renderLogin(message = '', isError = false) {
 function renderPasswordUpdate(isRecovery = false) {
   const heading = isRecovery ? 'Redefinir senha' : 'Concluir seu acesso';
   const description = isRecovery
-    ? 'Crie uma nova senha para voltar a acessar o FAVMED.'
+    ? 'Crie uma nova senha para voltar a acessar o MARKYS SGA.'
     : 'Defina uma senha para concluir o convite.';
   const submitLabel = isRecovery ? 'Salvar nova senha' : 'Salvar senha e concluir';
   const expiredMessage = isRecovery
     ? 'O link de recuperação expirou ou já foi utilizado. Solicite outro link e tente novamente.'
     : 'O convite expirou ou já foi utilizado. Solicite um novo convite ao administrador.';
-  root.innerHTML = `<main class="shell"><section class="login-card"><img class="brand-logo" src="${logoFavmed}" alt="Logo Clínica Favmed" /><p class="eyebrow">CLÍNICA FAVMED</p><h1>${heading}</h1><p class="muted">${description}</p><form id="update-password-form"><label for="new-password">Nova senha</label><input id="new-password" name="password" type="password" minlength="8" autocomplete="new-password" required><label for="confirm-new-password">Confirmar nova senha</label><input id="confirm-new-password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required><button class="submit" id="update-password-submit" type="submit">${submitLabel}</button><p id="update-password-message" class="message" role="status"></p></form></section><footer>FAVMED Online · Acesso restrito à Clínica Favmed</footer></main>`;
+  root.innerHTML = `<main class="shell"><section class="login-card"><img class="brand-logo" src="${logoMarkys}" alt="Logo Clínica MARKYS SGA" /><p class="eyebrow">CLÍNICA MARKYS SGA</p><h1>${heading}</h1><p class="muted">${description}</p><form id="update-password-form"><label for="new-password">Nova senha</label><input id="new-password" name="password" type="password" minlength="8" autocomplete="new-password" required><label for="confirm-new-password">Confirmar nova senha</label><input id="confirm-new-password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required><button class="submit" id="update-password-submit" type="submit">${submitLabel}</button><p id="update-password-message" class="message" role="status"></p></form></section><footer>MARKYS SGA Online · Acesso restrito à Clínica MARKYS SGA</footer></main>`;
   const form = document.querySelector('#update-password-form');
   const button = document.querySelector('#update-password-submit');
   const status = document.querySelector('#update-password-message');
@@ -654,7 +654,7 @@ async function renderOperationalModules(profile, userId) {
     const tableRows = [...document.querySelectorAll('#operational-rows tr')].map((tr) => [...tr.cells].slice(0, 3).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim()));
     const csv = tableRows.map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8;' }));
-    const link = document.createElement('a'); link.href = url; link.download = `favmed-atendimentos-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(url);
+    const link = document.createElement('a'); link.href = url; link.download = `markys-sga-atendimentos-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(url);
   });
   document.querySelector('#backup-operational-json')?.addEventListener('click', async (event) => {
     const button = event.currentTarget;
@@ -673,7 +673,7 @@ async function renderOperationalModules(profile, userId) {
       if (patientsResult.error || examsResult.error) throw patientsResult.error || examsResult.error;
       const payload = { exported_at: new Date().toISOString(), date: todayLocal(), visits: visits || [], patients: patientsResult.data || [], exams: examsResult.data || [] };
       const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' }));
-      const link = document.createElement('a'); link.href = url; link.download = `favmed-backup-${todayLocal()}.json`; link.click(); URL.revokeObjectURL(url);
+      const link = document.createElement('a'); link.href = url; link.download = `markys-sga-backup-${todayLocal()}.json`; link.click(); URL.revokeObjectURL(url);
       operationalMessage('#operational-message', 'Backup JSON gerado. Guarde o arquivo em local seguro.');
     } catch (error) { operationalMessage('#operational-message', error.message || 'Não foi possível gerar o backup.', true); }
     finally { button.disabled = false; button.textContent = 'Backup JSON'; }
@@ -934,7 +934,7 @@ async function renderOperationalModules(profile, userId) {
       void loadOperationalRows();
     }, 300);
   };
-  operationalRealtimeChannel = supabase.channel(`favmed-operational-${userId}`)
+  operationalRealtimeChannel = supabase.channel(`markys-sga-operational-${userId}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'patients' }, scheduleRealtimeRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'patient_visits' }, scheduleRealtimeRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'visit_exams' }, scheduleRealtimeRefresh)
@@ -954,9 +954,9 @@ function renderHome(profile, userId) {
       <section class="login-card home-card">
         <header class="app-header">
           <div class="brand">
-            <img class="brand-logo" src="${logoFavmed}" alt="Logo Clínica Favmed" />
+            <img class="brand-logo" src="${logoMarkys}" alt="Logo Clínica MARKYS SGA" />
             <div class="brand-copy">
-              <h1>Clínica Favmed - Medicina Ocupacional</h1>
+              <h1>Clínica MARKYS SGA - Medicina Ocupacional</h1>
               <p>Olá, ${escapeHtml(profile.display_name || label)} · Sessão autenticada · Perfil: ${escapeHtml(label)}</p>
             </div>
           </div>
@@ -989,7 +989,7 @@ function renderHome(profile, userId) {
         ${isMaster ? '' : '<section id="operational-panel" class="operational-panel" aria-label="Módulo operacional"></section>'}
         <button class="secondary" id="sign-out" type="button">Sair da conta</button>
       </section>
-      <footer>FAVMED Online · Acesso restrito à Clínica Favmed</footer>
+      <footer>MARKYS SGA Online · Acesso restrito à Clínica MARKYS SGA</footer>
     </main>`;
 
   document.querySelector('#sign-out').addEventListener('click', async () => {
@@ -1078,8 +1078,8 @@ function renderHome(profile, userId) {
 }
 
 async function renderPublicWaitingRoom() {
-  root.innerHTML = '<main class="waiting-screen favmed-room-screen">' +
-    '<header class="waiting-brand"><img class="brand-logo" src="' + escapeHtml(logoFavmed) + '" alt="Clínica Favmed"/><div><h1>Clínica Favmed</h1><p>PAINEL DE CHAMADAS</p></div><button class="secondary audio-enable" id="enable-call-audio" type="button">Ativar som</button><span class="public-live"><i></i> AO VIVO</span></header>' +
+  root.innerHTML = '<main class="waiting-screen markys-sga-room-screen">' +
+    '<header class="waiting-brand"><img class="brand-logo" src="' + escapeHtml(logoMarkys) + '" alt="Clínica MARKYS SGA"/><div><h1>Clínica MARKYS SGA</h1><p>PAINEL DE CHAMADAS</p></div><button class="secondary audio-enable" id="enable-call-audio" type="button">Ativar som</button><span class="public-live"><i></i> AO VIVO</span></header>' +
     '<section class="waiting-content"><p class="eyebrow">ATENÇÃO</p><h2>Chamadas da clínica</h2><div id="public-calls" class="room-call-grid" aria-live="polite"><div class="no-calls"><strong>Aguardando próxima chamada</strong>Por favor, aguarde.</div></div><p id="room-audio-status" class="waiting-note">Ative o som uma vez para liberar o áudio de chamadas neste navegador.</p></section>' +
     '<audio id="room-call-signal" src="' + escapeHtml(callSignalUrl) + '" preload="auto" playsinline></audio></main>';
   const calls = document.querySelector('#public-calls');
@@ -1154,7 +1154,7 @@ async function renderPublicWaitingRoom() {
       if (document.visibilityState === 'visible') void refreshCalls();
     }, 250);
   };
-  const publicRealtimeChannel = supabase.channel('favmed-public-waiting-room')
+  const publicRealtimeChannel = supabase.channel('markys-sga-public-waiting-room')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'patient_visits' }, schedulePublicRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'visit_exams' }, schedulePublicRefresh)
     .subscribe();
