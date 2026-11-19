@@ -47,8 +47,8 @@ html.favmed-auth-checking body{visibility:hidden}
 })();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.81.1/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4.3.1/dist/tus.min.js"></script>
-<script src="/favmed-cloud.js"></script>
-<script src="/favmed-auth.js" defer></script>
+<script src="/markys-cloud.js"></script>
+<script src="/markys-auth.js" defer></script>
 </head>
 <body>
 <header>
@@ -85,7 +85,7 @@ html.favmed-auth-checking body{visibility:hidden}
     <div class="actions"><button class="btn primary" id="enableReceptionVoice" type="button">🔊 Ativar voz automática</button><button class="btn secondary" id="testVoice" type="button">Testar voz</button><button class="btn ghost" id="repeatLast" type="button">Repetir última</button></div>
     <div class="voice-note" id="voiceStatus">A voz depende das vozes instaladas/disponíveis no navegador do Windows.</div>
    </div>
-   <div class="voicebox" id="slideshowConfig"><strong>🖼️ Fotos e vídeos da tela de espera</strong><p>Selecione fotos ou vídeos do computador servidor. Quando não houver paciente chamado/atendendo por 1 minuto, a TV exibirá a apresentação em tela cheia. As chamadas voltam automaticamente para a frente quando um profissional chamar um paciente.</p><div class="field"><label for="slideshowFiles">SELECIONAR FOTOS E VÍDEOS</label><input id="slideshowFiles" type="file" accept="image/*,video/*" multiple style="width:100%;background:#fff;border:1px solid #cbd9df;border-radius:10px;padding:10px;color:var(--text);font:inherit"></div><div class="actions"><button class="btn primary" id="uploadSlideshow" type="button">Enviar arquivos para a sala</button><button class="btn secondary" id="refreshSlideshowList" type="button">Atualizar lista</button></div><div class="voice-note" id="slideshowStatus" role="status">Os arquivos serão guardados na pasta local midia-sala, ao lado do servidor MARKYS SGA. Limite: 50 MB online (500 MB no modo local) por arquivo.</div><div id="slideshowFileList" class="voice-note"></div></div>
+   <div class="voicebox" id="slideshowConfig"><strong>▧ Fotos e vídeos da tela de espera</strong><p>Selecione fotos ou vídeos do computador servidor. Quando não houver paciente chamado/atendendo por 1 minuto, a TV exibirá a apresentação em tela cheia. As chamadas voltam automaticamente para a frente quando um profissional chamar um paciente.</p><div class="field"><label for="slideshowFiles">SELECIONAR FOTOS E VÍDEOS</label><input id="slideshowFiles" type="file" accept="image/*,video/*" multiple style="width:100%;background:#fff;border:1px solid #cbd9df;border-radius:10px;padding:10px;color:var(--text);font:inherit"></div><div class="actions"><button class="btn primary" id="uploadSlideshow" type="button">Enviar arquivos para a sala</button><button class="btn secondary" id="refreshSlideshowList" type="button">Atualizar lista</button></div><div class="voice-note" id="slideshowStatus" role="status">Os arquivos serão guardados na pasta local midia-sala, ao lado do servidor MARKYS SGA. Limite: 50 MB online (500 MB no modo local) por arquivo.</div><div id="slideshowFileList" class="voice-note"></div></div>
    <p class="footnote">Desenvolvido por Daniel Marques via IA</p>
   </aside>
   <section class="panel">
