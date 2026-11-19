@@ -23,7 +23,7 @@ Nunca coloque chaves secret/service_role no frontend, em variáveis `VITE_*` ou 
 - `/profissional`: fila e status de atendimentos/exames conforme permissões RLS.
 - `/sala`: painel público de chamadas, sem login e somente leitura.
 
-A tela pública consulta `public.public_waiting_room_calls`. A view usa `security_invoker=true`; o papel `anon` recebe somente colunas necessárias, com políticas RLS limitadas às chamadas do dia. Nome completo, CPF, empresa, exames e documentos não são expostos.
+A tela pública consulta `public.public_waiting_room_calls`. A view usa `security_invoker=true`; o papel `anon` recebe somente colunas necessárias, com políticas RLS limitadas às chamadas do dia. Funções auxiliares privadas evitam recursão entre as políticas de atendimentos e exames. Nome completo, CPF, empresa, exames e documentos não são expostos.
 
 ## Estado do novo banco
 - PostgreSQL 17 ativo na região `us-west-2`.
@@ -32,11 +32,11 @@ A tela pública consulta `public.public_waiting_room_calls`. A view usa `securit
 - Três salas de recepção iniciais cadastradas.
 - Bucket privado `patient-documents`.
 - Edge Function `master-users` implantada com validação manual do token e CORS restrito.
-- Migrações versionadas aplicadas ao projeto novo. Não há dados de pacientes de produção.
+- Migrações versionadas aplicadas ao projeto novo, incluindo a correção de recursão RLS. Não há dados de pacientes de produção.
 - O primeiro usuário Master ainda precisa ser provisionado; consulte [MASTER-BOOTSTRAP.md](supabase/MASTER-BOOTSTRAP.md).
 
 ## Validação
-O build Vercel executa `npm run check && npm run build`. Os testes estáticos verificam os guardrails de autenticação, CORS, RLS, view pública e integridade de exames. A auditoria Supabase atual não apresenta alertas de segurança. Permanecem avisos informativos de índices ainda não usados porque o banco está vazio.
+O build Vercel executa `npm run check && npm run build`. Os testes estáticos verificam os guardrails de autenticação, CORS, RLS, view pública e integridade de exames. A consulta real da view com `SET ROLE anon` foi executada sem erro e retornou zero linhas no banco vazio. A auditoria Supabase atual não apresenta alertas de segurança. Permanecem avisos informativos de índices ainda não usados porque o banco está vazio.
 
 Antes de inserir dados reais, validar login real, convite, bloqueio, recuperação de senha e os fluxos completos com contas sintéticas de Master, recepção e profissional.
 
