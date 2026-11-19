@@ -31,7 +31,7 @@ A sala de espera não exige login e recebe somente a fila de chamadas do dia. Do
 
 Este repositório usa exclusivamente o Supabase do MARKYS SGA. O projeto FAVMED é apenas referência de código e comportamento; seus dados, chaves e serviços não são usados pela aplicação MARKYS.
 
-As migrações da integração da raiz estão em `supabase/migrations/`. Elas acrescentam a fila e o armazenamento específicos do SGA, sem substituir as tabelas relacionais existentes de pacientes, atendimentos, exames, profissionais, perfis ou salas. Não executar rotinas de limpeza/descarte de dados do projeto de referência.
+As migrações da integração da raiz estão em `supabase/migrations/`. Elas acrescentam a fila e o armazenamento específicos do SGA, sem substituir as tabelas relacionais existentes de pacientes, atendimentos, exames, profissionais, perfis ou salas. A rotina diária remove somente snapshots antigos da fila JSON; nunca apaga pacientes, atendimentos ou exames das tabelas relacionais.
 
 ## Modo local
 
