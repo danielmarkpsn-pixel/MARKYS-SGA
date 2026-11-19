@@ -91,7 +91,7 @@
     if (!data || !data.session) throw new Error("Sua sessão expirou. Entre novamente.");
     return await new Promise((resolve, reject) => {
       const upload = new window.tus.Upload(file, {
-        endpoint: "https://qzjkoyqmjueosevzhxqa.storage.supabase.co/storage/v1/upload/resumable",
+        endpoint: "https://vibybosdqavejvqsuvph.storage.supabase.co/storage/v1/upload/resumable",
         retryDelays: [0, 3000, 5000, 10000, 20000],
         headers: {
           authorization: "Bearer " + data.session.access_token,
