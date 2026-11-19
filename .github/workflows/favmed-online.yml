@@ -1,1 +1,78 @@
-1
+name: FAVMED Online CI
+
+on:
+  push:
+    branches:
+      - main
+      - feature/favmed-online-master-login
+      - migration/favmed-local-parity
+    paths:
+      - "online/**"
+      - "fila.json"
+      - "index.html"
+      - "consultorio.html"
+      - "favmed-*.js"
+      - "importar-backup.html"
+      - "consultorio/**"
+      - "sala/**"
+      - "scripts/check-local-parity.mjs"
+      - ".github/workflows/favmed-online.yml"
+  pull_request:
+    paths:
+      - "online/**"
+      - "fila.json"
+      - "index.html"
+      - "consultorio.html"
+      - "favmed-*.js"
+      - "importar-backup.html"
+      - "consultorio/**"
+      - "sala/**"
+      - "scripts/check-local-parity.mjs"
+      - ".github/workflows/favmed-online.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-online:
+    name: Check and build FAVMED Online
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: online
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check JavaScript syntax and security regression guardrails
+        run: npm run check
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check Supabase Edge Function
+        run: deno check --no-lock supabase/functions/master-users/index.ts
+      - name: Build application
+        run: npm run build
+
+  check-local-mode:
+    name: Verify original local interface and cloud adapter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check local interface parity and JavaScript syntax
+        run: |
+          node scripts/check-local-parity.mjs
+          node --check favmed-cloud.js
+          node --check favmed-auth.js
