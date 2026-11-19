@@ -947,8 +947,13 @@ async function renderOperationalModules(profile, userId) {
 function renderHome(profile, userId) {
   const label = roleLabels[profile.role];
   const isMaster = profile.role === 'master';
-  const requiredPath = ({ master: '/master', recepcao: '/recepcao', profissional: '/profissional', sala: '/sala' })[profile.role];
+  const masterPaths = ['/master', '/recepcao', '/profissional'];
+  const requiredPath = isMaster && masterPaths.includes(window.location.pathname)
+    ? window.location.pathname
+    : ({ master: '/master', recepcao: '/recepcao', profissional: '/profissional', sala: '/sala' })[profile.role];
   if (window.location.pathname !== requiredPath) window.history.replaceState({}, document.title, requiredPath);
+  const initialMasterView = isMaster && requiredPath === '/recepcao' ? 'recepcao'
+    : isMaster && requiredPath === '/profissional' ? 'profissional' : 'admin';
   root.innerHTML = `
     <main class="shell dashboard-shell">
       <section class="login-card home-card">
@@ -962,7 +967,13 @@ function renderHome(profile, userId) {
           </div>
         </header>
         ${isMaster ? `
-          <section class="admin-panel" aria-labelledby="admin-title">
+          <nav class="master-access-nav" aria-label="Acesso completo do Master">
+            <button class="secondary master-view-button" type="button" data-master-view="admin" aria-pressed="${initialMasterView === 'admin'}">ADMINISTRAÇÃO</button>
+            <button class="secondary master-view-button" type="button" data-master-view="recepcao" aria-pressed="${initialMasterView === 'recepcao'}">RECEPÇÃO</button>
+            <button class="secondary master-view-button" type="button" data-master-view="profissional" aria-pressed="${initialMasterView === 'profissional'}">PROFISSIONAIS</button>
+            <a class="secondary" href="/sala" target="_blank" rel="noopener noreferrer">SALA DE ESPERA</a>
+          </nav>
+          <section class="admin-panel" id="master-admin-panel" aria-labelledby="admin-title" ${initialMasterView === 'admin' ? '' : 'hidden'}>
             <h2 id="admin-title">Administração de usuários</h2>
             <p class="muted">Convide usuários por e-mail e controle contas da equipe. O perfil Master não pode ser criado nesta tela.</p>
             <form id="create-user-form" class="admin-form">
@@ -986,7 +997,7 @@ function renderHome(profile, userId) {
               <tbody id="users-body"><tr><td colspan="4">Carregando contas…</td></tr></tbody>
             </table></div>
           </section>` : ``}
-        ${isMaster ? '' : '<section id="operational-panel" class="operational-panel" aria-label="Módulo operacional"></section>'}
+        ${isMaster ? '<section id="operational-panel" class="operational-panel" aria-label="Módulo operacional" hidden></section>' : '<section id="operational-panel" class="operational-panel" aria-label="Módulo operacional"></section>'}
         <button class="secondary" id="sign-out" type="button">Sair da conta</button>
       </section>
       <footer>MARKYS SGA Online · Acesso restrito à Clínica MARKYS SGA</footer>
@@ -998,6 +1009,24 @@ function renderHome(profile, userId) {
   });
 
   if (!isMaster) { renderOperationalModules(profile, userId); return; }
+  const adminPanel = document.querySelector('#master-admin-panel');
+  const operationalPanel = document.querySelector('#operational-panel');
+  const masterViewButtons = [...document.querySelectorAll('[data-master-view]')];
+  function activateMasterView(view) {
+    const nextView = ['admin', 'recepcao', 'profissional'].includes(view) ? view : 'admin';
+    const nextPath = ({ admin: '/master', recepcao: '/recepcao', profissional: '/profissional' })[nextView];
+    window.history.replaceState({}, document.title, nextPath);
+    adminPanel.hidden = nextView !== 'admin';
+    operationalPanel.hidden = nextView === 'admin';
+    masterViewButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.masterView === nextView)));
+    if (nextView !== 'admin') {
+      void renderOperationalModules({ ...profile, role: nextView }, userId);
+    }
+  }
+  masterViewButtons.forEach((button) => {
+    button.addEventListener('click', () => activateMasterView(button.dataset.masterView));
+  });
+  if (initialMasterView !== 'admin') activateMasterView(initialMasterView);
   const adminMessage = document.querySelector('#admin-message');
   const usersBody = document.querySelector('#users-body');
   const refreshButton = document.querySelector('#refresh-users');
