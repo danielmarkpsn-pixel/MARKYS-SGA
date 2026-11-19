@@ -1,9 +1,9 @@
 (() => {
   "use strict";
-  const cloud = window.FAVMED_CLOUD;
+  const cloud = window.MARKYS_CLOUD;
   const client = cloud.client;
   const root = document.documentElement;
-  const localMode = !!window.FAVMED_LOCAL_MODE;
+  const localMode = !!window.MARKYS_LOCAL_MODE;
   const params = new URLSearchParams(location.search);
   const publicMode = params.get("painel") === "1" || location.pathname === "/sala" || location.pathname === "/sala/";
   const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
@@ -18,38 +18,38 @@
   function showAccessMessage(message) {
     if (overlay) overlay.remove();
     overlay = document.createElement("div");
-    overlay.className = "favmed-auth-overlay";
+    overlay.className = "markys-auth-overlay";
     overlay.innerHTML = `
-      <section class="favmed-auth-card" aria-labelledby="favmed-auth-title">
-        <img src="/markys-sga.svg" alt="MARKYS SGA" class="favmed-auth-logo">
-        <h1 id="favmed-auth-title">Sala de espera</h1>
-        <p id="favmed-auth-info"></p>
+      <section class="markys-auth-card" aria-labelledby="markys-auth-title">
+        <img src="/markys-sga.svg" alt="MARKYS SGA" class="markys-auth-logo">
+        <h1 id="markys-auth-title">Sala de espera</h1>
+        <p id="markys-auth-info"></p>
       </section>`;
     document.body.appendChild(overlay);
-    overlay.querySelector("#favmed-auth-info").textContent = message;
-    root.classList.remove("favmed-auth-checking");
+    overlay.querySelector("#markys-auth-info").textContent = message;
+    root.classList.remove("markys-auth-checking");
   }
 
   function showPasswordSetup(message) {
     if (overlay) overlay.remove();
     overlay = document.createElement("div");
-    overlay.className = "favmed-auth-overlay";
+    overlay.className = "markys-auth-overlay";
     overlay.innerHTML = `
-      <section class="favmed-auth-card" aria-labelledby="favmed-auth-title">
-        <img src="/markys-sga.svg" alt="MARKYS SGA" class="favmed-auth-logo">
-        <h1 id="favmed-auth-title">Definir senha</h1>
+      <section class="markys-auth-card" aria-labelledby="markys-auth-title">
+        <img src="/markys-sga.svg" alt="MARKYS SGA" class="markys-auth-logo">
+        <h1 id="markys-auth-title">Definir senha</h1>
         <p>Crie uma senha para acessar o MARKYS SGA. Use pelo menos 8 caracteres.</p>
         <form id="favmed-password-form">
           <label for="favmed-new-password">Nova senha</label>
           <input id="favmed-new-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
           <label for="favmed-confirm-password">Confirmar senha</label>
           <input id="favmed-confirm-password" name="confirm" type="password" autocomplete="new-password" minlength="8" required>
-          <button type="submit" class="favmed-auth-submit">Salvar senha</button>
-          <div class="favmed-auth-message" id="favmed-password-message" role="alert"></div>
+          <button type="submit" class="markys-auth-submit">Salvar senha</button>
+          <div class="markys-auth-message" id="favmed-password-message" role="alert"></div>
         </form>
       </section>`;
     document.body.appendChild(overlay);
-    root.classList.remove("favmed-auth-checking");
+    root.classList.remove("markys-auth-checking");
     const form = overlay.querySelector("#favmed-password-form");
     const messageBox = overlay.querySelector("#favmed-password-message");
     if (message) messageBox.textContent = message;
@@ -86,22 +86,22 @@
   function showRecovery(message) {
     if (overlay) overlay.remove();
     overlay = document.createElement("div");
-    overlay.className = "favmed-auth-overlay";
+    overlay.className = "markys-auth-overlay";
     overlay.innerHTML = `
-      <section class="favmed-auth-card" aria-labelledby="favmed-auth-title">
-        <img src="/markys-sga.svg" alt="MARKYS SGA" class="favmed-auth-logo">
-        <h1 id="favmed-auth-title">Esqueci a senha</h1>
+      <section class="markys-auth-card" aria-labelledby="markys-auth-title">
+        <img src="/markys-sga.svg" alt="MARKYS SGA" class="markys-auth-logo">
+        <h1 id="markys-auth-title">Esqueci a senha</h1>
         <p>Informe seu e-mail. Enviaremos um link para criar uma nova senha.</p>
         <form id="favmed-recovery-form">
           <label for="favmed-recovery-email">E-mail</label>
           <input id="favmed-recovery-email" name="email" type="email" autocomplete="username" required>
-          <button type="submit" class="favmed-auth-submit">Enviar link</button>
-          <button type="button" id="favmed-back-login" class="favmed-auth-submit" style="margin-top:8px;background:#647780">Voltar ao login</button>
-          <div class="favmed-auth-message" id="favmed-recovery-message" role="alert"></div>
+          <button type="submit" class="markys-auth-submit">Enviar link</button>
+          <button type="button" id="favmed-back-login" class="markys-auth-submit" style="margin-top:8px;background:#647780">Voltar ao login</button>
+          <div class="markys-auth-message" id="favmed-recovery-message" role="alert"></div>
         </form>
       </section>`;
     document.body.appendChild(overlay);
-    root.classList.remove("favmed-auth-checking");
+    root.classList.remove("markys-auth-checking");
     const form = overlay.querySelector("#favmed-recovery-form");
     const messageBox = overlay.querySelector("#favmed-recovery-message");
     if (message) messageBox.textContent = message;
@@ -130,31 +130,31 @@
   function showLogin(message) {
     if (overlay) overlay.remove();
     overlay = document.createElement("div");
-    overlay.className = "favmed-auth-overlay";
+    overlay.className = "markys-auth-overlay";
     overlay.innerHTML = `
-      <section class="favmed-auth-card" aria-labelledby="favmed-auth-title">
-        <img src="/markys-sga.svg" alt="MARKYS SGA" class="favmed-auth-logo">
-        <h1 id="favmed-auth-title">MARKYS SGA</h1>
+      <section class="markys-auth-card" aria-labelledby="markys-auth-title">
+        <img src="/markys-sga.svg" alt="MARKYS SGA" class="markys-auth-logo">
+        <h1 id="markys-auth-title">MARKYS SGA</h1>
         <p>Acesse sua conta para entrar no aplicativo.</p>
-        <form id="favmed-auth-form">
-          <label for="favmed-auth-email">E-mail</label>
-          <input id="favmed-auth-email" name="email" type="email" autocomplete="username" required>
-          <label for="favmed-auth-password">Senha</label>
-          <input id="favmed-auth-password" name="password" type="password" autocomplete="current-password" required>
-          <button type="submit" class="favmed-auth-submit">Entrar</button>
-          <button type="button" id="favmed-forgot-password" class="favmed-auth-submit" style="margin-top:8px;background:#647780">Esqueci a senha</button>
-          <div class="favmed-auth-message" id="favmed-auth-message" role="alert"></div>
+        <form id="markys-auth-form">
+          <label for="markys-auth-email">E-mail</label>
+          <input id="markys-auth-email" name="email" type="email" autocomplete="username" required>
+          <label for="markys-auth-password">Senha</label>
+          <input id="markys-auth-password" name="password" type="password" autocomplete="current-password" required>
+          <button type="submit" class="markys-auth-submit">Entrar</button>
+          <button type="button" id="favmed-forgot-password" class="markys-auth-submit" style="margin-top:8px;background:#647780">Esqueci a senha</button>
+          <div class="markys-auth-message" id="markys-auth-message" role="alert"></div>
         </form>
       </section>`;
     document.body.appendChild(overlay);
-    root.classList.remove("favmed-auth-checking");
-    if (message) overlay.querySelector("#favmed-auth-message").textContent = message;
-    const form = overlay.querySelector("#favmed-auth-form");
+    root.classList.remove("markys-auth-checking");
+    if (message) overlay.querySelector("#markys-auth-message").textContent = message;
+    const form = overlay.querySelector("#markys-auth-form");
     overlay.querySelector("#favmed-forgot-password").addEventListener("click", () => showRecovery(""));
     form.addEventListener("submit", async event => {
       event.preventDefault();
       const button = form.querySelector('button[type="submit"]');
-      const messageBox = form.querySelector("#favmed-auth-message");
+      const messageBox = form.querySelector("#markys-auth-message");
       const email = form.elements.email.value.trim();
       const password = form.elements.password.value;
       button.disabled = true;
@@ -232,13 +232,13 @@
     cloud.resolveAuth(profile);
     await cloud.readQueue({ publicMode });
     addLogoutButton();
-    root.classList.remove("favmed-auth-checking");
+    root.classList.remove("markys-auth-checking");
     return true;
   }
 
   if (localMode) {
     cloud.resolveAuth({ role: "local", active: true });
-    root.classList.remove("favmed-auth-checking");
+    root.classList.remove("markys-auth-checking");
     return;
   }
 
@@ -246,7 +246,7 @@
   // separate anonymous Supabase client and never inherits a staff session.
   if (publicMode) {
     cloud.resolveAuth({ role: "public_display", active: true });
-    root.classList.remove("favmed-auth-checking");
+    root.classList.remove("markys-auth-checking");
     return;
   }
 
