@@ -1,33 +1,37 @@
-name: FAVMED Online CI
+name: MARKYS SGA CI
 
 on:
   push:
     branches:
       - main
-      - feature/favmed-online-master-login
-      - migration/favmed-local-parity
     paths:
-      - "online/**"
-      - "fila.json"
       - "index.html"
       - "consultorio.html"
-      - "favmed-*.js"
+      - "admin-logins.html"
       - "importar-backup.html"
+      - "markys-*.js"
+      - "api/**"
       - "consultorio/**"
       - "sala/**"
-      - "scripts/check-local-parity.mjs"
+      - "supabase/**"
+      - "vercel.json"
+      - "package.json"
       - ".github/workflows/favmed-online.yml"
   pull_request:
+    branches:
+      - main
     paths:
-      - "online/**"
-      - "fila.json"
       - "index.html"
       - "consultorio.html"
-      - "favmed-*.js"
+      - "admin-logins.html"
       - "importar-backup.html"
+      - "markys-*.js"
+      - "api/**"
       - "consultorio/**"
       - "sala/**"
-      - "scripts/check-local-parity.mjs"
+      - "supabase/**"
+      - "vercel.json"
+      - "package.json"
       - ".github/workflows/favmed-online.yml"
   workflow_dispatch:
 
@@ -35,44 +39,52 @@ permissions:
   contents: read
 
 jobs:
-  build-online:
-    name: Check and build FAVMED Online
+  validate-root-app:
+    name: Validate MARKYS SGA root application
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: online
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Check JavaScript syntax and security regression guardrails
-        run: npm run check
-      - name: Setup Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-      - name: Type-check Supabase Edge Function
-        run: deno check --no-lock supabase/functions/master-users/index.ts
-      - name: Build application
-        run: npm run build
 
-  check-local-mode:
-    name: Verify original local interface and cloud adapter
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Check local interface parity and JavaScript syntax
+
+      - name: Check JavaScript syntax
         run: |
-          node scripts/check-local-parity.mjs
-          node --check favmed-cloud.js
-          node --check favmed-auth.js
+          node --check markys-cloud.js
+          node --check markys-auth.js
+          node --check api/public-queue.js
+          node --check api/redis-check.js
+
+      - name: Validate HTML inline scripts and MARKYS routes
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from "node:fs";
+          import vm from "node:vm";
+
+          for (const file of ["index.html", "consultorio.html", "admin-logins.html", "importar-backup.html", "consultorio/index.html", "sala/index.html"]) {
+            const html = readFileSync(file, "utf8");
+            let index = 0;
+            for (const match of html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)) {
+              const source = match[1].trim();
+              if (source) new vm.Script(source, { filename: file + "#inline-" + index });
+              index += 1;
+            }
+          }
+
+          const reception = readFileSync("index.html", "utf8");
+          const professional = readFileSync("consultorio.html", "utf8");
+          const professionalRoute = readFileSync("consultorio/index.html", "utf8");
+          if (!reception.includes("MARKYS SGA")) throw new Error("Identidade MARKYS SGA ausente na recepção.");
+          if (!professional.includes("MARKYS SGA")) throw new Error("Identidade MARKYS SGA ausente no painel profissional.");
+          if (!reception.includes("/consultorio.html")) throw new Error("Link para o painel profissional ausente na recepção.");
+          if (!professionalRoute.includes("/consultorio.html")) throw new Error("Rota /consultorio não encaminha ao painel profissional.");
+          if (!reception.includes("markys-cloud.js") || !reception.includes("markys-auth.js")) throw new Error("Integração MARKYS Cloud/Auth ausente na recepção.");
+          if (!professional.includes("markys-cloud.js") || !professional.includes("markys-auth.js")) throw new Error("Integração MARKYS Cloud/Auth ausente no painel profissional.");
+          console.log("MARKYS SGA root application checks passed.");
+          NODE
+
+      - name: Check patch whitespace
+        run: git diff --check
