@@ -27,7 +27,7 @@
       </section>`;
     document.body.appendChild(overlay);
     overlay.querySelector("#markys-sga-auth-info").textContent = message;
-    root.classList.remove("markys-sga-auth-checking");
+    root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
   }
 
   function showPasswordSetup(message) {
@@ -49,7 +49,7 @@
         </form>
       </section>`;
     document.body.appendChild(overlay);
-    root.classList.remove("markys-sga-auth-checking");
+    root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
     const form = overlay.querySelector("#markys-sga-password-form");
     const messageBox = overlay.querySelector("#markys-sga-password-message");
     if (message) messageBox.textContent = message;
@@ -101,7 +101,7 @@
         </form>
       </section>`;
     document.body.appendChild(overlay);
-    root.classList.remove("markys-sga-auth-checking");
+    root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
     const form = overlay.querySelector("#markys-sga-recovery-form");
     const messageBox = overlay.querySelector("#markys-sga-recovery-message");
     if (message) messageBox.textContent = message;
@@ -147,7 +147,7 @@
         </form>
       </section>`;
     document.body.appendChild(overlay);
-    root.classList.remove("markys-sga-auth-checking");
+    root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
     if (message) overlay.querySelector("#markys-sga-auth-message").textContent = message;
     const form = overlay.querySelector("#markys-sga-auth-form");
     overlay.querySelector("#markys-sga-forgot-password").addEventListener("click", () => showRecovery(""));
@@ -232,13 +232,13 @@
     cloud.resolveAuth(profile);
     await cloud.readQueue({ publicMode });
     addLogoutButton();
-    root.classList.remove("markys-sga-auth-checking");
+    root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
     return true;
   }
 
   if (localMode) {
     cloud.resolveAuth({ role: "local", active: true });
-    root.classList.remove("markys-sga-auth-checking");
+    root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
     return;
   }
 
@@ -246,7 +246,7 @@
   // separate anonymous Supabase client and never inherits a staff session.
   if (publicMode) {
     cloud.resolveAuth({ role: "public_display", active: true });
-    root.classList.remove("markys-sga-auth-checking");
+    root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
     return;
   }
 
