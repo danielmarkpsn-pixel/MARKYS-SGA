@@ -6,6 +6,7 @@
   const localMode = !!window.MARKYS_LOCAL_MODE;
   const params = new URLSearchParams(location.search);
   const publicMode = params.get("painel") === "1" || location.pathname === "/sala" || location.pathname === "/sala/";
+  const financeMode = location.pathname === "/financeiro" || location.pathname === "/financeiro.html";
   const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
   const authFlow = hashParams.get("type") || params.get("flow") || "";
   let overlay = null;
@@ -176,6 +177,15 @@
   function addLogoutButton() {
     if (document.getElementById("markys-sga-logout")) return;
     const profile = cloud.profile;
+    if (profile && ["master", "financeiro"].includes(profile.role) && !publicMode && !document.getElementById("markys-sga-finance")) {
+      const financeButton = document.createElement("a");
+      financeButton.id = "markys-sga-finance";
+      financeButton.href = "/financeiro.html";
+      financeButton.textContent = "Financeiro";
+      financeButton.setAttribute("aria-label", "Abrir módulo Financeiro");
+      financeButton.style.cssText = "position:fixed;right:280px;bottom:18px;z-index:9998;border:0;border-radius:10px;padding:11px 16px;background:#173b73;color:#fff;text-decoration:none;font:700 13px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
+      document.body.appendChild(financeButton);
+    }
     if (profile && profile.role === "master" && !publicMode && !document.getElementById("markys-sga-admin-logins")) {
       const adminButton = document.createElement("a");
       adminButton.id = "markys-sga-admin-logins";
@@ -219,6 +229,10 @@
     if (profileError || !profile || !profile.active) {
       await client.auth.signOut();
       showLogin("Conta sem perfil ativo. Solicite ao administrador a liberação do acesso.");
+      return false;
+    }
+    if (financeMode && !["master", "financeiro"].includes(profile.role)) {
+      showAccessMessage("Acesso restrito ao Master e aos usuários com perfil Financeiro.");
       return false;
     }
     if (publicMode && !["master", "recepcao"].includes(profile.role)) {
