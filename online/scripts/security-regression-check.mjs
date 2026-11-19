@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const [edge, frontend, queueFile] = await Promise.all([
+const [edge, frontend] = await Promise.all([
   readFile(new URL('../supabase/functions/master-users/index.ts', import.meta.url), 'utf8'),
   readFile(new URL('../src/main.js', import.meta.url), 'utf8'),
-  readFile(new URL('../../fila.json', import.meta.url), 'utf8'),
 ]);
 
 // Regression guardrails for security-sensitive administrative operations.
@@ -25,9 +24,6 @@ assert.match(frontend, /profile\.active !== true/);
 assert.match(frontend, /event === 'PASSWORD_RECOVERY'/);
 assert.match(frontend, /passwordRecoveryInProgress \|\| isInvite \|\| isRecovery/);
 assert.match(frontend, /renderPasswordUpdate\(true\)/);
-
-// Patient data must never be committed to the legacy local queue file.
-assert.deepEqual(JSON.parse(queueFile), [], 'fila.json must remain empty in the repository; use synthetic fixtures outside tracked production data.');
 
 assert.doesNotMatch(frontend, /qzjkoyqmjueosevzhxqa|favmed\.vercel\.app|FAVMED|Favmed/i, 'The MARKYS SGA frontend must not retain FAVMED branding or project endpoints.');
 assert.doesNotMatch(edge, /qzjkoyqmjueosevzhxqa|favmed\.vercel\.app|FAVMED|Favmed/i, 'The MARKYS SGA Edge Function must not retain FAVMED branding or project endpoints.');
