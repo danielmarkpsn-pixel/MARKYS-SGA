@@ -133,8 +133,13 @@
       if (typeof callback !== "function") return null;
       let active = true;
       let channel = null;
-      authReady.then(profile => {
+      authReady.then(async profile => {
         if (!active || !profile || !["master", "recepcao", "profissional"].includes(profile.role)) return;
+        const { data: sessionData } = await client.auth.getSession();
+        if (sessionData && sessionData.session && client.realtime && typeof client.realtime.setAuth === "function") {
+          await client.realtime.setAuth(sessionData.session.access_token);
+        }
+        if (!active) return;
         channel = client.channel("markys-sga-queue-staff", { config: { private: true } });
         channel
           .on("broadcast", { event: "queue_changed" }, payload => {
@@ -305,7 +310,7 @@
       const files = (data || []).filter(item => item && item.id && item.name);
       return await Promise.all(files.map(async item => {
         const path = "media/" + item.name;
-        const signedUrl = await createSignedUrl("markys-sga-media", path);
+        const signedUrl = client.storage.from("markys-sga-media").getPublicUrl(path).data.publicUrl;
         const displayName = item.name.replace(/^\d+_/, "");
         const type = item.metadata && (item.metadata.mimetype || item.metadata.contentType) ||
           (/\.(mp4|webm|ogg|mov|m4v)$/i.test(displayName) ? "video/" + displayName.split(".").pop().toLowerCase() :
