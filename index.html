@@ -27,23 +27,23 @@ input, textarea, select { text-transform: none !important; }
 
 <style>
 .public-mode main{height:calc(100vh - 90px);max-height:calc(100vh - 90px);display:flex;flex-direction:column;overflow:hidden;padding:10px 18px 8px}.public-mode .hero{flex:0 0 auto;margin-bottom:8px}.public-mode .hero h2{font-size:clamp(22px,3vw,38px)}.public-mode .public-screen{flex:1;min-height:0;display:flex;flex-direction:column}.public-mode .screen-label{margin:4px 0 8px;font-size:clamp(10px,1.2vw,15px)}.public-mode .screen-audio{margin:0 auto 6px}.public-mode .public-split,.public-mode .call-board{flex:1;min-height:0;height:100%}.public-mode .called-display{height:100%;grid-template-columns:repeat(var(--call-columns,1),minmax(0,1fr));grid-template-rows:repeat(var(--call-rows,1),minmax(0,1fr));gap:clamp(5px,.7vw,12px);overflow:hidden}.public-mode .called-card{min-height:0;padding:clamp(5px,.8vw,14px);border-radius:12px}.public-mode .called-card .call-label{font-size:clamp(9px,1vw,14px);letter-spacing:1px}.public-mode .called-card .call-name{font-size:var(--call-font-size,24px);line-height:1.08;margin:5px 0;overflow-wrap:anywhere}.public-mode .called-card .call-room{font-size:clamp(12px,1.4vw,22px)}.public-mode .no-calls{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;font-size:clamp(14px,2vw,22px)}.public-mode .no-calls strong{font-size:clamp(22px,3vw,40px);margin-bottom:6px}.public-mode .screen-footer{flex:0 0 auto;margin-top:5px;font-size:10px}
-html.favmed-auth-checking body{visibility:hidden}
-.favmed-auth-overlay{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:18px;background:rgba(13,35,44,.78);font-family:"Segoe UI",Arial,sans-serif}
-.favmed-auth-card{width:min(420px,100%);background:#fff;border:1px solid #dce5e9;border-radius:16px;padding:28px;box-shadow:0 18px 60px #0004;color:#20313a}
-.favmed-auth-logo{display:block;width:56px;height:56px;object-fit:contain;margin:0 auto 12px}
-.favmed-auth-card h1{text-align:center;font-size:23px;margin:0 0 5px}
-.favmed-auth-card>p{text-align:center;color:#637984;margin:0 0 22px;font-size:13px}
-.favmed-auth-card label{display:block;font-size:12px;font-weight:700;color:#536a74;margin:12px 0 6px}
-.favmed-auth-card input{width:100%;padding:12px;border:1px solid #cbd9df;border-radius:10px;font:inherit;box-sizing:border-box}
-.favmed-auth-submit{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:800;font-size:14px;cursor:pointer}
-.favmed-auth-submit:disabled{opacity:.65;cursor:wait}
-.favmed-auth-message{min-height:18px;margin-top:12px;color:#b42332;font-size:12px;line-height:1.4}
+html.markys-auth-checking body{visibility:hidden}
+.markys-auth-overlay{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:18px;background:rgba(13,35,44,.78);font-family:"Segoe UI",Arial,sans-serif}
+.markys-auth-card{width:min(420px,100%);background:#fff;border:1px solid #dce5e9;border-radius:16px;padding:28px;box-shadow:0 18px 60px #0004;color:#20313a}
+.markys-auth-logo{display:block;width:56px;height:56px;object-fit:contain;margin:0 auto 12px}
+.markys-auth-card h1{text-align:center;font-size:23px;margin:0 0 5px}
+.markys-auth-card>p{text-align:center;color:#637984;margin:0 0 22px;font-size:13px}
+.markys-auth-card label{display:block;font-size:12px;font-weight:700;color:#536a74;margin:12px 0 6px}
+.markys-auth-card input{width:100%;padding:12px;border:1px solid #cbd9df;border-radius:10px;font:inherit;box-sizing:border-box}
+.markys-auth-submit{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:800;font-size:14px;cursor:pointer}
+.markys-auth-submit:disabled{opacity:.65;cursor:wait}
+.markys-auth-message{min-height:18px;margin-top:12px;color:#b42332;font-size:12px;line-height:1.4}
 </style>
 <script>(function(){
  const h=location.hostname.toLowerCase();
- window.FAVMED_LOCAL_MODE=location.protocol==="file:"||h==="localhost"||h==="127.0.0.1"||h==="::1"||
+ window.MARKYS_LOCAL_MODE=location.protocol==="file:"||h==="localhost"||h==="127.0.0.1"||h==="::1"||
   /^10\./.test(h)||/^192\.168\./.test(h)||/^172\.(1[6-9]|2\d|3[01])\./.test(h)||h.endsWith(".local");
- if(!window.FAVMED_LOCAL_MODE)document.documentElement.classList.add("favmed-auth-checking");
+ if(!window.MARKYS_LOCAL_MODE)document.documentElement.classList.add("markys-auth-checking");
 })();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.81.1/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4.3.1/dist/tus.min.js"></script>
@@ -130,18 +130,18 @@ if(publicMode){document.body.classList.add("public-mode");document.title="MARKYS
 $("today").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
 async function load(){
  if(serverMode){if(saveInProgress>0)return;try{const r=await fetch("/api/state",{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const data=await r.json();if(saveInProgress===0)patients=Array.isArray(data)?data:[];}catch(e){notify("Sem conexão com o servidor local. Confira se o computador da recepção está ligado.");}return;}
- if(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE){if(saveInProgress>0)return;try{patients=await window.FAVMED_CLOUD.readQueue({publicMode});}catch(e){notify(e.message||"Não foi possível carregar a fila na nuvem.");}return;}
+ if(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE){if(saveInProgress>0)return;try{patients=await window.MARKYS_CLOUD.readQueue({publicMode});}catch(e){notify(e.message||"Não foi possível carregar a fila na nuvem.");}return;}
  try{const raw=localStorage.getItem(KEY);patients=raw?JSON.parse(raw):[];if(!Array.isArray(patients))patients=[];}catch(e){patients=[];notify("Não foi possível ler os dados salvos neste navegador.");}
 }
 async function save(){
  saveInProgress++;
  try{
   if(serverMode){const r=await fetch("/api/state",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(patients)});if(!r.ok)throw new Error("HTTP "+r.status);return true;}
-  if(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE){await window.FAVMED_CLOUD.writeQueue(patients);return true;}
+  if(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE){await window.MARKYS_CLOUD.writeQueue(patients);return true;}
   localStorage.setItem(KEY,JSON.stringify(patients));return true;
  }catch(e){
-  if(e&&e.code==="QUEUE_CONFLICT"&&window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE){
-   try{patients=await window.FAVMED_CLOUD.readQueue({publicMode:false});render();}catch(_){}
+  if(e&&e.code==="QUEUE_CONFLICT"&&window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE){
+   try{patients=await window.MARKYS_CLOUD.readQueue({publicMode:false});render();}catch(_){}
   }
   notify(e.message||"Falha ao salvar. O cadastro não foi confirmado; tente novamente.");return false;
  }
@@ -207,15 +207,15 @@ async function resolveM3uPlaylist(url){
 }
 function loadHlsScript(){
  if(window.Hls)return Promise.resolve(window.Hls);
- if(window.__favmedHlsPromise)return window.__favmedHlsPromise;
- window.__favmedHlsPromise=new Promise((resolve,reject)=>{
+ if(window.__markysHlsPromise)return window.__markysHlsPromise;
+ window.__markysHlsPromise=new Promise((resolve,reject)=>{
   const script=document.createElement("script");
   script.src="https://cdn.jsdelivr.net/npm/hls.js@1.6.13/dist/hls.min.js";
   script.onload=()=>window.Hls?resolve(window.Hls):reject(new Error("A biblioteca HLS não carregou."));
   script.onerror=()=>reject(new Error("Não foi possível carregar o player HLS. Verifique a internet da sala de espera."));
   document.head.appendChild(script);
  });
- return window.__favmedHlsPromise;
+ return window.__markysHlsPromise;
 }
 async function loadMedia(raw){
  const container=$("mediaContainer");if(!container)return;
@@ -258,7 +258,7 @@ function openBrowserAddress(raw,updateField=true){const frame=$("browserFrame"),
 async function refreshSlideshowItems(){
  let list=[];
  try{
-  if(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE&&!serverMode) list=await window.FAVMED_CLOUD.listSlideshow();
+  if(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE&&!serverMode) list=await window.MARKYS_CLOUD.listSlideshow();
   else if(serverMode){const r=await fetch("/api/slideshow",{cache:"no-store"});if(!r.ok)return;const data=await r.json();list=Array.isArray(data)?data:[];}
   else return;
   const old=slideshowItems.map(x=>x.name).join("|");
@@ -295,14 +295,14 @@ const slideVideo=$("slideshowVideo");if(slideVideo){slideVideo.loop=false;slideV
 async function uploadSlideshowFiles(){
  const input=$("slideshowFiles"),status=$("slideshowStatus");
  if(!input||!input.files||!input.files.length){notify("Selecione uma ou mais fotos ou vídeos.");return;}
- if(!serverMode&&!(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE)){notify("O envio exige abrir o MARKYS SGA pelo servidor local.");return;}
+ if(!serverMode&&!(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE)){notify("O envio exige abrir o MARKYS SGA pelo servidor local.");return;}
  const files=Array.from(input.files);let done=0;
  for(const file of files){
   if(!/^(image|video)\//i.test(file.type)){notify("Arquivo ignorado: "+file.name);continue;}
-  const cloudUpload=!!(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE&&!serverMode);const maxUpload=cloudUpload?52428800:524288000;if(file.size>maxUpload){notify(file.name+" excede "+(cloudUpload?"50 MB":"500 MB")+" e foi ignorado.");continue;}
+  const cloudUpload=!!(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE&&!serverMode);const maxUpload=cloudUpload?52428800:524288000;if(file.size>maxUpload){notify(file.name+" excede "+(cloudUpload?"50 MB":"500 MB")+" e foi ignorado.");continue;}
   if(status)status.textContent="Enviando "+file.name+" ("+(done+1)+"/"+files.length+")…";
   try{
-   if(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE&&!serverMode) await window.FAVMED_CLOUD.uploadSlideshow(file,pct=>{if(status)status.textContent="Enviando "+file.name+": "+pct+"%";});
+   if(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE&&!serverMode) await window.MARKYS_CLOUD.uploadSlideshow(file,pct=>{if(status)status.textContent="Enviando "+file.name+": "+pct+"%";});
    else {const r=await fetch("/api/slideshow/upload?name="+encodeURIComponent(file.name),{method:"POST",headers:{"Content-Type":file.type||"application/octet-stream"},body:file});if(!r.ok)throw new Error("HTTP "+r.status);}
    done++;
   }catch(e){notify("Falha ao enviar "+file.name+": "+(e.message||"verifique a conexão."));}
@@ -411,8 +411,8 @@ function fillVoices(){
 }
 $("voiceSelect").addEventListener("change",()=>{const voice=choosePortugueseFemaleVoice();$("voiceStatus").textContent=voice?"Voz escolhida: "+voice.name+". Clique em “Testar voz” para ouvir.":"Nenhuma voz compatível encontrada.";});
 
- $("patientForm").addEventListener("submit",async e=>{e.preventDefault();const form=$("patientForm"),openFor=el=>{const d=el.closest("details");if(d)d.open=true;el.focus();};for(const id of ["patientName","patientCpf","patientBirth","patientInsurance","patientJob"]){const el=$(id);if(!el.value.trim()){openFor(el);notify("Preencha todos os dados obrigatórios do cadastro.");return;}}const name=$("patientName").value.trim().toLocaleUpperCase("pt-BR"),rooms=Array.from(document.querySelectorAll('input[name="rooms"]:checked')).map(x=>x.value),services=rooms.map(serviceForRoom).filter(Boolean),examTypes=Array.from(document.querySelectorAll('input[name="examTypes"]:checked')).map(x=>x.value);if(!examTypes.length){openFor(document.querySelector('input[name="examTypes"]'));notify("Selecione o tipo de exame/atendimento.");return;}if(!rooms.length||services.length!==rooms.length){openFor(document.querySelector('input[name="rooms"]'));notify("Marque pelo menos uma sala.");return;}const examsByRoom={"Sala 1":Array.from(document.querySelectorAll('input[name="examSala1"]:checked')).map(x=>x.value),"Sala 2":Array.from(document.querySelectorAll('input[name="examSala2"]:checked')).map(x=>x.value),"Sala 3":Array.from(document.querySelectorAll('input[name="examSala3"]:checked')).map(x=>x.value),"Sala 4":Array.from(document.querySelectorAll('input[name="examSala4"]:checked')).map(x=>x.value)};for(const room of ["Sala 1","Sala 2","Sala 3","Sala 4"]){if(rooms.includes(room)&&!examsByRoom[room].length){const key={"Sala 1":"examSala1","Sala 2":"examSala2","Sala 3":"examSala3","Sala 4":"examSala4"}[room];openFor(document.querySelector('input[name="'+key+'"]'));notify("Selecione pelo menos um exame para "+room+".");return;}}if(patientSubmissionInProgress)return;patientSubmissionInProgress=true;const submitButtons=Array.from(form.querySelectorAll('button[type="submit"],input[type="submit"]'));submitButtons.forEach(button=>button.disabled=true);const releaseSubmission=()=>{patientSubmissionInProgress=false;submitButtons.forEach(button=>button.disabled=false);};const now=Date.now(),dt=new Date(now),id=String(now)+Math.random().toString(16).slice(2,6),file=$("patientPdf").files&&$("patientPdf").files[0];let documentInfo=null;if(file){if(!/\.pdf$/i.test(file.name)||(file.type&&file.type!=="application/pdf")||file.size>((window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE&&!serverMode)?50:10)*1024*1024){releaseSubmission();notify("Anexe um PDF válido dentro do limite de "+((window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE&&!serverMode)?"50 MB":"10 MB")+".");return;}try{
- if(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE&&!serverMode) documentInfo=await window.FAVMED_CLOUD.uploadPatientDocument(id,file);
+ $("patientForm").addEventListener("submit",async e=>{e.preventDefault();const form=$("patientForm"),openFor=el=>{const d=el.closest("details");if(d)d.open=true;el.focus();};for(const id of ["patientName","patientCpf","patientBirth","patientInsurance","patientJob"]){const el=$(id);if(!el.value.trim()){openFor(el);notify("Preencha todos os dados obrigatórios do cadastro.");return;}}const name=$("patientName").value.trim().toLocaleUpperCase("pt-BR"),rooms=Array.from(document.querySelectorAll('input[name="rooms"]:checked')).map(x=>x.value),services=rooms.map(serviceForRoom).filter(Boolean),examTypes=Array.from(document.querySelectorAll('input[name="examTypes"]:checked')).map(x=>x.value);if(!examTypes.length){openFor(document.querySelector('input[name="examTypes"]'));notify("Selecione o tipo de exame/atendimento.");return;}if(!rooms.length||services.length!==rooms.length){openFor(document.querySelector('input[name="rooms"]'));notify("Marque pelo menos uma sala.");return;}const examsByRoom={"Sala 1":Array.from(document.querySelectorAll('input[name="examSala1"]:checked')).map(x=>x.value),"Sala 2":Array.from(document.querySelectorAll('input[name="examSala2"]:checked')).map(x=>x.value),"Sala 3":Array.from(document.querySelectorAll('input[name="examSala3"]:checked')).map(x=>x.value),"Sala 4":Array.from(document.querySelectorAll('input[name="examSala4"]:checked')).map(x=>x.value)};for(const room of ["Sala 1","Sala 2","Sala 3","Sala 4"]){if(rooms.includes(room)&&!examsByRoom[room].length){const key={"Sala 1":"examSala1","Sala 2":"examSala2","Sala 3":"examSala3","Sala 4":"examSala4"}[room];openFor(document.querySelector('input[name="'+key+'"]'));notify("Selecione pelo menos um exame para "+room+".");return;}}if(patientSubmissionInProgress)return;patientSubmissionInProgress=true;const submitButtons=Array.from(form.querySelectorAll('button[type="submit"],input[type="submit"]'));submitButtons.forEach(button=>button.disabled=true);const releaseSubmission=()=>{patientSubmissionInProgress=false;submitButtons.forEach(button=>button.disabled=false);};const now=Date.now(),dt=new Date(now),id=String(now)+Math.random().toString(16).slice(2,6),file=$("patientPdf").files&&$("patientPdf").files[0];let documentInfo=null;if(file){if(!/\.pdf$/i.test(file.name)||(file.type&&file.type!=="application/pdf")||file.size>((window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE&&!serverMode)?50:10)*1024*1024){releaseSubmission();notify("Anexe um PDF válido dentro do limite de "+((window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE&&!serverMode)?"50 MB":"10 MB")+".");return;}try{
+ if(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE&&!serverMode) documentInfo=await window.MARKYS_CLOUD.uploadPatientDocument(id,file);
  else {
   const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]||"");reader.onerror=()=>reject(new Error("Não foi possível ler o PDF."));reader.readAsDataURL(file);});
   const upload=await fetch("/api/document",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,name:file.name,data})});
@@ -435,7 +435,7 @@ function openPatientEditor(p){$("editPatientModule").open=true;refreshEditPatien
 $("editPatientSelect").addEventListener("change",()=>{const p=patients.find(x=>String(x.id)===$("editPatientSelect").value);if(p)openPatientEditor(p);});
 $("editPatientModule").addEventListener("toggle",()=>{if($("editPatientModule").open)refreshEditPatientOptions();});
 $("savePatientEdits").addEventListener("click",async()=>{const p=patients.find(x=>String(x.id)===$("editPatientSelect").value);if(!p){notify("Selecione um paciente para editar.");return;}const editedName=$("editPatientName").value.trim();if(!editedName){notify("Informe o nome do paciente.");$("editPatientName").focus();return;}p.name=editedName.toLocaleUpperCase("pt-BR");const editFile=$("editPatientPdf").files&&$("editPatientPdf").files[0];if(editFile){if(!/\.pdf$/i.test(editFile.name)||(editFile.type&&editFile.type!=="application/pdf")||editFile.size>10*1024*1024){notify("Anexe um PDF válido de até 10 MB.");return;}try{
- if(window.FAVMED_CLOUD&&!serverMode) p.document=await window.FAVMED_CLOUD.uploadPatientDocument(String(p.id),editFile);
+ if(window.MARKYS_CLOUD&&!serverMode) p.document=await window.MARKYS_CLOUD.uploadPatientDocument(String(p.id),editFile);
  else {
   const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]||"");reader.onerror=()=>reject(new Error("Não foi possível ler o PDF."));reader.readAsDataURL(editFile);});
   const upload=await fetch("/api/document",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:String(p.id),name:editFile.name,data})});
@@ -505,10 +505,10 @@ if(enableReception)enableReception.addEventListener("click",()=>{
  u.onerror=()=>{if(status)status.textContent="Não foi possível reproduzir. Verifique o volume e as vozes do computador da recepção.";};
  window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
 });
-const cloudQueueMode=!!(window.FAVMED_CLOUD&&!window.FAVMED_LOCAL_MODE&&!serverMode);
+const cloudQueueMode=!!(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE&&!serverMode);
 let queueRealtimeRefreshTimer=null;
-if(cloudQueueMode&&!publicMode&&typeof window.FAVMED_CLOUD.subscribeQueueChanges==="function"){
- window.FAVMED_CLOUD.subscribeQueueChanges(()=>{
+if(cloudQueueMode&&!publicMode&&typeof window.MARKYS_CLOUD.subscribeQueueChanges==="function"){
+ window.MARKYS_CLOUD.subscribeQueueChanges(()=>{
   if(document.visibilityState!=="visible")return;
   clearTimeout(queueRealtimeRefreshTimer);
   queueRealtimeRefreshTimer=setTimeout(()=>load().then(()=>{render();renderPublic();}),250);
