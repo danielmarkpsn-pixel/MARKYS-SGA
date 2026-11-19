@@ -37,6 +37,20 @@ html.markys-auth-checking body{visibility:hidden}
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
 <script src="/markys-cloud.js"></script>
 <script src="/markys-auth.js" defer></script>
+<style>
+html.markys-sga-auth-checking body{visibility:hidden}
+.markys-sga-auth-overlay{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:18px;background:rgba(12,29,57,.82);font-family:"Segoe UI",Arial,sans-serif}
+.markys-sga-auth-card{width:min(420px,100%);background:#fff;border:1px solid #d7dfeb;border-radius:16px;padding:28px;box-shadow:0 18px 60px #0004;color:#172b4d}
+.markys-sga-auth-logo{display:block;width:64px;height:64px;object-fit:contain;margin:0 auto 12px}
+.markys-sga-auth-card h1{text-align:center;font-size:23px;margin:0 0 5px}
+.markys-sga-auth-card>p{text-align:center;color:#64748b;margin:0 0 22px;font-size:13px}
+.markys-sga-auth-card label{display:block;font-size:12px;font-weight:700;color:#405477;margin:12px 0 6px}
+.markys-sga-auth-card input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit;box-sizing:border-box}
+.markys-sga-auth-submit{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:#102a56;color:#fff;font-weight:800;font-size:14px;cursor:pointer}
+.markys-sga-auth-submit:disabled{opacity:.65;cursor:wait}
+.markys-sga-auth-message{min-height:18px;margin-top:12px;color:#b42332;font-size:12px;line-height:1.4}
+</style>
+<script>(function(){const h=location.hostname.toLowerCase();window.MARKYS_LOCAL_MODE=location.protocol==="file:"||h==="localhost"||h==="127.0.0.1"||h==="::1"||/^10\./.test(h)||/^192\.168\./.test(h)||/^172\.(1[6-9]|2\d|3[01])\./.test(h)||h.endsWith(".local");if(!window.MARKYS_LOCAL_MODE)document.documentElement.classList.add("markys-sga-auth-checking");})();</script>
 </head>
 <body>
 <header><div class="brand"><img src="/markys-sga.svg" alt="MARKYS SGA"><div><h1>MARKYS SGA</h1><p>Painel do profissional · Gestão de atendimento</p></div></div></header>
