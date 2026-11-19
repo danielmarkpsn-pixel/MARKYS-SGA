@@ -1199,6 +1199,9 @@ async function renderPublicWaitingRoom() {
 }
 async function start() {
   if (!configured) return renderSetup();
+  // The waiting-room display is intentionally public and exposes only its
+  // restricted public view; it must also be reachable from the Master menu.
+  if (window.location.pathname === '/sala') return renderPublicWaitingRoom();
   // Supabase may return the flow type in the URL hash (implicit flow)
   // or the query string (depending on the email template / redirect setup).
   // Capture it before deciding whether an authenticated session may reach the panel.
