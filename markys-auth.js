@@ -177,14 +177,19 @@
   function addLogoutButton() {
     if (document.getElementById("markys-sga-logout")) return;
     const profile = cloud.profile;
+    const toolbar = document.createElement("nav");
+    toolbar.id = "markys-sga-session-actions";
+    toolbar.setAttribute("aria-label", "Ações da sessão");
+    toolbar.style.cssText = "position:fixed;right:14px;bottom:14px;z-index:9998;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;max-width:calc(100vw - 28px)";
+    document.body.appendChild(toolbar);
     if (profile && ["master", "financeiro"].includes(profile.role) && !publicMode && !financeMode && !document.getElementById("markys-sga-finance")) {
       const financeButton = document.createElement("a");
       financeButton.id = "markys-sga-finance";
       financeButton.href = "/financeiro.html";
       financeButton.textContent = "Financeiro";
       financeButton.setAttribute("aria-label", "Abrir módulo Financeiro");
-      financeButton.style.cssText = "position:fixed;right:238px;bottom:14px;z-index:9998;border:0;border-radius:9px;padding:9px 12px;background:#173b73;color:#fff;text-decoration:none;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
-      document.body.appendChild(financeButton);
+      financeButton.style.cssText = "position:static;border:0;border-radius:9px;padding:9px 12px;background:#173b73;color:#fff;text-decoration:none;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer;white-space:nowrap";
+      toolbar.appendChild(financeButton);
     }
     if (profile && profile.role === "master" && !publicMode && !document.getElementById("markys-sga-admin-logins")) {
       const adminButton = document.createElement("a");
@@ -192,15 +197,15 @@
       adminButton.href = "/admin-logins.html";
       adminButton.textContent = "Administrar logins";
       adminButton.setAttribute("aria-label", "Abrir administração de logins");
-      adminButton.style.cssText = "position:fixed;right:126px;bottom:14px;z-index:9998;border:0;border-radius:9px;padding:9px 12px;background:#087f8c;color:#fff;text-decoration:none;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
-      document.body.appendChild(adminButton);
+      adminButton.style.cssText = "position:static;border:0;border-radius:9px;padding:9px 12px;background:#087f8c;color:#fff;text-decoration:none;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer;white-space:nowrap";
+      toolbar.appendChild(adminButton);
     }
     const button = document.createElement("button");
     button.id = "markys-sga-logout";
     button.type = "button";
     button.textContent = "Sair da conta";
     button.setAttribute("aria-label", "Sair da conta");
-    button.style.cssText = "position:fixed;right:14px;bottom:14px;z-index:9998;border:0;border-radius:9px;padding:9px 12px;background:#20313a;color:#fff;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer";
+    button.style.cssText = "position:static;border:0;border-radius:9px;padding:9px 12px;background:#20313a;color:#fff;font:700 11px Segoe UI,Arial,sans-serif;box-shadow:0 4px 16px #0002;cursor:pointer;white-space:nowrap";
     button.addEventListener("click", async () => {
       button.disabled = true;
       button.textContent = "Saindo...";
@@ -211,7 +216,7 @@
         alert("Não foi possível encerrar a sessão: " + (error.message || "tente novamente."));
       }
     });
-    document.body.appendChild(button);
+    toolbar.appendChild(button);
   }
 
   async function validateSession() {
