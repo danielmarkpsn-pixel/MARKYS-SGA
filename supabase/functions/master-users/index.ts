@@ -5,8 +5,23 @@ const productionAppUrl = "https://markyssga.vercel.app";
 const previewAppUrl = "https://markyssga-git-setup-markys-sga-cloud-dan-markys.vercel.app";
 const localDevelopmentUrl = "http://localhost:5173";
 const allowedOrigins = new Set([productionAppUrl, previewAppUrl, localDevelopmentUrl]);
+
+// Accept only HTTPS Vercel deployment domains belonging to this project/team.
+// This prevents legitimate preview deployments from failing CORS while avoiding
+// wildcard access from arbitrary origins.
+function isAllowedOrigin(origin: string) {
+  if (allowedOrigins.has(origin)) return true;
+  try {
+    const parsed = new URL(origin);
+    return parsed.protocol === "https:"
+      && parsed.origin === origin
+      && /^markyssga-[a-z0-9-]+-dan-markys\\.vercel\\.app$/i.test(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
 function corsHeaders(origin = productionAppUrl) {
-  const allowedOrigin = allowedOrigins.has(origin) ? origin : productionAppUrl;
+  const allowedOrigin = isAllowedOrigin(origin) ? origin : productionAppUrl;
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Vary": "Origin",
