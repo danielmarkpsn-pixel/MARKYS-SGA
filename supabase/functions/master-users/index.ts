@@ -158,6 +158,14 @@ Deno.serve(async (req: Request) => {
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
     const displayName = typeof body.display_name === "string" ? body.display_name.trim() : "";
     const role = typeof body.role === "string" ? body.role : "";
+    const clinicId = typeof body.clinic_id === "string" ? body.clinic_id : "";
+    if (!clinicId) return respond({ error: "Selecione a clínica para vincular o usuário." }, 400);
+    const { data: clinic, error: clinicLookupError } = await admin.from("markys_clinics")
+      .select("id, active, name").eq("id", clinicId).maybeSingle();
+    if (clinicLookupError) return respond({ error: "Não foi possível validar a clínica selecionada." }, 500);
+    if (!clinic) return respond({ error: "Clínica não encontrada." }, 404);
+    const profileActive = clinic.active === true;
+
 
     if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return respond({ error: "Informe um e-mail válido." }, 400);
@@ -209,8 +217,8 @@ Deno.serve(async (req: Request) => {
       id: created.user.id,
       display_name: displayName,
       role,
-      active: true,
-      clinic_id: "00000000-0000-4000-8000-000000000001",
+      active: profileActive,
+      clinic_id: clinic.id,
     });
 
     if (profileError) {
@@ -219,7 +227,7 @@ Deno.serve(async (req: Request) => {
       return respond({ error: "Não foi possível criar o perfil; a conta incompleta foi revertida." }, 500);
     }
 
-    return respond({ user: { id: created.user.id, email, display_name: displayName, role, active: true } }, 201);
+    return respond({ user: { id: created.user.id, email, display_name: displayName, role, active: profileActive, clinic_id: clinic.id, clinic_name: clinic.name } }, 201);
   }
 
   if (body.action === "set_role") {
@@ -258,7 +266,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: target, error: targetError } = await admin
       .from("profiles")
-      .select("id, role")
+      .select("id, role, clinic_id")
       .eq("id", targetId)
       .maybeSingle();
 
@@ -266,6 +274,14 @@ Deno.serve(async (req: Request) => {
     if (!target) return respond({ error: "Perfil não encontrado." }, 404);
     if (target.role === "master") {
       return respond({ error: "O bloqueio de contas Master exige um procedimento administrativo separado." }, 403);
+    }
+    if (active === true && target.clinic_id) {
+      const { data: targetClinic, error: clinicError } = await admin.from("markys_clinics")
+        .select("active").eq("id", target.clinic_id).maybeSingle();
+      if (clinicError) return respond({ error: "Não foi possível validar a clínica da conta." }, 500);
+      if (!targetClinic || targetClinic.active !== true) {
+        return respond({ error: "Não é possível reativar login de uma clínica bloqueada." }, 403);
+      }
     }
 
     // Ban/unban through Auth Admin so the account cannot start or refresh a session
