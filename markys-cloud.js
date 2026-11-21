@@ -15,6 +15,7 @@
   let queueReadSequence = 0;
   let queueWritesInProgress = 0;
   let currentProfile = null;
+  let publicClinicId = null;
   let resolveAuth;
   let writeChain = Promise.resolve();
   const signedUrlCache = new Map();
@@ -175,6 +176,8 @@
           throw new Error(message);
         }
         data = await response.json();
+        publicClinicId = typeof data.clinic_id === "string" && /^[0-9a-f-]{36}$/i.test(data.clinic_id) ? data.clinic_id : null;
+        if (!publicClinicId) throw new Error("A sala pública recebeu um identificador de clínica inválido.");
       } else {
         const clinicId = currentProfile && currentProfile.role === "master"
           ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001")
@@ -279,7 +282,9 @@
       if (!file || file.size > 50 * 1024 * 1024 || (file.type && file.type !== "application/pdf")) {
         throw new Error("Anexe um PDF válido de até 50 MB.");
       }
-      const path = "patients/" + safeSegment(patientId) + "/" + Date.now() + "-" + safeSegment(file.name);
+      const clinicId = currentProfile.role === "master" ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001") : currentProfile.clinic_id;
+      if (!clinicId) throw new Error("Sua conta não está vinculada a uma clínica.");
+      const path = "clinics/" + clinicId + "/patients/" + safeSegment(patientId) + "/" + Date.now() + "-" + safeSegment(file.name);
       if (file.size > 6 * 1024 * 1024) {
         await uploadResumable("markys-sga-documents", path, file);
       } else {
@@ -295,13 +300,17 @@
     },
     async listSlideshow() {
       await authReady;
-      const { data, error } = await client.storage.from("markys-sga-media").list("media", {
+      const isPublicScreen = new URLSearchParams(location.search).get("painel") === "1" || location.pathname === "/sala" || location.pathname === "/sala/";
+      const clinicId = isPublicScreen ? publicClinicId : (currentProfile && currentProfile.role === "master" ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001") : currentProfile && currentProfile.clinic_id);
+      if (!clinicId) throw new Error("Não foi possível identificar a clínica para listar a mídia.");
+      const prefix = "clinics/" + clinicId + "/media";
+      const { data, error } = await client.storage.from("markys-sga-media").list(prefix, {
         limit: 1000, sortBy: { column: "name", order: "asc" }
       });
       if (error) throw error;
       const files = (data || []).filter(item => item && item.id && item.name);
       return await Promise.all(files.map(async item => {
-        const path = "media/" + item.name;
+        const path = prefix + "/" + item.name;
         const signedUrl = client.storage.from("markys-sga-media").getPublicUrl(path).data.publicUrl;
         const displayName = item.name.replace(/^\d+_/, "");
         const type = item.metadata && (item.metadata.mimetype || item.metadata.contentType) ||
@@ -318,7 +327,9 @@
       if (!file || !/^(image|video)\//i.test(file.type) || file.size > 52428800) {
         throw new Error("Envie uma foto ou vídeo de até 50 MB.");
       }
-      const path = "media/" + Date.now() + "_" + safeSegment(file.name);
+      const clinicId = currentProfile.role === "master" ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001") : currentProfile.clinic_id;
+      if (!clinicId) throw new Error("Sua conta não está vinculada a uma clínica.");
+      const path = "clinics/" + clinicId + "/media/" + Date.now() + "_" + safeSegment(file.name);
       if (file.size > 6 * 1024 * 1024) {
         await uploadResumable("markys-sga-media", path, file, onProgress);
       } else {

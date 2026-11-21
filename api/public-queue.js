@@ -7,7 +7,7 @@ function manausDay() {
   const values = Object.fromEntries(parts.map(part => [part.type,part.value]));
   return values.year+"-"+values.month+"-"+values.day;
 }
-function validPayload(v){return !!v&&typeof v==="object"&&Array.isArray(v.queue)&&Number.isFinite(Number(v.version));}
+function validPayload(v){return !!v&&typeof v==="object"&&Array.isArray(v.queue)&&Number.isFinite(Number(v.version))&&typeof v.clinic_id==="string"&&/^[0-9a-f-]{36}$/i.test(v.clinic_id);}
 function send(res,status,body,cache="BYPASS"){
   res.statusCode=status;res.setHeader("Content-Type","application/json; charset=utf-8");
   res.setHeader("Cache-Control","no-store, max-age=0");res.setHeader("X-MARKYS-Queue-Cache",cache);res.end(JSON.stringify(body));
