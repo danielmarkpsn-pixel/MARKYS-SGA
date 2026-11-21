@@ -41,7 +41,7 @@ function json(body: unknown, status = 200, origin = productionAppUrl) {
 
 Deno.serve(async (req: Request) => {
   const requestOrigin = req.headers.get("Origin") || productionAppUrl;
-  if (!allowedOrigins.has(requestOrigin)) {
+  if (!isAllowedOrigin(requestOrigin)) {
     return new Response(JSON.stringify({ error: "Origem não autorizada." }), {
       status: 403,
       headers: { ...corsHeaders(), "Content-Type": "application/json; charset=utf-8", "Vary": "Origin" },
