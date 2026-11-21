@@ -140,7 +140,9 @@
           await client.realtime.setAuth(sessionData.session.access_token);
         }
         if (!active) return;
-        channel = client.channel("markys-sga-queue-staff", { config: { private: true } });
+        const clinicId = profile.role === "master" ? (profile.clinic_id || "00000000-0000-4000-8000-000000000001") : profile.clinic_id;
+        if (!clinicId) return;
+        channel = client.channel("markys-sga-queue-clinic-" + clinicId, { config: { private: true } });
         channel
           .on("broadcast", { event: "queue_changed" }, payload => {
             if (active) callback(payload);
@@ -158,7 +160,8 @@
       const readSequence = publicMode ? 0 : ++queueReadSequence;
       let data;
       if (publicMode) {
-        const response = await fetch("/api/public-queue", {
+        const clinicSlug = (new URLSearchParams(location.search).get("clinic") || "clinica-principal").trim();
+        const response = await fetch("/api/public-queue?clinic=" + encodeURIComponent(clinicSlug), {
           method: "GET",
           cache: "no-store",
           credentials: "same-origin"
@@ -173,7 +176,11 @@
         }
         data = await response.json();
       } else {
-        data = await rpc("markys_get_queue");
+        const clinicId = currentProfile && currentProfile.role === "master"
+          ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001")
+          : currentProfile && currentProfile.clinic_id;
+        if (!clinicId) throw new Error("Sua conta não está vinculada a uma clínica.");
+        data = await rpc("markys_sga_queue_get_tenant", { p_clinic_id: clinicId });
       }
       queueVersion = Number(data && data.version || 0);
       const queue = Array.isArray(data && data.queue) ? data.queue : [];
@@ -224,34 +231,21 @@
         let appliedChanges = 0;
         try {
           if (changes.length) {
-            try {
-              // One transaction, one queue version increment and one Realtime event
-              // for the complete user action, regardless of the number of patients.
-              const data = await rpc("markys_update_queue_patients", {
-                p_changes: changes.map(change => ({
-                  id: change.id,
-                  expected: change.oldPatient,
-                  patient: change.newPatient
-                }))
-              });
-              queueVersion = Number(data && data.version || queueVersion + 1);
-              appliedChanges = changes.length;
-            } catch (error) {
-              // Keep compatibility with projects where the batch migration has not
-              // yet been installed. Only a missing-function response may fall back.
-              if (!isMissingRpc(error)) throw error;
-              for (const change of changes) {
-                const data = await rpc("markys_update_queue_patient", {
-                  p_patient_id: change.id,
-                  p_patient: change.newPatient,
-                  p_expected_patient: change.oldPatient
-                });
-                queueVersion = Number(data && data.version || queueVersion + 1);
-                if (change.newPatient) committed.set(change.id, change.newPatient);
-                else committed.delete(change.id);
-                appliedChanges++;
-                lastQueueSnapshot = Array.from(committed.values());
-              }
+            // Tenant RPC: one atomic queue update, scoped to the clinic.
+            const clinicId = currentProfile && currentProfile.role === "master"
+              ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001")
+              : currentProfile && currentProfile.clinic_id;
+            if (!clinicId) throw new Error("Sua conta não está vinculada a uma clínica.");
+            const data = await rpc("markys_sga_queue_write_tenant", {
+              p_changes: changes.map(change => ({
+                id: change.id,
+                expected: change.oldPatient,
+                patient: change.newPatient
+              })),
+              p_clinic_id: clinicId
+            });
+            queueVersion = Number(data && data.version || queueVersion + 1);
+            appliedChanges = changes.length;
             }
           }
         } catch (error) {

@@ -141,7 +141,9 @@ let slideshowIdleSince=Date.now();
 let slideshowActive=false;
 let slideshowTimer=null;
 const $=id=>document.getElementById(id);
-const todayKey=new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0")+"-"+String(new Date().getDate()).padStart(2,"0");
+const manausParts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Manaus",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+const manausValues=Object.fromEntries(manausParts.map(part=>[part.type,part.value]));
+const todayKey=manausValues.year+"-"+manausValues.month+"-"+manausValues.day;
 if(publicMode){document.body.classList.add("public-mode");document.title="MARKYS SGA | Sala de espera"+(publicRoomFilter?" | "+publicRoomFilter:"");const label=document.querySelector(".public-screen .screen-label");if(label&&publicRoomFilter)label.textContent="MARKYS SGA · "+publicRoomFilter.toLocaleUpperCase("pt-BR");}
 $("today").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
 async function load(){

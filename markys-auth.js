@@ -228,7 +228,7 @@
     }
     const { data: profile, error: profileError } = await client
       .from("profiles")
-      .select("id, display_name, role, active")
+      .select("id, display_name, role, active, clinic_id")
       .eq("id", data.user.id)
       .maybeSingle();
     if (profileError || !profile || !profile.active) {
