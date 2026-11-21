@@ -146,7 +146,7 @@ if(cloudQueueMode&&typeof window.MARKYS_CLOUD.subscribeQueueChanges==="function"
   queueRealtimeRefreshTimer=setTimeout(()=>{if(!busy)load();},250);
  });
 }
-load();
+loadServiceCatalog().then(()=>load());
 setInterval(()=>{if(document.visibilityState==="visible")load();},cloudQueueMode?60000:1500);
 window.addEventListener("focus",()=>{if(document.visibilityState==="visible")load();});
 })();
