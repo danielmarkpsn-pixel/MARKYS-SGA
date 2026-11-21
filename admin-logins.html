@@ -123,6 +123,7 @@ async function loadClinics(){
  const clinics=data.clinics||[];clinicCache=clinics;
  if(clinicSelect){clinicSelect.replaceChildren();const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Selecione a clínica";clinicSelect.appendChild(placeholder);clinics.forEach(c=>{const option=document.createElement("option");option.value=c.id;option.textContent=c.name+(c.active?" · ATIVA":" · BLOQUEADA (LOGIN INATIVO)");clinicSelect.appendChild(option);});}
  if(!clinics.length){clinicsContainer.textContent="Nenhuma clínica cadastrada.";return;}
+ loadUsers().catch(error=>showMessage(error.message));
  const table=document.createElement("table");
  table.innerHTML="<thead><tr><th>Clínica</th><th>Slug interno</th><th>Status</th><th>Ação</th></tr></thead><tbody></tbody>";
  const tbody=table.querySelector("tbody");
