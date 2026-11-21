@@ -31,6 +31,16 @@ input, textarea, select { text-transform: none !important; }
 <header><div class="brand"><img src="/markys-sga.svg" alt="Logotipo MARKYS SGA"><div class="brand-copy"><h1>Administração de logins</h1><p>MARKYS SGA · Acesso exclusivo do Master</p></div></div><a href="/" aria-label="Voltar para recepção">← Voltar à recepção</a></header>
 <main>
 <section class="panel">
+<h2>Clínicas</h2>
+<p class="sub">Cadastre as clínicas que serão administradas pelo Master. Novas clínicas ficam bloqueadas para operação até a conclusão do isolamento de dados.</p>
+<form id="clinic-form" style="grid-template-columns:1fr auto">
+<div><label for="clinic-name">Nome da clínica</label><input id="clinic-name" name="name" maxlength="160" required placeholder="Nome da clínica"></div>
+<button class="btn" id="clinic-create-button" type="submit">Cadastrar clínica</button>
+</form>
+<div id="clinics-container" style="margin-top:14px">Carregando clínicas…</div>
+</section>
+
+<section class="panel">
 <h2>Criar novo login</h2>
 <p class="sub">Informe o nome e o e-mail. O convite para definir a senha será enviado por e-mail. O acesso aos módulos é definido pela função atribuída a cada login. O perfil Financeiro acessa somente o módulo financeiro.</p>
 <form id="create-form">
@@ -52,7 +62,7 @@ input, textarea, select { text-transform: none !important; }
 (() => {
 "use strict";
 const client = window.supabase.createClient("https://vibybosdqavejvqsuvph.supabase.co","sb_publishable_sTICN13TDw4NGkskMuEHmA_JsjEXt8m",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-const message=document.getElementById("message"), usersContainer=document.getElementById("users-container"), form=document.getElementById("create-form"), createButton=document.getElementById("create-button");
+const message=document.getElementById("message"), usersContainer=document.getElementById("users-container"), form=document.getElementById("create-form"), createButton=document.getElementById("create-button"), clinicForm=document.getElementById("clinic-form"), clinicNameInput=document.getElementById("clinic-name"), clinicsContainer=document.getElementById("clinics-container"), clinicCreateButton=document.getElementById("clinic-create-button");
 function showMessage(text,ok=false){message.textContent=text;message.className=ok?"ok":"";}
 async function adminCall(body){
  const {data,error}=await client.functions.invoke("master-users",{body});
@@ -104,6 +114,44 @@ function renderUsers(users){
  });
  usersContainer.replaceChildren(table);
 }
+async function loadClinics(){
+ clinicsContainer.textContent="Carregando clínicas…";
+ const data=await adminCall({action:"list_clinics"});
+ const clinics=data.clinics||[];
+ if(!clinics.length){clinicsContainer.textContent="Nenhuma clínica cadastrada.";return;}
+ const table=document.createElement("table");
+ table.innerHTML="<thead><tr><th>Clínica</th><th>Slug interno</th><th>Status</th><th>Ação</th></tr></thead><tbody></tbody>";
+ const tbody=table.querySelector("tbody");
+ clinics.forEach(clinic=>{
+  const tr=document.createElement("tr");
+  const name=document.createElement("td");name.textContent=clinic.name;
+  const slug=document.createElement("td");slug.textContent=clinic.slug;
+  const status=document.createElement("td");status.textContent=clinic.active?"Ativa":"Bloqueada";status.className="status "+(clinic.active?"active":"inactive");
+  const action=document.createElement("td");
+  const rename=document.createElement("button");rename.type="button";rename.className="btn small";rename.textContent="Editar nome";
+  rename.addEventListener("click",async()=>{
+   const newName=prompt("Novo nome da clínica:",clinic.name);
+   if(!newName||newName.trim()===clinic.name)return;
+   rename.disabled=true;
+   try{await adminCall({action:"update_clinic",clinic_id:clinic.id,name:newName.trim(),active:clinic.active});await loadClinics();showMessage("Nome da clínica atualizado.",true);}
+   catch(error){showMessage(error.message);}
+   finally{rename.disabled=false;}
+  });
+  action.append(rename);tr.append(name,slug,status,action);tbody.appendChild(tr);
+ });
+ clinicsContainer.replaceChildren(table);
+}
+clinicForm.addEventListener("submit",async event=>{
+ event.preventDefault();clinicCreateButton.disabled=true;clinicCreateButton.textContent="Cadastrando…";
+ try{
+  const name=clinicNameInput.value.trim();
+  await adminCall({action:"create_clinic",name});
+  clinicForm.reset();await loadClinics();
+  showMessage("Clínica cadastrada como bloqueada. O acesso será liberado após concluir o isolamento de dados.",true);
+ }catch(error){showMessage(error.message);}
+ finally{clinicCreateButton.disabled=false;clinicCreateButton.textContent="Cadastrar clínica";}
+});
+
 async function loadUsers(){usersContainer.textContent="Carregando usuários…";const data=await adminCall({action:"list_users"});renderUsers(data.users||[]);}
 form.addEventListener("submit",async event=>{
  event.preventDefault();createButton.disabled=true;createButton.textContent="Enviando convite…";showMessage("");
@@ -115,6 +163,7 @@ form.addEventListener("submit",async event=>{
  }catch(error){showMessage(error.message);}
  finally{createButton.disabled=false;createButton.textContent="Criar login";}
 });
+loadClinics().catch(error=>{clinicsContainer.textContent="";showMessage(error.message);});
 loadUsers().catch(error=>{usersContainer.textContent="";showMessage(error.message);if(/Master|permiss|autentica|sessão/i.test(error.message))setTimeout(()=>{location.href="/";},3000);});
 })();
 </script>
