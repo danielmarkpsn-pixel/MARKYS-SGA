@@ -126,7 +126,7 @@ Deno.serve(async (req: Request) => {
 
   if (body.action === "create_clinic") {
     const name = typeof body.name === "string" ? body.name.trim() : "";
-    const slugBase = name.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+    const slugBase = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70);
     if (name.length < 2 || name.length > 160 || !slugBase) {
       return respond({ error: "Informe um nome válido para a clínica." }, 400);
