@@ -244,6 +244,12 @@
       showAccessMessage("Abra esta tela pelo botão disponível na recepção. Esta conta não tem permissão para exibir as chamadas.");
       return false;
     }
+    // Financeiro is a dedicated module role. Avoid calling the queue RPC,
+    // which correctly rejects financial-only accounts.
+    if (profile.role === "financeiro" && !financeMode && !publicMode) {
+      location.replace("/financeiro.html");
+      return false;
+    }
     if (overlay) {
       overlay.remove();
       overlay = null;
