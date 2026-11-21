@@ -227,7 +227,6 @@
             changes.push({ id, oldPatient, newPatient });
           }
         }
-        const committed = new Map(before);
         let appliedChanges = 0;
         try {
           if (changes.length) {
@@ -246,7 +245,6 @@
             });
             queueVersion = Number(data && data.version || queueVersion + 1);
             appliedChanges = changes.length;
-            }
           }
         } catch (error) {
           // Never keep a stale snapshot after a concurrency conflict.
