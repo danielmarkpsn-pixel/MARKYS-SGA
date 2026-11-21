@@ -209,8 +209,13 @@
     button.addEventListener("click", async () => {
       button.disabled = true;
       button.textContent = "Saindo...";
-      const { error } = await client.auth.signOut();
-      if (error) {
+      try {
+        const { error } = await client.auth.signOut({ scope: "local" });
+        if (error) throw error;
+        // Always leave the protected module after logout. The reception page
+        // is the canonical entry point and will display the login overlay.
+        location.replace("/");
+      } catch (error) {
         button.disabled = false;
         button.textContent = "Sair da conta";
         alert("Não foi possível encerrar a sessão: " + (error.message || "tente novamente."));
@@ -285,7 +290,10 @@
   }
 
   client.auth.onAuthStateChange((event) => {
-    if (event === "SIGNED_OUT") location.reload();
+    if (event === "SIGNED_OUT") {
+      if (location.pathname !== "/") location.replace("/");
+      else location.reload();
+    }
   });
 
   validateSession().catch(error => {
