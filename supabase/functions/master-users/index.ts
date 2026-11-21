@@ -101,10 +101,52 @@ Deno.serve(async (req: Request) => {
     return respond({ error: "Corpo da requisição inválido." }, 400);
   }
 
+  if (body.action === "list_clinics") {
+    const { data: clinics, error } = await admin.from("markys_clinics")
+      .select("id, name, slug, active, created_at")
+      .order("created_at", { ascending: true });
+    if (error) return respond({ error: "Não foi possível listar clínicas." }, 500);
+    return respond({ clinics: clinics ?? [] });
+  }
+
+  if (body.action === "create_clinic") {
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const slugBase = name.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70);
+    if (name.length < 2 || name.length > 160 || !slugBase) {
+      return respond({ error: "Informe um nome válido para a clínica." }, 400);
+    }
+    const slug = slugBase + "-" + crypto.randomUUID().slice(0, 8);
+    const { data: clinic, error } = await admin.from("markys_clinics")
+      .insert({ name, slug, active: false })
+      .select("id, name, slug, active, created_at").single();
+    if (error || !clinic) return respond({ error: "Não foi possível cadastrar a clínica." }, 500);
+    return respond({ clinic }, 201);
+  }
+
+  if (body.action === "update_clinic") {
+    const clinicId = typeof body.clinic_id === "string" ? body.clinic_id : "";
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const active = body.active;
+    if (!clinicId || name.length < 2 || name.length > 160 || typeof active !== "boolean") {
+      return respond({ error: "Informe clínica, nome válido e status." }, 400);
+    }
+    if (clinicId === "00000000-0000-4000-8000-000000000001" && active === false) {
+      return respond({ error: "A clínica que contém os dados atuais não pode ser bloqueada nesta fase." }, 403);
+    }
+    const { data: clinic, error } = await admin.from("markys_clinics")
+      .update({ name, active, updated_at: new Date().toISOString() })
+      .eq("id", clinicId)
+      .select("id, name, slug, active, created_at").maybeSingle();
+    if (error) return respond({ error: "Não foi possível atualizar a clínica." }, 500);
+    if (!clinic) return respond({ error: "Clínica não encontrada." }, 404);
+    return respond({ clinic });
+  }
+
   if (body.action === "list_users") {
     const { data: profiles, error: listError } = await admin
       .from("profiles")
-      .select("id, display_name, role, active, created_at")
+      .select("id, display_name, role, active, clinic_id, created_at")
       .order("created_at", { ascending: false })
       .limit(200);
 
