@@ -156,8 +156,15 @@ async function loadClinics(){
    catch(error){showMessage(error.message);}
    finally{toggle.disabled=false;}
   });
+  const copyRoom=document.createElement("button");copyRoom.type="button";copyRoom.className="btn small";copyRoom.textContent="Copiar sala";copyRoom.disabled=!clinic.active;
+  copyRoom.title=clinic.active?"Copiar link público da sala desta clínica":"Ative a clínica para liberar a sala pública.";
+  copyRoom.addEventListener("click",async()=>{
+   const url=window.location.origin+"/sala?clinic="+encodeURIComponent(clinic.slug);
+   try{await navigator.clipboard.writeText(url);showMessage("Link da sala de "+clinic.name+" copiado.",true);}
+   catch(error){showMessage("Não foi possível copiar automaticamente. Link: "+url);}
+  });
   action.style.display="flex";action.style.gap="6px";action.style.flexWrap="wrap";
-  action.append(rename,toggle);tr.append(name,slug,status,action);tbody.appendChild(tr);
+  action.append(rename,toggle,copyRoom);tr.append(name,slug,status,action);tbody.appendChild(tr);
  });
  clinicsContainer.replaceChildren(table);
 }
