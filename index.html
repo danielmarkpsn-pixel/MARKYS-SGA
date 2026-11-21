@@ -190,7 +190,7 @@ async function loadInsuranceCatalog(){
  }catch(e){$("insurancePricePreview").textContent="Não foi possível carregar os convênios. Atualize a página ou verifique a conexão.";}
 }
 function updateInsurancePricePreview(){
- const id=$("patientInsurance").value,selected=Array.from(document.querySelectorAll('input[name^="examSala"]:checked')).map(x=>x.value);
+ const id=$("patientInsurance").value,selected=Array.from(document.querySelectorAll('input[name="examCatalogChoice"]:checked')).map(x=>x.value);
  if(!id||id==="particular"){$("insurancePricePreview").textContent=id==="particular"?"Atendimento particular: sem tabela de convênio.":"Selecione o convênio para consultar a tabela de valores.";return;}
  const rows=selected.map(name=>({name,price:insurancePriceCatalog.find(x=>x.insurance_id===id&&x.exam_name.toLocaleLowerCase("pt-BR")===name.toLocaleLowerCase("pt-BR"))}));
  const missing=rows.filter(x=>!x.price),total=rows.filter(x=>x.price).reduce((s,x)=>s+Number(x.price.amount),0);
