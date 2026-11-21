@@ -98,7 +98,7 @@ create or replace function public.markys_sga_public_queue_tenant(p_day text,p_cl
 returns jsonb language plpgsql stable security definer set search_path=pg_catalog as $$
 declare v_day date:=app_private.markys_sga_local_day(); v_clinic uuid; v_queue jsonb; v_version bigint; v_public jsonb;
 begin
- if p_day is null or p_day !~ '^\\d{4}-\\d{2}-\\d{2}$' or p_day<>v_day::text then
+ if p_day is null or p_day !~ '^\d{4}-\d{2}-\d{2}$' or p_day<>v_day::text then
   raise exception 'A tela pública só consulta o dia atual' using errcode='22023';
  end if;
  select c.id into v_clinic from public.markys_clinics c where c.slug=p_clinic_slug and c.active=true;
