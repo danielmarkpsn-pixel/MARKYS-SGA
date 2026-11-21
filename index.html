@@ -197,7 +197,7 @@ function updateInsurancePricePreview(){
  $("insurancePricePreview").textContent=rows.length?("Estimativa dos exames selecionados: "+new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(total)+(missing.length?" · "+missing.length+" exame(s) sem valor cadastrado":"")):"Selecione os exames para visualizar a estimativa.";
 }
 $("patientInsurance").addEventListener("change",updateInsurancePricePreview);
-document.querySelectorAll('input[name^="examSala"]').forEach(x=>x.addEventListener("change",updateInsurancePricePreview));
+document.addEventListener("change",ev=>{if(ev.target.matches('input[name="examCatalogChoice"]'))updateInsurancePricePreview();});
 
 function serviceForRoom(room){return ROOM_SERVICES[room]||"";}
 function roomForService(p,service){if(/^Recepção [123]$/.test(service))return service;const mapped=Object.keys(ROOM_SERVICES).find(r=>ROOM_SERVICES[r]===service);if(Array.isArray(p.rooms)&&p.rooms.includes(mapped))return mapped;if(p.room&&serviceForRoom(p.room)===service)return p.room;return mapped||p.room||"Sala não definida";}
