@@ -212,6 +212,7 @@ function activeCallsFor(p){return workItemsOf(p).map(service=>({p,service,state:
 function syncPatientStatus(p){const items=workItemsOf(p),states=items.map(s=>stateFor(p,s));if(items.length&&states.every(s=>s.status==="Liberado")){p.status="Atendido";p.attendedAt=p.attendedAt||Date.now();p.exitTime=p.exitTime||new Date(p.attendedAt).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}else if(states.some(s=>s.status==="Atendendo"||s.status==="Chamado")){p.status="Chamado";}else{p.status="Aguardando";}}
 function counts(){const active=patients.filter(p=>p.day===todayKey);$("waitingCount").textContent=active.filter(p=>p.status!=="Atendido"&&!activeState(p)).length;$("calledCount").textContent=active.filter(p=>!!activeState(p)).length;$("attendedCount").textContent=active.filter(p=>p.status==="Atendido").length;}
 function render(){
+ renderPatientNameSuggestions();
  const term=$("search").value.trim().toLocaleLowerCase("pt-BR");
  const visible=patients.filter(p=>p.day===todayKey&&(!term||(p.name+" "+roomsText(p)+" "+servicesText(p)).toLocaleLowerCase("pt-BR").includes(term)));
  visible.sort((a,b)=>(Number(!!b.priority)-Number(!!a.priority))||({Chamado:0,Aguardando:1,Atendido:2}[a.status]-({Chamado:0,Aguardando:1,Atendido:2}[b.status])||(a.created||0)-(b.created||0)));
