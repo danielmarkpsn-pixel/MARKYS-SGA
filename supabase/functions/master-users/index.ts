@@ -15,7 +15,7 @@ function isAllowedOrigin(origin: string) {
     const parsed = new URL(origin);
     return parsed.protocol === "https:"
       && parsed.origin === origin
-      && /^markyssga-[a-z0-9-]+-dan-markys\\.vercel\\.app$/i.test(parsed.hostname);
+      && /^markyssga-[a-z0-9-]+-dan-markys\.vercel\.app$/i.test(parsed.hostname);
   } catch {
     return false;
   }
