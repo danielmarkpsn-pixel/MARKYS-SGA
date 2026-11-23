@@ -63,10 +63,15 @@ begin
 
   if v_public_definition ilike '%cpf%'
      or v_public_definition ilike '%birth_date%'
+     or v_public_definition ilike '%priority%'
+     or v_public_definition ilike '%examsbyroom%'
+     or v_public_definition ilike '%created%'
+     or v_public_definition not ilike '%regexp_split_to_array%'
+     or v_public_definition not ilike '%left(%'
      or v_public_definition not ilike '%status%'
      or v_public_definition not ilike '%p_day<>v_day::text%'
      or v_public_definition not ilike '%c.active=true%' then
-    raise exception 'Public queue RPC must expose only its minimal same-day active-clinic projection';
+    raise exception 'Public queue RPC must expose masked names and only active calls without clinical or queue metadata';
   end if;
 
   if v_definition not ilike '%auth_time%'
