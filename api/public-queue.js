@@ -1,7 +1,35 @@
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://vibybosdqavejvqsuvph.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
 const CACHE_TTL_MS = 5000;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 300;
 const queueCache = new Map();
+// Best-effort per-instance guard. Use Vercel Firewall for distributed edge enforcement.
+const rateLimits = new Map();
+function clientAddress(req) {
+  const realIp = req.headers["x-real-ip"];
+  if (typeof realIp === "string" && realIp.trim()) return realIp.trim().slice(0, 80);
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string" && forwarded.trim()) return forwarded.split(",")[0].trim().slice(0, 80);
+  return "unknown";
+}
+function isRateLimited(req) {
+  const key = clientAddress(req);
+  const now = Date.now();
+  let entry = rateLimits.get(key);
+  if (!entry || now - entry.startedAt >= RATE_LIMIT_WINDOW_MS) {
+    entry = { startedAt: now, count: 0 };
+  }
+  entry.count += 1;
+  rateLimits.set(key, entry);
+  if (rateLimits.size > 5000) {
+    for (const [address, value] of rateLimits) {
+      if (now - value.startedAt >= RATE_LIMIT_WINDOW_MS) rateLimits.delete(address);
+    }
+    if (rateLimits.size > 5000) rateLimits.delete(rateLimits.keys().next().value);
+  }
+  return entry.count > RATE_LIMIT_MAX;
+}
 function manausDay() {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone:"America/Manaus", year:"numeric", month:"2-digit", day:"2-digit" }).formatToParts(new Date());
   const values = Object.fromEntries(parts.map(part => [part.type,part.value]));
@@ -14,6 +42,10 @@ function send(res,status,body,cache="BYPASS"){
 }
 export default async function handler(req,res){
   if(req.method!=="GET"){res.setHeader("Allow","GET");return send(res,405,{ok:false,error:"method_not_allowed"});}
+  if (isRateLimited(req)) {
+    res.setHeader("Retry-After", "60");
+    return send(res, 429, { ok: false, error: "rate_limit_exceeded" });
+  }
   if(!SUPABASE_PUBLISHABLE_KEY)return send(res,500,{ok:false,error:"sga_supabase_key_not_configured"});
   const day=manausDay();
   const clinic=typeof req.query?.clinic==="string"?req.query.clinic:"clinica-principal";
