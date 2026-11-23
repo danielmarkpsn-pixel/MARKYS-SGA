@@ -17,6 +17,8 @@ on:
       - "supabase/**"
       - "vercel.json"
       - "package.json"
+      - "scripts/**"
+      - "online/**"
       - ".github/workflows/favmed-online.yml"
   pull_request:
     branches:
@@ -34,6 +36,8 @@ on:
       - "supabase/**"
       - "vercel.json"
       - "package.json"
+      - "scripts/**"
+      - "online/**"
       - ".github/workflows/favmed-online.yml"
   workflow_dispatch:
 
@@ -58,7 +62,7 @@ jobs:
           node --check markys-cloud.js
           node --check markys-auth.js
           node --check api/public-queue.js
-          node --check api/redis-check.js
+          node --check scripts/check-security-basics.mjs
 
       - name: Validate HTML inline scripts and MARKYS routes
         run: |
@@ -93,6 +97,12 @@ jobs:
           if (!professional.includes("markys-cloud.js") || !professional.includes("markys-auth.js")) throw new Error("Integração MARKYS Cloud/Auth ausente no painel profissional.");
           console.log("MARKYS SGA root application checks passed.");
           NODE
+
+      - name: Security basics (segredos, senhas fixas, projeto Supabase, dependências, cabeçalhos)
+        run: node scripts/check-security-basics.mjs
+
+      - name: Online (legacy) security guardrails
+        run: node online/scripts/security-regression-check.mjs
 
       - name: Check patch whitespace
         run: git diff --check
