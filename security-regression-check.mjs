@@ -17,6 +17,9 @@ assert.match(cloud, /vibybosdqavejvqsuvph\.supabase\.co/, "O cliente deve aponta
 assert.doesNotMatch(cloud, /qzjkoyqm/i, "O cliente não pode apontar para o projeto Supabase do FAVMED.");
 assert.doesNotMatch(publicApi, /qzjkoyqm/i, "A API pública não pode apontar para o projeto Supabase do FAVMED.");
 assert.doesNotMatch(publicApi, /(?:cpf|birthDate)\s*:/i, "A API pública não deve serializar CPF ou nascimento.");
+assert.match(publicApi, /RATE_LIMIT_MAX = 300/, "A API pública deve limitar requisições por IP.");
+assert.match(publicApi, /rate_limit_exceeded/, "A API pública deve responder 429 ao exceder o limite.");
+assert.match(publicApi, /Best-effort per-instance guard/, "O limite local não pode ser descrito como proteção distribuída.");
 assert.match(html, /tus-js-client@4\.3\.1\/dist\/tus\.min\.js/, "A dependência tus precisa estar fixada.");
 assert.match(migration, /auth\.jwt\(\)->>\x27auth_time\x27/, "A RPC deve validar o horário de autenticação.");
 assert.match(migration, /REAUTH_REQUIRED/, "A RPC deve rejeitar exclusões sem reautenticação recente.");
