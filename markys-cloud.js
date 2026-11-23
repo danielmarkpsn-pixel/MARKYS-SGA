@@ -301,7 +301,21 @@
     async listSlideshow() {
       await authReady;
       const isPublicScreen = new URLSearchParams(location.search).get("painel") === "1" || location.pathname === "/sala" || location.pathname === "/sala/";
-      const clinicId = isPublicScreen ? publicClinicId : (currentProfile && currentProfile.role === "master" ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001") : currentProfile && currentProfile.clinic_id);
+      if (isPublicScreen) {
+        const clinicSlug = (new URLSearchParams(location.search).get("clinic") || "clinica-principal").trim();
+        const response = await fetch("/api/public-media?clinic=" + encodeURIComponent(clinicSlug), {
+          method: "GET", cache: "no-store", credentials: "same-origin"
+        });
+        if (!response.ok) throw new Error("Não foi possível carregar as mídias públicas da clínica.");
+        const payload = await response.json();
+        if (!payload || payload.clinic_slug !== clinicSlug || !Array.isArray(payload.items)) {
+          throw new Error("A resposta de mídia pública é inválida.");
+        }
+        return payload.items;
+      }
+      const clinicId = currentProfile && currentProfile.role === "master"
+        ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001")
+        : currentProfile && currentProfile.clinic_id;
       if (!clinicId) throw new Error("Não foi possível identificar a clínica para listar a mídia.");
       const prefix = "clinics/" + clinicId + "/media";
       const { data, error } = await client.storage.from("markys-sga-media").list(prefix, {
@@ -311,11 +325,11 @@
       const files = (data || []).filter(item => item && item.id && item.name);
       return await Promise.all(files.map(async item => {
         const path = prefix + "/" + item.name;
-        const signedUrl = client.storage.from("markys-sga-media").getPublicUrl(path).data.publicUrl;
-        const displayName = item.name.replace(/^\d+_/, "");
+        const signedUrl = await createSignedUrl("markys-sga-media", path);
+        const displayName = item.name.replace(/^\\d+_/, "");
         const type = item.metadata && (item.metadata.mimetype || item.metadata.contentType) ||
-          (/\.(mp4|webm|ogg|mov|m4v)$/i.test(displayName) ? "video/" + displayName.split(".").pop().toLowerCase() :
-           /\.(png|jpg|jpeg|gif|webp|avif)$/i.test(displayName) ? "image/" + displayName.split(".").pop().toLowerCase() : "application/octet-stream");
+          (/\\.(mp4|webm|ogg|mov|m4v)$/i.test(displayName) ? "video/" + displayName.split(".").pop().toLowerCase() :
+           /\\.(png|jpg|jpeg|gif|webp|avif)$/i.test(displayName) ? "image/" + displayName.split(".").pop().toLowerCase() : "application/octet-stream");
         return { name: displayName, type, url: signedUrl };
       }));
     },
