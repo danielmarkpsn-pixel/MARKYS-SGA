@@ -13,7 +13,7 @@ declare
   v_version bigint;
   v_public jsonb;
 begin
-  if p_day is null or p_day !~ '^\\d{4}-\\d{2}-\\d{2}$' or p_day<>v_day::text then
+  if p_day is null or p_day !~ '^\d{4}-\d{2}-\d{2}$' or p_day<>v_day::text then
     raise exception 'A tela pública só consulta o dia atual' using errcode='22023';
   end if;
 
@@ -67,7 +67,7 @@ begin
     select case
       when trim(coalesce(p.value->>'name',''))=''
         then array[]::text[]
-      else regexp_split_to_array(trim(p.value->>'name'),'\\s+')
+      else regexp_split_to_array(trim(p.value->>'name'),'\s+')
     end as parts
   ) names
   where p.value->>'day'=v_day::text
