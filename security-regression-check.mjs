@@ -39,4 +39,26 @@ for (const directive of ["default-src 'self'", "object-src 'none'", "base-uri 's
   "frame-ancestors 'self'", "frame-src 'self' https:"]) {
   assert.ok(csp.includes(directive), `Diretiva CSP ausente: ${directive}`);
 }
+
+delete process.env.SUPABASE_PUBLISHABLE_KEY;
+const { default: publicQueueHandler } = await import("./api/public-queue.js");
+function mockResponse() {
+  return {
+    statusCode: 200,
+    headers: {},
+    body: "",
+    setHeader(name, value) { this.headers[name.toLowerCase()] = value; },
+    end(body) { this.body = body; }
+  };
+}
+for (let i = 0; i < 300; i += 1) {
+  const response = mockResponse();
+  await publicQueueHandler({ method: "GET", headers: { "x-real-ip": "192.0.2.77" }, query: {} }, response);
+  assert.equal(response.statusCode, 500, "Requests below the configured limit should reach normal configuration checks.");
+}
+const limitedResponse = mockResponse();
+await publicQueueHandler({ method: "GET", headers: { "x-real-ip": "192.0.2.77" }, query: {} }, limitedResponse);
+assert.equal(limitedResponse.statusCode, 429, "The 301st request from one IP must be throttled.");
+assert.equal(limitedResponse.headers["retry-after"], "60", "Rate-limited clients need a Retry-After header.");
+
 console.log("Security regression checks passed.");
