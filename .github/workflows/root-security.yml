@@ -17,22 +17,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  security:
+  syntax-auth:
+    name: Syntax — authentication
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Check JavaScript syntax
-        run: |
-          node --check markys-auth.js
-          node --check markys-cloud.js
-          node --check api/public-queue.js
-          node --check security-regression-check.mjs
-      - name: Run root security regression checks
-        run: node security-regression-check.mjs
-      - name: Validate Vercel configuration
-        run: node -e "JSON.parse(require('node:fs').readFileSync('vercel.json', 'utf8'))"
+      - run: node --check markys-auth.js
+
+  syntax-cloud:
+    name: Syntax — cloud client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check markys-cloud.js
+
+  syntax-public-api:
+    name: Syntax — public queue API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check api/public-queue.js
+
+  regression:
+    name: Security regression assertions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node security-regression-check.mjs
+
+  vercel-config:
+    name: Vercel configuration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node -e "JSON.parse(require('node:fs').readFileSync('vercel.json', 'utf8'))"
