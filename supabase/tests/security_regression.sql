@@ -74,6 +74,20 @@ begin
     raise exception 'Public queue RPC must expose masked names and only active calls without clinical or queue metadata';
   end if;
 
+  if exists (
+    select 1 from storage.buckets where id='markys-sga-media' and public=true
+  ) then
+    raise exception 'Clinic slideshow media bucket must be private';
+  end if;
+
+  if exists (
+    select 1 from pg_policies
+    where schemaname='storage' and tablename='objects'
+      and policyname='markys_sga_media_public_list'
+  ) then
+    raise exception 'Anonymous listing of clinic slideshow media must be removed';
+  end if;
+
   if v_definition not ilike '%auth_time%'
      or v_definition not ilike '%REAUTH_REQUIRED%'
      or v_definition not ilike '%markys_sga_queue_deletion_audit%'
