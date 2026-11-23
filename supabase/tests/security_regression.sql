@@ -88,7 +88,8 @@ begin
     raise exception 'Anonymous listing of clinic slideshow media must be removed';
   end if;
 
-  if v_definition not ilike '%auth_time%'
+  if v_definition not ilike '%v_role is null%'
+     or v_definition not ilike '%auth_time%'
      or v_definition not ilike '%REAUTH_REQUIRED%'
      or v_definition not ilike '%markys_sga_queue_deletion_audit%'
      or v_definition not ilike '%security definer%'
