@@ -55,8 +55,12 @@ function inferType(item) {
   const known = metadata.mimetype || metadata.contentType;
   if (known) return known;
   const name = String(item && item.name || "").replace(/^\d+_/, "");
-  if (/\.(mp4|webm|ogg|mov|m4v)$/i.test(name)) return "video/" + name.split(".").pop().toLowerCase();
-  if (/\.(png|jpg|jpeg|gif|webp|avif)$/i.test(name)) return "image/" + name.split(".").pop().toLowerCase();
+  const extension = name.split(".").pop().toLowerCase();
+  if (/\.(mp4|webm|ogg)$/i.test(name)) return "video/" + extension;
+  if (/\.(mov)$/i.test(name)) return "video/quicktime";
+  if (/\.(m4v)$/i.test(name)) return "video/x-m4v";
+  if (/\.(png|gif|webp|avif)$/i.test(name)) return "image/" + extension;
+  if (/\.(jpg|jpeg)$/i.test(name)) return "image/jpeg";
   return "application/octet-stream";
 }
 export default async function handler(req, res) {
