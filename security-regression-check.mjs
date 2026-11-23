@@ -26,6 +26,8 @@ assert.match(publicApi, /Best-effort per-instance guard/, "O limite local não p
 assert.match(publicMediaApi, /SUPABASE_SERVICE_ROLE_KEY/, "A API de mídia deve usar chave privilegiada apenas no servidor.");
 assert.match(publicMediaApi, /active: "eq.true"/, "A API de mídia deve validar que a clínica está ativa.");
 assert.match(publicMediaApi, /object\/sign/, "A API de mídia deve entregar URLs assinadas.");
+assert.match(publicMediaApi, /MAX_SIGNED_MEDIA_ITEMS = 100/, "A API pública deve limitar quantos arquivos assina por solicitação.");
+assert.match(publicMediaApi, /limit: 200/, "A listagem de mídia deve ter limite de objetos.");
 assert.equal(inferType({ name: "foto.jpg" }), "image/jpeg", "JPEG .jpg deve ser aceito como image/jpeg.");
 assert.equal(inferType({ name: "video.mov" }), "video/quicktime", "MOV deve ser normalizado para video/quicktime.");
 assert.equal(inferType({ name: "video.m4v" }), "video/x-m4v", "M4V deve ser normalizado para video/x-m4v.");
