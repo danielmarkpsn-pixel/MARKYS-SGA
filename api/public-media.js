@@ -50,10 +50,16 @@ function absoluteSignedUrl(value) {
   if (value.startsWith("/storage/v1/")) return SUPABASE_URL + value;
   return SUPABASE_URL + "/storage/v1" + (value.startsWith("/") ? value : "/" + value);
 }
-function inferType(item) {
+export function inferType(item) {
   const metadata = item && item.metadata || {};
   const known = metadata.mimetype || metadata.contentType;
-  if (known) return known;
+  if (known) {
+    const normalized = String(known).toLowerCase();
+    if (normalized === "image/jpg") return "image/jpeg";
+    if (normalized === "video/mov") return "video/quicktime";
+    if (normalized === "video/m4v") return "video/x-m4v";
+    return normalized;
+  }
   const name = String(item && item.name || "").replace(/^\d+_/, "");
   const extension = name.split(".").pop().toLowerCase();
   if (/\.(mp4|webm|ogg)$/i.test(name)) return "video/" + extension;
