@@ -83,6 +83,7 @@ begin
   return jsonb_build_object(
     'queue',v_public,
     'version',coalesce(v_version,0),
+    'clinic_id',v_clinic,
     'clinic_slug',p_clinic_slug
   );
 end;
