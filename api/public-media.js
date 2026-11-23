@@ -17,7 +17,7 @@ function send(res, status, body) {
   res.end(JSON.stringify(body));
 }
 function clientAddress(req) {
-  const value = req.headers["x-real-ip"] || req.headers["x-forwarded-for"];
+  const value = req.headers["x-real-ip"];
   return typeof value === "string" && value.trim() ? value.split(",")[0].trim().slice(0, 80) : "unknown";
 }
 function isRateLimited(req) {
