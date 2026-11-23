@@ -154,3 +154,7 @@ begin
   return jsonb_build_object('version', v_version, 'clinic_id', v_clinic, 'updated_at', now());
 end;
 $function$;
+
+-- The write RPC is private to signed-in application users; never callable as anon/PUBLIC.
+revoke all on function public.markys_sga_queue_write_tenant(jsonb, uuid) from public, anon;
+grant execute on function public.markys_sga_queue_write_tenant(jsonb, uuid) to authenticated;
