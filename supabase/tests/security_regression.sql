@@ -3,6 +3,7 @@
 do $$
 declare
   v_definition text;
+  v_public_definition text;
 begin
   if not exists (
     select 1 from pg_class c
@@ -50,6 +51,23 @@ begin
 
   select pg_get_functiondef('public.markys_sga_queue_write_tenant(jsonb,uuid)'::regprocedure)
     into v_definition;
+
+  select pg_get_functiondef('public.markys_sga_public_queue_tenant(text,text)'::regprocedure)
+    into v_public_definition;
+
+  if not has_function_privilege('anon','public.markys_sga_public_queue_tenant(text,text)','execute')
+     or has_function_privilege('authenticated','public.markys_sga_public_queue_tenant(text,text)','execute')
+     or has_function_privilege('public','public.markys_sga_public_queue_tenant(text,text)','execute') then
+    raise exception 'Public queue RPC must be callable only by anon for the public waiting-room screen';
+  end if;
+
+  if v_public_definition ilike '%cpf%'
+     or v_public_definition ilike '%birth_date%'
+     or v_public_definition not ilike '%status%'
+     or v_public_definition not ilike '%p_day<>v_day::text%'
+     or v_public_definition not ilike '%c.active=true%' then
+    raise exception 'Public queue RPC must expose only its minimal same-day active-clinic projection';
+  end if;
 
   if v_definition not ilike '%auth_time%'
      or v_definition not ilike '%REAUTH_REQUIRED%'
