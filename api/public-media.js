@@ -5,6 +5,8 @@ const SIGNED_URL_TTL_SECONDS = 3600;
 const CACHE_TTL_MS = 30_000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 120;
+// Avoid signing hundreds of assets in one anonymous request.
+const MAX_SIGNED_MEDIA_ITEMS = 100;
 const cache = new Map();
 const rateLimits = new Map();
 
@@ -98,14 +100,16 @@ export default async function handler(req, res) {
     const listResponse = await upstream("/storage/v1/object/list/" + BUCKET, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prefix, limit: 1000, sortBy: { column: "name", order: "asc" } })
+      body: JSON.stringify({ prefix, limit: 200, sortBy: { column: "name", order: "asc" } })
     });
     if (!listResponse.ok) return send(res, 502, { ok: false, error: "media_list_failed" });
     const files = await listResponse.json();
     if (!Array.isArray(files)) return send(res, 502, { ok: false, error: "media_list_invalid" });
 
-    const items = (await Promise.all(files.filter(item => item && item.id && typeof item.name === "string" &&
-      item.name !== "." && item.name !== ".." && !/[\\/]/.test(item.name)).map(async item => {
+    const safeFiles = files.filter(item => item && item.id && typeof item.name === "string" &&
+      item.name !== "." && item.name !== ".." && !/[\\/]/.test(item.name));
+    const selectedFiles = safeFiles.slice(0, MAX_SIGNED_MEDIA_ITEMS);
+    const items = (await Promise.all(selectedFiles.map(async item => {
       const type = inferType(item);
       if (!/^(image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm|ogg|quicktime|x-m4v))$/i.test(type)) return null;
       const path = prefix + "/" + item.name;
