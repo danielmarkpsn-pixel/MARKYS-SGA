@@ -326,10 +326,10 @@
       return await Promise.all(files.map(async item => {
         const path = prefix + "/" + item.name;
         const signedUrl = await createSignedUrl("markys-sga-media", path);
-        const displayName = item.name.replace(/^\\d+_/, "");
+        const displayName = item.name.replace(/^\d+_/, "");
         const type = item.metadata && (item.metadata.mimetype || item.metadata.contentType) ||
-          (/\\.(mp4|webm|ogg|mov|m4v)$/i.test(displayName) ? "video/" + displayName.split(".").pop().toLowerCase() :
-           /\\.(png|jpg|jpeg|gif|webp|avif)$/i.test(displayName) ? "image/" + displayName.split(".").pop().toLowerCase() : "application/octet-stream");
+          (/\.(mp4|webm|ogg|mov|m4v)$/i.test(displayName) ? "video/" + displayName.split(".").pop().toLowerCase() :
+           /\.(png|jpg|jpeg|gif|webp|avif)$/i.test(displayName) ? "image/" + displayName.split(".").pop().toLowerCase() : "application/octet-stream");
         return { name: displayName, type, url: signedUrl };
       }));
     },
