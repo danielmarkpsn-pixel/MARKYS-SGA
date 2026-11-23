@@ -50,6 +50,7 @@ begin
       where st.value->>'status' in ('Chamado','Atendendo')
     ),
     'status',p.value->'status',
+    'day',p.value->'day',
     'receptionCall',case
       when jsonb_typeof(p.value->'receptionCall')='object'
        and p.value->'receptionCall'->>'status'='Chamado'
