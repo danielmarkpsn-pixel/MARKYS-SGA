@@ -49,7 +49,7 @@ begin
   from public.profiles p
   where p.id = v_user_id and p.active = true;
 
-  if v_role not in ('master', 'recepcao', 'profissional') then
+  if v_role is null or v_role not in ('master', 'recepcao', 'profissional') then
     raise exception 'Perfil sem permissão para fila' using errcode = '42501';
   end if;
 
