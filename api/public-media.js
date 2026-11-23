@@ -97,7 +97,7 @@ export default async function handler(req, res) {
     const items = (await Promise.all(files.filter(item => item && item.id && typeof item.name === "string" &&
       item.name !== "." && item.name !== ".." && !/[\\/]/.test(item.name)).map(async item => {
       const type = inferType(item);
-      if (!/^(image\\/(png|jpeg|gif|webp|avif)|video\\/(mp4|webm|ogg|quicktime|x-m4v))$/i.test(type)) return null;
+      if (!/^(image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm|ogg|quicktime|x-m4v))$/i.test(type)) return null;
       const path = prefix + "/" + item.name;
       const signResponse = await upstream("/storage/v1/object/sign/" + BUCKET + "/" + path.split("/").map(encodeURIComponent).join("/"), {
         method: "POST",
