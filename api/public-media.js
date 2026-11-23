@@ -52,6 +52,9 @@ function absoluteSignedUrl(value) {
   if (value.startsWith("/storage/v1/")) return SUPABASE_URL + value;
   return SUPABASE_URL + "/storage/v1" + (value.startsWith("/") ? value : "/" + value);
 }
+export function isSupportedMediaType(type) {
+  return /^(image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm|ogg|quicktime|x-m4v))$/i.test(type);
+}
 export function inferType(item) {
   const metadata = item && item.metadata || {};
   const known = metadata.mimetype || metadata.contentType;
@@ -111,7 +114,7 @@ export default async function handler(req, res) {
     const selectedFiles = safeFiles.slice(0, MAX_SIGNED_MEDIA_ITEMS);
     const items = (await Promise.all(selectedFiles.map(async item => {
       const type = inferType(item);
-      if (!/^(image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm|ogg|quicktime|x-m4v))$/i.test(type)) return null;
+      if (!isSupportedMediaType(type)) return null;
       const path = prefix + "/" + item.name;
       const signResponse = await upstream("/storage/v1/object/sign/" + BUCKET + "/" + path.split("/").map(encodeURIComponent).join("/"), {
         method: "POST",
