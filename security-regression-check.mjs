@@ -6,6 +6,8 @@ const html = read("./index.html");
 const cloud = read("./markys-cloud.js");
 const publicApi = read("./api/public-queue.js");
 const vercel = JSON.parse(read("./vercel.json"));
+const migration = read("./supabase/migrations/20261123070000_require_recent_auth_for_queue_deletions.sql");
+const databaseTests = read("./supabase/tests/security_regression.sql");
 
 assert.doesNotMatch(html, /7931/, "A senha fixa antiga não pode voltar ao frontend.");
 assert.match(html, /async function authorizeDeletion\(\)/, "A confirmação de exclusão deve existir.");
@@ -16,6 +18,11 @@ assert.doesNotMatch(cloud, /qzjkoyqm/i, "O cliente não pode apontar para o proj
 assert.doesNotMatch(publicApi, /qzjkoyqm/i, "A API pública não pode apontar para o projeto Supabase do FAVMED.");
 assert.doesNotMatch(publicApi, /(?:cpf|birthDate)\s*:/i, "A API pública não deve serializar CPF ou nascimento.");
 assert.match(html, /tus-js-client@4\.3\.1\/dist\/tus\.min\.js/, "A dependência tus precisa estar fixada.");
+assert.match(migration, /auth\.jwt\(\)->>\x27auth_time\x27/, "A RPC deve validar o horário de autenticação.");
+assert.match(migration, /REAUTH_REQUIRED/, "A RPC deve rejeitar exclusões sem reautenticação recente.");
+assert.match(migration, /markys_sga_queue_deletion_audit/, "A exclusão deve gerar trilha de auditoria.");
+assert.match(databaseTests, /Tenant isolation policy missing/, "Os testes SQL devem verificar isolamento por clínica.");
+assert.match(databaseTests, /Direct access to tenant queue table must remain denied/, "Os testes SQL devem verificar acesso direto à fila.");
 assert.equal(existsSync(new URL("./api/redis-check.js", import.meta.url)), false,
   "O endpoint redis-check não deve existir na raiz do SGA.");
 
