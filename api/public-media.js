@@ -1,5 +1,5 @@
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://vibybosdqavejvqsuvph.supabase.co";
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET = "markys-sga-media";
 const SIGNED_URL_TTL_SECONDS = 3600;
 const CACHE_TTL_MS = 30_000;
