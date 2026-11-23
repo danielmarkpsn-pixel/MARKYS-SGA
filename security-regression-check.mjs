@@ -22,6 +22,8 @@ assert.doesNotMatch(publicApi, /qzjkoyqm/i, "A API pública não pode apontar pa
 assert.doesNotMatch(publicApi, /(?:cpf|birthDate)\s*:/i, "A API pública não deve serializar CPF ou nascimento.");
 assert.match(publicApi, /RATE_LIMIT_MAX = 300/, "A API pública deve limitar requisições por IP.");
 assert.match(publicApi, /rate_limit_exceeded/, "A API pública deve responder 429 ao exceder o limite.");
+assert.doesNotMatch(publicApi, /x-forwarded-for/, "A API não deve confiar em IP encaminhado pelo cliente.");
+assert.doesNotMatch(publicMediaApi, /x-forwarded-for/, "A API de mídia não deve confiar em IP encaminhado pelo cliente.");
 assert.match(publicApi, /Best-effort per-instance guard/, "O limite local não pode ser descrito como proteção distribuída.");
 assert.match(publicMediaApi, /SUPABASE_SERVICE_ROLE_KEY/, "A API de mídia deve usar chave privilegiada apenas no servidor.");
 assert.match(publicMediaApi, /active: "eq.true"/, "A API de mídia deve validar que a clínica está ativa.");
