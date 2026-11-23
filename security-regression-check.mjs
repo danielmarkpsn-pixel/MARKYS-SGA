@@ -24,10 +24,10 @@ assert.match(publicApi, /rate_limit_exceeded/, "A API pública deve responder 42
 assert.match(publicApi, /Best-effort per-instance guard/, "O limite local não pode ser descrito como proteção distribuída.");
 assert.match(publicMediaApi, /SUPABASE_SERVICE_ROLE_KEY/, "A API de mídia deve usar chave privilegiada apenas no servidor.");
 assert.match(publicMediaApi, /active: "eq.true"/, "A API de mídia deve validar que a clínica está ativa.");
-assert.match(publicMediaApi, /object\\/sign/, "A API de mídia deve entregar URLs assinadas.");
-assert.match(cloud, /api\\/public-media\\?clinic=/, "A tela pública deve carregar mídia pela API isolada por clínica.");
-assert.match(cloud, /createSignedUrl\\("markys-sga-media"/, "O painel autenticado deve usar URLs assinadas para mídia privada.");
-assert.doesNotMatch(cloud, /getPublicUrl\\(path\\)/, "O cliente não deve gerar URLs públicas de mídia clínica.");
+assert.match(publicMediaApi, /object\/sign/, "A API de mídia deve entregar URLs assinadas.");
+assert.match(cloud, /api\/public-media\?clinic=/, "A tela pública deve carregar mídia pela API isolada por clínica.");
+assert.match(cloud, /createSignedUrl\("markys-sga-media"/, "O painel autenticado deve usar URLs assinadas para mídia privada.");
+assert.doesNotMatch(cloud, /getPublicUrl\(path\)/, "O cliente não deve gerar URLs públicas de mídia clínica.");
 assert.match(mediaMigration, /set public=false/, "O bucket de mídia clínica deve ser privado.");
 assert.match(mediaMigration, /drop policy if exists markys_sga_media_public_list/i, "A listagem anônima do bucket deve ser removida.");
 assert.match(html, /tus-js-client@4\.3\.1\/dist\/tus\.min\.js/, "A dependência tus precisa estar fixada.");
@@ -73,4 +73,11 @@ await publicQueueHandler({ method: "GET", headers: { "x-real-ip": "192.0.2.77" }
 assert.equal(limitedResponse.statusCode, 429, "The 301st request from one IP must be throttled.");
 assert.equal(limitedResponse.headers["retry-after"], "60", "Rate-limited clients need a Retry-After header.");
 
-const mediaMethodResponse = mockResponse();\nawait publicMediaHandler({ method: "POST", headers: {}, query: {} }, mediaMethodResponse);\nassert.equal(mediaMethodResponse.statusCode, 405, "The public media endpoint must reject non-GET methods.");\nconst mediaConfigResponse = mockResponse();\nawait publicMediaHandler({ method: "GET", headers: {}, query: { clinic: "clinica-principal" } }, mediaConfigResponse);\nassert.equal(mediaConfigResponse.statusCode, 500, "The public media endpoint must fail closed without its server-only key.");\n\nconsole.log("Security regression checks passed.");
+const mediaMethodResponse = mockResponse();
+await publicMediaHandler({ method: "POST", headers: {}, query: {} }, mediaMethodResponse);
+assert.equal(mediaMethodResponse.statusCode, 405, "The public media endpoint must reject non-GET methods.");
+const mediaConfigResponse = mockResponse();
+await publicMediaHandler({ method: "GET", headers: {}, query: { clinic: "clinica-principal" } }, mediaConfigResponse);
+assert.equal(mediaConfigResponse.statusCode, 500, "The public media endpoint must fail closed without its server-only key.");
+
+console.log("Security regression checks passed.");
