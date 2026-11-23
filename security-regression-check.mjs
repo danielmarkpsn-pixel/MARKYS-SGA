@@ -7,7 +7,7 @@ const cloud = read("./markys-cloud.js");
 const publicApi = read("./api/public-queue.js");
 const publicMediaApi = read("./api/public-media.js");
 const vercel = JSON.parse(read("./vercel.json"));
-const { default: publicMediaHandler } = await import("./api/public-media.js");
+const { default: publicMediaHandler, inferType } = await import("./api/public-media.js");
 const migration = read("./supabase/migrations/20261123070000_require_recent_auth_for_queue_deletions.sql");
 const mediaMigration = read("./supabase/migrations/20261123130000_private_tenant_media.sql");
 const databaseTests = read("./supabase/tests/security_regression.sql");
@@ -26,6 +26,9 @@ assert.match(publicApi, /Best-effort per-instance guard/, "O limite local não p
 assert.match(publicMediaApi, /SUPABASE_SERVICE_ROLE_KEY/, "A API de mídia deve usar chave privilegiada apenas no servidor.");
 assert.match(publicMediaApi, /active: "eq.true"/, "A API de mídia deve validar que a clínica está ativa.");
 assert.match(publicMediaApi, /object\/sign/, "A API de mídia deve entregar URLs assinadas.");
+assert.equal(inferType({ name: "foto.jpg" }), "image/jpeg", "JPEG .jpg deve ser aceito como image/jpeg.");
+assert.equal(inferType({ name: "video.mov" }), "video/quicktime", "MOV deve ser normalizado para video/quicktime.");
+assert.equal(inferType({ name: "video.m4v" }), "video/x-m4v", "M4V deve ser normalizado para video/x-m4v.");
 assert.match(cloud, /api\/public-media\?clinic=/, "A tela pública deve carregar mídia pela API isolada por clínica.");
 assert.match(cloud, /createSignedUrl\("markys-sga-media"/, "O painel autenticado deve usar URLs assinadas para mídia privada.");
 assert.doesNotMatch(cloud, /getPublicUrl\(path\)/, "O cliente não deve gerar URLs públicas de mídia clínica.");
