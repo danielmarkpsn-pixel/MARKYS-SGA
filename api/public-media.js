@@ -94,7 +94,10 @@ export default async function handler(req, res) {
     const files = await listResponse.json();
     if (!Array.isArray(files)) return send(res, 502, { ok: false, error: "media_list_invalid" });
 
-    const items = await Promise.all(files.filter(item => item && item.id && item.name).map(async item => {
+    const items = (await Promise.all(files.filter(item => item && item.id && typeof item.name === "string" &&
+      item.name !== "." && item.name !== ".." && !/[\\/]/.test(item.name)).map(async item => {
+      const type = inferType(item);
+      if (!/^(image\\/(png|jpeg|gif|webp|avif)|video\\/(mp4|webm|ogg|quicktime|x-m4v))$/i.test(type)) return null;
       const path = prefix + "/" + item.name;
       const signResponse = await upstream("/storage/v1/object/sign/" + BUCKET + "/" + path.split("/").map(encodeURIComponent).join("/"), {
         method: "POST",
@@ -106,8 +109,8 @@ export default async function handler(req, res) {
       const signedUrl = absoluteSignedUrl(signed && (signed.signedURL || signed.signedUrl));
       if (!signedUrl) throw new Error("signed_url_missing");
       const displayName = item.name.replace(/^\d+_/, "");
-      return { name: displayName, type: inferType(item), url: signedUrl };
-    }));
+      return { name: displayName, type, url: signedUrl };
+    }))).filter(Boolean);
 
     const data = { ok: true, clinic_slug: clinic, items };
     cache.set(clinic, { at: Date.now(), data });
