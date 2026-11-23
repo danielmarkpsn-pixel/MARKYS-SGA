@@ -7,6 +7,7 @@ const cloud = read("./markys-cloud.js");
 const publicApi = read("./api/public-queue.js");
 const publicMediaApi = read("./api/public-media.js");
 const vercel = JSON.parse(read("./vercel.json"));
+const { default: publicMediaHandler } = await import("./api/public-media.js");
 const migration = read("./supabase/migrations/20261123070000_require_recent_auth_for_queue_deletions.sql");
 const mediaMigration = read("./supabase/migrations/20261123130000_private_tenant_media.sql");
 const databaseTests = read("./supabase/tests/security_regression.sql");
