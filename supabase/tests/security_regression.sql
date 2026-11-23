@@ -36,8 +36,16 @@ begin
   end if;
 
   if has_table_privilege('anon','app_private.markys_sga_queue_deletion_audit','select')
-     or has_table_privilege('authenticated','app_private.markys_sga_queue_deletion_audit','select') then
-    raise exception 'Client roles must not read the deletion audit table directly';
+     or has_table_privilege('authenticated','app_private.markys_sga_queue_deletion_audit','select')
+     or has_table_privilege('anon','app_private.markys_sga_queue_deletion_audit','insert')
+     or has_table_privilege('authenticated','app_private.markys_sga_queue_deletion_audit','insert') then
+    raise exception 'Client roles must not access the deletion audit table directly';
+  end if;
+
+  if has_function_privilege('anon','public.markys_sga_queue_write_tenant(jsonb,uuid)','execute')
+     or has_function_privilege('public','public.markys_sga_queue_write_tenant(jsonb,uuid)','execute')
+     or not has_function_privilege('authenticated','public.markys_sga_queue_write_tenant(jsonb,uuid)','execute') then
+    raise exception 'Queue write RPC grants must be authenticated-only';
   end if;
 
   select pg_get_functiondef('public.markys_sga_queue_write_tenant(jsonb,uuid)'::regprocedure)
