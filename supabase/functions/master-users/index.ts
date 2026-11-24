@@ -30,7 +30,7 @@ function corsHeaders(origin = productionAppUrl) {
   };
 }
 
-const allowedRoles = new Set(["recepcao", "profissional", "sala", "financeiro"]);
+const allowedRoles = new Set(["recepcao", "profissional", "admin_clinica"]);
 
 function json(body: unknown, status = 200, origin = productionAppUrl) {
   return new Response(JSON.stringify(body), {
