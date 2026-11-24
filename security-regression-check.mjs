@@ -31,7 +31,6 @@ assert.doesNotMatch(adminLogins, /<option value="financeiro">/, "Financeiro não
 assert.match(masterUsers, /new Set\(\["recepcao", "profissional", "admin_clinica"\]\)/, "A Edge Function deve aceitar somente os três perfis operacionais.");
 assert.match(roleMigration, /markys_sga_queue_write_tenant/, "A migração deve atualizar a autorização da RPC de fila.");
 assert.ok(roleMigration.includes("'''master'', ''recepcao''"), "A Administração deve poder excluir com reautenticação recente e auditoria.");
-assert.match(roleMigration, /\$new\
 assert.match(roleMigration, /role in \('master','admin_clinica'\)/, "O módulo financeiro deve ser exclusivo da Administração e Master.");
 assert.match(roleMigration, /current_user_clinic_id\(\)::text/, "O acesso de Administração ao Storage deve continuar isolado por clínica.");
 assert.match(cloud, /vibybosdqavejvqsuvph\.supabase\.co/, "O cliente deve apontar para o Supabase do SGA.");
@@ -111,7 +110,6 @@ await publicMediaHandler({ method: "GET", headers: {}, query: { clinic: "clinica
 assert.equal(mediaConfigResponse.statusCode, 500, "The public media endpoint must fail closed without its server-only key.");
 
 console.log("Security regression checks passed.");
-master', 'recepcao', 'admin_clinica'\$new\$/, "A Administração deve poder excluir com reautenticação recente e auditoria.");
 assert.match(roleMigration, /role in \('master','admin_clinica'\)/, "O módulo financeiro deve ser exclusivo da Administração e Master.");
 assert.match(roleMigration, /current_user_clinic_id\(\)::text/, "O acesso de Administração ao Storage deve continuar isolado por clínica.");
 assert.match(cloud, /vibybosdqavejvqsuvph\.supabase\.co/, "O cliente deve apontar para o Supabase do SGA.");
