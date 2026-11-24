@@ -30,6 +30,7 @@ assert.match(adminLogins, /value="admin_clinica"/, "O painel Master deve permiti
 assert.doesNotMatch(adminLogins, /<option value="financeiro">/, "Financeiro não pode ser uma função nova.");
 assert.match(masterUsers, /new Set\(\["recepcao", "profissional", "admin_clinica"\]\)/, "A Edge Function deve aceitar somente os três perfis operacionais.");
 assert.match(roleMigration, /markys_sga_queue_write_tenant/, "A migração deve atualizar a autorização da RPC de fila.");
+assert.ok(roleMigration.includes("'''master'', ''recepcao''"), "A Administração deve poder excluir com reautenticação recente e auditoria.");
 assert.match(roleMigration, /\$new\
 assert.match(roleMigration, /role in \('master','admin_clinica'\)/, "O módulo financeiro deve ser exclusivo da Administração e Master.");
 assert.match(roleMigration, /current_user_clinic_id\(\)::text/, "O acesso de Administração ao Storage deve continuar isolado por clínica.");
