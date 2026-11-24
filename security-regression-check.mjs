@@ -6,6 +6,7 @@ const html = read("./index.html");
 const cloud = read("./markys-cloud.js");
 const auth = read("./markys-auth.js");
 const adminLogins = read("./admin-logins.html");
+const finance = read("./financeiro.html");
 const masterUsers = read("./supabase/functions/master-users/index.ts");
 const roleMigration = read("./supabase/migrations/20261124120000_markys_sga_clinic_administration_role.sql");
 const publicApi = read("./api/public-queue.js");
@@ -23,6 +24,7 @@ assert.match(cloud, /markys_sga_queue_write_tenant/, "A escrita deve usar a RPC 
 assert.match(auth, /professionalMode && !\["master", "profissional", "admin_clinica"\]/, "Somente Profissional, Administração e Master acessam o painel profissional.");
 assert.match(auth, /!\["master", "recepcao", "admin_clinica"\]/, "Somente Recepção, Administração e Master acessam a recepção autenticada.");
 assert.match(auth, /financeMode && !\["master", "admin_clinica"\]/, "Financeiro deve ser restrito à Administração e Master.");
+assert.match(finance, /!\["master","admin_clinica"\]\.includes\(profile\.role\)/, "O próprio módulo financeiro deve validar Administração e Master.");
 assert.match(auth, /location\.pathname === "\/sala"/, "A sala pública deve continuar anônima.");
 assert.match(adminLogins, /value="admin_clinica"/, "O painel Master deve permitir criar Administração da clínica.");
 assert.doesNotMatch(adminLogins, /<option value="financeiro">/, "Financeiro não pode ser uma função nova.");
