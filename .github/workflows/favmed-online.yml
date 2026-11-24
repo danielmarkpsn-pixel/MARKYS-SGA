@@ -89,8 +89,10 @@ jobs:
           if (!reception.includes("MARKYS SGA")) throw new Error("Identidade MARKYS SGA ausente na recepção.");
           if (!professional.includes("MARKYS SGA")) throw new Error("Identidade MARKYS SGA ausente no painel profissional.");
           if (!finance.includes("MARKYS SGA") || !finance.includes("markys_finance_entries")) throw new Error("Módulo Financeiro MARKYS incompleto.");
-          if (!auth.includes("Acesso restrito ao Master e aos usuários com perfil Financeiro") || !auth.includes("financeiro")) throw new Error("Controle de acesso Financeiro ausente.");
-          if (!admin.includes('value="financeiro"')) throw new Error("Perfil Financeiro ausente na administração de logins.");
+          if (!auth.includes("Acesso restrito à Administração da clínica e ao Master.") || !auth.includes("admin_clinica")) throw new Error("Controle de acesso da Administração ausente.");
+          if (!admin.includes('value="admin_clinica"') || admin.includes('<option value="financeiro">')) throw new Error("Matriz de perfis oficiais incorreta: Administração deve existir e Financeiro não pode ser criado.");
+          const masterUsers = readFileSync("supabase/functions/master-users/index.ts", "utf8");
+          if (!masterUsers.includes('new Set(["recepcao", "profissional", "admin_clinica"])')) throw new Error("A Edge Function não valida os três perfis oficiais.");
           if (!reception.includes("/consultorio.html")) throw new Error("Link para o painel profissional ausente na recepção.");
           if (!professionalRoute.includes("/consultorio.html")) throw new Error("Rota /consultorio não encaminha ao painel profissional.");
           if (!reception.includes("markys-cloud.js") || !reception.includes("markys-auth.js")) throw new Error("Integração MARKYS Cloud/Auth ausente na recepção.");
