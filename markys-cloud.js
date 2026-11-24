@@ -135,7 +135,7 @@
       let active = true;
       let channel = null;
       authReady.then(async profile => {
-        if (!active || !profile || !["master", "recepcao", "profissional"].includes(profile.role)) return;
+        if (!active || !profile || !["master", "recepcao", "profissional", "admin_clinica"].includes(profile.role)) return;
         const { data: sessionData } = await client.auth.getSession();
         if (sessionData && sessionData.session && client.realtime && typeof client.realtime.setAuth === "function") {
           await client.realtime.setAuth(sessionData.session.access_token);
@@ -276,7 +276,7 @@
     },
     async uploadPatientDocument(patientId, file) {
       await authReady;
-      if (!currentProfile || !["master", "recepcao"].includes(currentProfile.role)) {
+      if (!currentProfile || !["master", "recepcao", "admin_clinica"].includes(currentProfile.role)) {
         throw new Error("Somente a recepção pode anexar documentos de pacientes.");
       }
       if (!file || file.size > 50 * 1024 * 1024 || (file.type && file.type !== "application/pdf")) {
