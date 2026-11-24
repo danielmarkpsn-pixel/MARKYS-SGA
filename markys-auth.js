@@ -242,16 +242,18 @@
       showLogin("Conta sem perfil ativo. Solicite ao administrador a liberação do acesso.");
       return false;
     }
+    if (profile.role === "financeiro") {
+      cloud.resolveAuth(profile);
+      addLogoutButton();
+      showAccessMessage("O perfil Financeiro foi descontinuado. Solicite ao Master a alteração para Administração da clínica.");
+      return false;
+    }
     if (financeMode && !["master", "admin_clinica"].includes(profile.role)) {
       showAccessMessage("Acesso restrito à Administração da clínica e ao Master.");
       return false;
     }
     if (publicMode && !["master", "recepcao", "profissional", "admin_clinica"].includes(profile.role)) {
       showAccessMessage("Abra esta tela pelo botão disponível na recepção. Esta conta não tem permissão para exibir as chamadas.");
-      return false;
-    }
-    if (profile.role === "financeiro") {
-      showAccessMessage("O perfil Financeiro foi descontinuado. Solicite ao Master a alteração para Administração da clínica.");
       return false;
     }
     if (professionalMode && !["master", "profissional", "admin_clinica"].includes(profile.role)) {
