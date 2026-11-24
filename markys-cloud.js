@@ -335,7 +335,7 @@
     },
     async uploadSlideshow(file, onProgress) {
       await authReady;
-      if (!currentProfile || !["master", "recepcao"].includes(currentProfile.role)) {
+      if (!currentProfile || !["master", "recepcao", "admin_clinica"].includes(currentProfile.role)) {
         throw new Error("Somente a recepção pode enviar fotos e vídeos para a sala.");
       }
       if (!file || !/^(image|video)\//i.test(file.type) || file.size > 52428800) {
