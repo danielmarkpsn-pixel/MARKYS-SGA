@@ -7,6 +7,7 @@
   const params = new URLSearchParams(location.search);
   const publicMode = params.get("painel") === "1" || location.pathname === "/sala" || location.pathname === "/sala/";
   const financeMode = location.pathname === "/financeiro" || location.pathname === "/financeiro.html";
+  const professionalMode = location.pathname === "/consultorio" || location.pathname === "/consultorio.html";
   const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
   const authFlow = hashParams.get("type") || params.get("flow") || "";
   let overlay = null;
@@ -182,7 +183,7 @@
     toolbar.setAttribute("aria-label", "Ações da sessão");
     toolbar.style.cssText = "position:fixed;right:14px;bottom:14px;z-index:9998;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;max-width:calc(100vw - 28px)";
     document.body.appendChild(toolbar);
-    if (profile && ["master", "financeiro"].includes(profile.role) && !publicMode && !financeMode && !document.getElementById("markys-sga-finance")) {
+    if (profile && ["master", "admin_clinica"].includes(profile.role) && !publicMode && !financeMode && !document.getElementById("markys-sga-finance")) {
       const financeButton = document.createElement("a");
       financeButton.id = "markys-sga-finance";
       financeButton.href = "/financeiro.html";
@@ -241,18 +242,25 @@
       showLogin("Conta sem perfil ativo. Solicite ao administrador a liberação do acesso.");
       return false;
     }
-    if (financeMode && !["master", "financeiro"].includes(profile.role)) {
-      showAccessMessage("Acesso restrito ao Master e aos usuários com perfil Financeiro.");
+    if (financeMode && !["master", "admin_clinica"].includes(profile.role)) {
+      showAccessMessage("Acesso restrito à Administração da clínica e ao Master.");
       return false;
     }
-    if (publicMode && !["master", "recepcao"].includes(profile.role)) {
+    if (publicMode && !["master", "recepcao", "profissional", "admin_clinica"].includes(profile.role)) {
       showAccessMessage("Abra esta tela pelo botão disponível na recepção. Esta conta não tem permissão para exibir as chamadas.");
       return false;
     }
-    // Financeiro is a dedicated module role. Avoid calling the queue RPC,
-    // which correctly rejects financial-only accounts.
-    if (profile.role === "financeiro" && !financeMode && !publicMode) {
-      location.replace("/financeiro.html");
+    if (profile.role === "financeiro") {
+      showAccessMessage("O perfil Financeiro foi descontinuado. Solicite ao Master a alteração para Administração da clínica.");
+      await client.auth.signOut();
+      return false;
+    }
+    if (professionalMode && !["master", "profissional", "admin_clinica"].includes(profile.role)) {
+      showAccessMessage("Este módulo é exclusivo dos Profissionais e da Administração da clínica.");
+      return false;
+    }
+    if (!financeMode && !professionalMode && !publicMode && !["master", "recepcao", "admin_clinica"].includes(profile.role)) {
+      showAccessMessage("Esta conta não tem permissão para acessar a Recepção.");
       return false;
     }
     if (overlay) {
@@ -268,7 +276,7 @@
 
   if (localMode) {
     if (financeMode) {
-      showAccessMessage("O módulo Financeiro exige autenticação com perfil Master ou Financeiro.");
+      showAccessMessage("O módulo Financeiro exige autenticação com perfil Administração da clínica ou Master.");
       return;
     }
     cloud.resolveAuth({ role: "local", active: true });
