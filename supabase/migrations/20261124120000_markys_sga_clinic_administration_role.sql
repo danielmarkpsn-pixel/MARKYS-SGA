@@ -16,14 +16,14 @@ declare v_def text;
 begin
   select pg_get_functiondef('public.markys_sga_queue_get_tenant(uuid)'::regprocedure) into v_def;
   if v_def is null then raise exception 'RPC markys_sga_queue_get_tenant(uuid) não encontrada'; end if;
-  v_def := replace(v_def, "('master','recepcao','profissional')", "('master','recepcao','profissional','admin_clinica')");
-  v_def := replace(v_def, "('master', 'recepcao', 'profissional')", "('master', 'recepcao', 'profissional', 'admin_clinica')");
+  v_def := replace(v_def, $old$'master','recepcao','profissional'$old$, $new$'master','recepcao','profissional','admin_clinica'$new$);
+  v_def := replace(v_def, $old$'master', 'recepcao', 'profissional'$old$, $new$'master', 'recepcao', 'profissional', 'admin_clinica'$new$);
   execute v_def;
 
   select pg_get_functiondef('public.markys_sga_queue_write_tenant(jsonb,uuid)'::regprocedure) into v_def;
   if v_def is null then raise exception 'RPC markys_sga_queue_write_tenant(jsonb,uuid) não encontrada'; end if;
-  v_def := replace(v_def, "('master','recepcao','profissional')", "('master','recepcao','profissional','admin_clinica')");
-  v_def := replace(v_def, "('master', 'recepcao', 'profissional')", "('master', 'recepcao', 'profissional', 'admin_clinica')");
+  v_def := replace(v_def, $old$'master','recepcao','profissional'$old$, $new$'master','recepcao','profissional','admin_clinica'$new$);
+  v_def := replace(v_def, $old$'master', 'recepcao', 'profissional'$old$, $new$'master', 'recepcao', 'profissional', 'admin_clinica'$new$);
   execute v_def;
 end $$;
 
