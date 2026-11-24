@@ -252,7 +252,6 @@
     }
     if (profile.role === "financeiro") {
       showAccessMessage("O perfil Financeiro foi descontinuado. Solicite ao Master a alteração para Administração da clínica.");
-      await client.auth.signOut();
       return false;
     }
     if (professionalMode && !["master", "profissional", "admin_clinica"].includes(profile.role)) {
