@@ -39,7 +39,7 @@ begin
     raise exception 'Não foi possível incluir admin_clinica na autorização de gravação da fila';
   end if;
   execute v_def;
-end $;
+end $$;
 
 -- Retire direct client execution of the legacy global-queue helper. The current
 -- application uses tenant-scoped RPCs; keep service_role for any trusted backend
