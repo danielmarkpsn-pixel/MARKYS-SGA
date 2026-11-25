@@ -21,7 +21,7 @@ assert.match(migration, /pg_advisory_xact_lock\(hashtext\('markys_sga_queue_tena
 assert.match(migration, /for update/);
 assert.match(migration, /v_change_count<1 or v_change_count>200/);
 assert.match(migration, /pg_column_size\(p_changes\)>8388608/);
-assert.match(migration, /having count\(\)>1/);
+assert.match(migration, /having count\(\*\)>1/);
 assert.match(migration, /jsonb_agg[\s\S]*?order by q\.ordinality/);
 assert.match(migration, /jsonb_agg\(m\.value->'patient' order by c\.ordinality\)/);
 assert.match(migration, /if v_new_queue is not distinct from v_old_queue then/);
