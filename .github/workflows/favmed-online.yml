@@ -64,6 +64,7 @@ jobs:
           node --check api/public-queue.js
           node --check scripts/check-security-basics.mjs
           node --check scripts/check-tenant-queue-merge.mjs
+          node --check scripts/check-tenant-queue-realtime.mjs
 
       - name: Validate HTML inline scripts and MARKYS routes
         run: |
@@ -104,6 +105,9 @@ jobs:
 
       - name: Tenant queue field-merge guardrails
         run: node scripts/check-tenant-queue-merge.mjs
+
+      - name: Tenant queue Realtime guardrails
+        run: node scripts/check-tenant-queue-realtime.mjs
 
       - name: Online (legacy) security guardrails
         run: node online/scripts/security-regression-check.mjs
