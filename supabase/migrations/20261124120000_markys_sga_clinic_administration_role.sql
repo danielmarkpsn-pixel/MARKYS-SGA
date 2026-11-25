@@ -16,15 +16,28 @@ declare v_def text;
 begin
   select pg_get_functiondef('public.markys_sga_queue_get_tenant(uuid)'::regprocedure) into v_def;
   if v_def is null then raise exception 'RPC markys_sga_queue_get_tenant(uuid) não encontrada'; end if;
-  v_def := replace(v_def, '''master'',''recepcao'',''profissional''', '''master'',''recepcao'',''profissional'',''admin_clinica''');
-  v_def := replace(v_def, '''master'', ''recepcao'', ''profissional''', '''master'', ''recepcao'', ''profissional'', ''admin_clinica''');
+  v_def := regexp_replace(v_def,
+    'v_role not in \(''master'',\s*''recepcao'',\s*''profissional''\)',
+    'v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')', 'g');
+  if position('admin_clinica' in v_def)=0 then
+    raise exception 'Não foi possível incluir admin_clinica na autorização da RPC de leitura da fila';
+  end if;
   execute v_def;
 
   select pg_get_functiondef('public.markys_sga_queue_write_tenant(jsonb,uuid)'::regprocedure) into v_def;
   if v_def is null then raise exception 'RPC markys_sga_queue_write_tenant(jsonb,uuid) não encontrada'; end if;
-  v_def := replace(v_def, '''master'',''recepcao'',''profissional''', '''master'',''recepcao'',''profissional'',''admin_clinica''');
-  v_def := replace(v_def, '''master'', ''recepcao'', ''profissional''', '''master'', ''recepcao'', ''profissional'', ''admin_clinica''');
-  v_def := replace(v_def, '''master'', ''recepcao''', '''master'', ''recepcao'', ''admin_clinica''');
+  v_def := regexp_replace(v_def,
+    'v_role not in \(''master'',\s*''recepcao'',\s*''profissional''\)',
+    'v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')', 'g');
+  v_def := regexp_replace(v_def,
+    'v_role not in \(''master'',\s*''recepcao''\)',
+    'v_role not in (''master'', ''recepcao'', ''admin_clinica'')', 'g');
+  if position('v_role not in (''master'', ''recepcao'', ''admin_clinica'')' in v_def)=0 then
+    raise exception 'Não foi possível incluir admin_clinica na autorização de exclusão da fila';
+  end if;
+  if position('admin_clinica' in v_def)=0 then
+    raise exception 'Não foi possível incluir admin_clinica na autorização de gravação da fila';
+  end if;
   execute v_def;
 end $$;
 
@@ -77,27 +90,55 @@ using ((select realtime.topic()) like 'markys-sga-queue-clinic-%' and exists(
 
 -- Public waiting-room endpoints are deliberately unchanged and remain anonymous/read-only.
 
--- Expand tenant-scoped Storage restrictive policies. The clinic folder check is
--- deliberately preserved, so clinic administrators cannot cross tenant boundaries.
+-- Expand the existing command-specific Storage restrictive policies.
+-- Every policy explicitly exempts other buckets; a restrictive policy that only
+-- checks its own bucket would unintentionally block unrelated Storage buckets.
 drop policy if exists markys_sga_documents_tenant_scope on storage.objects;
 create policy markys_sga_documents_tenant_scope on storage.objects as restrictive
 for all to authenticated
-using (bucket_id='markys-sga-documents'
- and private.current_active_role()=any(array['master','recepcao','profissional','admin_clinica']::text[])
- and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text)))
-with check (bucket_id='markys-sga-documents'
- and private.current_active_role()=any(array['master','recepcao','admin_clinica']::text[])
- and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text)));
+using (bucket_id <> 'markys-sga-documents' or (
+  private.current_active_role()=any(array['master','recepcao','profissional','admin_clinica']::text[])
+  and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text))
+))
+with check (bucket_id <> 'markys-sga-documents' or (
+  private.current_active_role()=any(array['master','recepcao','admin_clinica']::text[])
+  and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text))
+));
 
 drop policy if exists markys_sga_media_tenant_scope on storage.objects;
-create policy markys_sga_media_tenant_scope on storage.objects as restrictive
-for all to authenticated
-using (bucket_id='markys-sga-media'
- and private.current_active_role()=any(array['master','recepcao','profissional','admin_clinica']::text[])
- and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text)))
-with check (bucket_id='markys-sga-media'
- and private.current_active_role()=any(array['master','recepcao','admin_clinica']::text[])
- and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text)));
+drop policy if exists markys_sga_media_tenant_read on storage.objects;
+drop policy if exists markys_sga_media_tenant_insert on storage.objects;
+drop policy if exists markys_sga_media_tenant_update on storage.objects;
+drop policy if exists markys_sga_media_tenant_delete on storage.objects;
+
+create policy markys_sga_media_tenant_read on storage.objects as restrictive
+for select to authenticated
+using (bucket_id <> 'markys-sga-media' or (
+  private.current_active_role()=any(array['master','recepcao','profissional','admin_clinica']::text[])
+  and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text))
+));
+create policy markys_sga_media_tenant_insert on storage.objects as restrictive
+for insert to authenticated
+with check (bucket_id <> 'markys-sga-media' or (
+  private.current_active_role()=any(array['master','recepcao','admin_clinica']::text[])
+  and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text))
+));
+create policy markys_sga_media_tenant_update on storage.objects as restrictive
+for update to authenticated
+using (bucket_id <> 'markys-sga-media' or (
+  private.current_active_role()=any(array['master','recepcao','admin_clinica']::text[])
+  and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text))
+))
+with check (bucket_id <> 'markys-sga-media' or (
+  private.current_active_role()=any(array['master','recepcao','admin_clinica']::text[])
+  and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text))
+));
+create policy markys_sga_media_tenant_delete on storage.objects as restrictive
+for delete to authenticated
+using (bucket_id <> 'markys-sga-media' or (
+  private.current_active_role()=any(array['master','recepcao','admin_clinica']::text[])
+  and (private.current_user_is_master() or ((storage.foldername(name))[1]='clinics' and (storage.foldername(name))[2]=private.current_user_clinic_id()::text))
+));
 
 -- Insurance/pricing, service catalog and service documents are part of the
 -- clinic-wide Administration module. Other staff retain only their prior reads.
@@ -175,7 +216,11 @@ declare v_def text;
 begin
   select pg_get_functiondef('public.markys_create_service_document(uuid,text,text,text,text,date,jsonb)'::regprocedure) into v_def;
   if v_def is null then raise exception 'RPC markys_create_service_document não encontrada'; end if;
-  v_def := replace(v_def, '''master'',''financeiro'',''recepcao''', '''master'',''admin_clinica'',''recepcao''');
-  v_def := replace(v_def, '''master'', ''financeiro'', ''recepcao''', '''master'', ''admin_clinica'', ''recepcao''');
+  v_def := regexp_replace(v_def,
+    'v_role not in \(''master'',\s*''financeiro'',\s*''recepcao''\)',
+    'v_role not in (''master'', ''admin_clinica'', ''recepcao'')', 'g');
+  if position('admin_clinica' in v_def)=0 or position('financeiro' in v_def)>0 then
+    raise exception 'Não foi possível atualizar com segurança a autorização da RPC de documentos de serviço';
+  end if;
   execute v_def;
 end $$;
