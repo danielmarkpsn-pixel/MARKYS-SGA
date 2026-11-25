@@ -205,8 +205,24 @@ form.addEventListener("submit",async event=>{
  }catch(error){showMessage(error.message);}
  finally{createButton.disabled=false;createButton.textContent="Criar login";}
 });
-loadClinics().catch(error=>{clinicsContainer.textContent="";showMessage(error.message);});
-loadUsers().catch(error=>{usersContainer.textContent="";showMessage(error.message);if(/Master|permiss|autentica|sessão/i.test(error.message))setTimeout(()=>{location.href="/";},3000);});
+async function initializeMasterAdministration(){
+ const {data:{user},error:userError}=await client.auth.getUser();
+ if(userError||!user){location.replace("/");return;}
+ const {data:profile,error:profileError}=await client.from("profiles").select("role,active").eq("id",user.id).maybeSingle();
+ if(profileError||!profile||profile.active!==true||profile.role!=="master"){
+  const main=document.querySelector("main");
+  main.replaceChildren();
+  const notice=document.createElement("section");notice.className="panel";
+  const title=document.createElement("h2");title.textContent="Acesso exclusivo do Administrador Master";
+  const detail=document.createElement("p");detail.textContent="Sua conta não possui autorização para gerenciar clínicas e logins.";
+  const back=document.createElement("a");back.href="/";back.textContent="Voltar para o sistema";
+  notice.append(title,detail,back);main.appendChild(notice);
+  return;
+ }
+ await loadClinics();
+ await loadUsers().catch(error=>{usersContainer.textContent="";showMessage(error.message);});
+}
+initializeMasterAdministration().catch(error=>{clinicsContainer.textContent="";usersContainer.textContent="";showMessage(error.message);});
 })();
 </script>
 </body>
