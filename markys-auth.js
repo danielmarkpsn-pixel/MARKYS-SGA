@@ -7,6 +7,7 @@
   const params = new URLSearchParams(location.search);
   const publicMode = params.get("painel") === "1" || location.pathname === "/sala" || location.pathname === "/sala/";
   const financeMode = location.pathname === "/financeiro" || location.pathname === "/financeiro.html";
+  const adminLoginsMode = location.pathname === "/admin-logins" || location.pathname === "/admin-logins.html";
   const professionalMode = location.pathname === "/consultorio" || location.pathname === "/consultorio.html";
   const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
   const authFlow = hashParams.get("type") || params.get("flow") || "";
@@ -246,6 +247,10 @@
       cloud.resolveAuth(profile);
       addLogoutButton();
       showAccessMessage("O perfil Financeiro foi descontinuado. Solicite ao Master a alteração para Administração da clínica.");
+      return false;
+    }
+    if (adminLoginsMode && profile.role !== "master") {
+      showAccessMessage("A gestão de clínicas e logins é exclusiva do Administrador Master.");
       return false;
     }
     if (financeMode && !["master", "admin_clinica"].includes(profile.role)) {
