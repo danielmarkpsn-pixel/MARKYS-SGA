@@ -19,7 +19,7 @@ assert.match(migration, /app_private\.markys_sga_merge_queue_patient_patch\(v_ex
 assert.match(mergeMigration, /create or replace function app_private\.markys_sga_merge_queue_patient_patch/);
 assert.match(migration, /pg_advisory_xact_lock\(hashtext\('markys_sga_queue_tenant'\),hashtext\(v_clinic::text\)\)/);
 assert.match(migration, /for update/);
-assert.match(migration, /v_change_count<1 or v_change_count>200/);
+assert.match(migration, /v_change_count<1 or v_change_count>500/);
 assert.match(migration, /pg_column_size\(p_changes\)>8388608/);
 assert.match(migration, /having count\(\*\)>1/);
 assert.match(migration, /jsonb_agg[\s\S]*?order by q\.ordinality/);
