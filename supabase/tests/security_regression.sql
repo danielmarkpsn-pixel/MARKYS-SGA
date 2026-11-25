@@ -4,6 +4,8 @@ do $$
 declare
   v_definition text;
   v_public_definition text;
+  v_queue_get_definition text;
+  v_service_document_definition text;
 begin
   if not exists (
     select 1 from pg_class c
@@ -86,6 +88,85 @@ begin
       and policyname='markys_sga_media_public_list'
   ) then
     raise exception 'Anonymous listing of clinic slideshow media must be removed';
+  end if;
+
+  -- Definitive clinic role model: Administration is operational and tenant-scoped,
+  -- while the legacy Financeiro role must not retain financial permissions.
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid='public.profiles'::regclass
+      and conname='profiles_role_check'
+      and pg_get_constraintdef(oid) ilike '%admin_clinica%'
+  ) then
+    raise exception 'profiles_role_check must include admin_clinica';
+  end if;
+
+  select pg_get_functiondef('public.markys_sga_queue_get_tenant(uuid)'::regprocedure)
+    into v_queue_get_definition;
+  if v_queue_get_definition not ilike '%admin_clinica%' then
+    raise exception 'Clinic Administration must be authorized to read the tenant queue';
+  end if;
+  if v_definition not ilike '%admin_clinica%'
+     or v_definition not ilike '%v_role not in (''master'', ''recepcao'', ''admin_clinica'')%' then
+    raise exception 'Clinic Administration must be authorized to write and delete queue records with recent reauthentication';
+  end if;
+
+  select pg_get_functiondef('public.markys_create_service_document(uuid,text,text,text,text,date,jsonb)'::regprocedure)
+    into v_service_document_definition;
+  if v_service_document_definition not ilike '%admin_clinica%'
+     or v_service_document_definition ilike '%financeiro%' then
+    raise exception 'Service document RPC must replace Financeiro with clinic Administration';
+  end if;
+
+  if exists (
+    select 1 from (values
+      ('markys_finance_categories','markys_finance_categories_access'),
+      ('markys_finance_cost_centers','markys_finance_cost_centers_access'),
+      ('markys_finance_accounts','markys_finance_accounts_access'),
+      ('markys_finance_entries','markys_finance_entries_access')
+    ) as expected(tablename,policyname)
+    where not exists (
+      select 1 from pg_policies p
+      where p.schemaname='public' and p.tablename=expected.tablename
+        and p.policyname=expected.policyname
+        and p.qual ilike '%admin_clinica%'
+        and p.qual not ilike '%financeiro%'
+        and p.with_check ilike '%admin_clinica%'
+        and p.with_check not ilike '%financeiro%'
+    )
+  ) then
+    raise exception 'Finance tables must allow Master/clinic Administration only, never legacy Financeiro';
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname='storage' and tablename='objects'
+      and policyname='markys_sga_documents_tenant_scope'
+      and permissive='RESTRICTIVE'
+      and qual ilike '%bucket_id <> ''markys-sga-documents''%'
+      and qual ilike '%admin_clinica%'
+      and qual ilike '%current_user_clinic_id%'
+  ) then
+    raise exception 'Documents Storage policy must preserve other buckets and clinic isolation for Administration';
+  end if;
+
+  if exists (
+    select 1 from (values
+      ('markys_sga_media_tenant_read','SELECT'),
+      ('markys_sga_media_tenant_insert','INSERT'),
+      ('markys_sga_media_tenant_update','UPDATE'),
+      ('markys_sga_media_tenant_delete','DELETE')
+    ) as expected(policyname,cmd)
+    where not exists (
+      select 1 from pg_policies p
+      where p.schemaname='storage' and p.tablename='objects'
+        and p.policyname=expected.policyname and p.cmd=expected.cmd
+        and coalesce(p.qual,p.with_check) ilike '%bucket_id <> ''markys-sga-media''%'
+        and coalesce(p.qual,p.with_check) ilike '%admin_clinica%'
+        and coalesce(p.qual,p.with_check) ilike '%current_user_clinic_id%'
+    )
+  ) then
+    raise exception 'Media Storage command policies must include Administration and tenant isolation';
   end if;
 
   if v_definition not ilike '%v_role is null%'
