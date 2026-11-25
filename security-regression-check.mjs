@@ -28,6 +28,10 @@ assert.match(finance, /!\["master","admin_clinica"\]\.includes\(profile\.role\)/
 assert.match(auth, /if \(publicMode\) \{\s*cloud\.resolveAuth\(\{ role: "public_display", active: true \}\)/, "A sala de espera deve abrir sem sessão autenticada.");
 assert.match(auth, /location\.pathname === "\/sala"/, "A rota pública da sala deve ser reconhecida.");
 assert.match(adminLogins, /value="admin_clinica"/, "O painel Master deve permitir criar Administração da clínica.");
+assert.match(auth, /adminLoginsMode && profile\.role !== "master"/, "A rota de gestão de logins deve ser exclusiva do Master.");
+assert.match(adminLogins, /client\.auth\.getUser\(\)/, "A página de gestão deve validar sessão antes de carregar dados.");
+assert.match(adminLogins, /profile\.role!=="master"/, "A página de gestão deve bloquear a interface para perfis não-Master.");
+assert.match(masterUsers, /caller\.role !== "master"/, "A Edge Function deve continuar protegendo operações de clínicas e logins.");
 assert.doesNotMatch(adminLogins, /<option value="financeiro">/, "Financeiro não pode ser uma função nova.");
 assert.match(masterUsers, /new Set\(\["recepcao", "profissional", "admin_clinica"\]\)/, "A Edge Function deve aceitar somente os três perfis operacionais.");
 assert.match(roleMigration, /markys_sga_queue_write_tenant/, "A migração deve atualizar a autorização da RPC de fila.");
