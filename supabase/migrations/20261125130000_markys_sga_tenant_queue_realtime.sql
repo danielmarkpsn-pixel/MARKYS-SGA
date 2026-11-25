@@ -31,7 +31,20 @@ on realtime.messages
 for select
 to authenticated
 using (
-  (select realtime.topic()) ~ '^markys-sga-queue-clinic-[0-9a-f-]{36}$'
+  (select realtime.topic()) ~ '^markys-sga-queue-clinic-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+  and exists (
+    select 1
+    from public.profiles p
+    join public.markys_clinics c
+      on c.id=substring((select realtime.topic()) from 25)::uuid
+     and c.active=true
+    where p.id=(select auth.uid())
+      and p.active=true
+      and p.role=any(array['master','recepcao','profissional']::text[])
+      and (p.role='master' or p.clinic_id=c.id)
+  )
+);
+
   and exists (
     select 1
     from public.profiles p
