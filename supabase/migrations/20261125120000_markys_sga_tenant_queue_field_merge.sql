@@ -19,8 +19,8 @@ begin
   raise exception 'Lista de alterações inválida' using errcode='22023';
  end if;
  v_change_count:=jsonb_array_length(p_changes);
- if v_change_count<1 or v_change_count>200 then
-  raise exception 'A operação deve conter entre 1 e 200 alterações' using errcode='22023';
+ if v_change_count<1 or v_change_count>500 then
+  raise exception 'A operação deve conter entre 1 e 500 alterações' using errcode='22023';
  end if;
  if pg_column_size(p_changes)>8388608 then
   raise exception 'O lote de alterações excede o limite de 8 MB' using errcode='22023';
