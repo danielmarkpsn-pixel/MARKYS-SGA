@@ -39,7 +39,13 @@ begin
     raise exception 'Não foi possível incluir admin_clinica na autorização de gravação da fila';
   end if;
   execute v_def;
-end $$;
+end $;
+
+-- Retire direct client execution of the legacy global-queue helper. The current
+-- application uses tenant-scoped RPCs; keep service_role for any trusted backend
+-- wrapper while preventing authenticated users from reaching this legacy path.
+revoke all on function app_private.markys_get_queue_internal() from public, anon, authenticated;
+grant execute on function app_private.markys_get_queue_internal() to service_role;
 
 -- Finance is now an Administration-only module; legacy finance profiles no longer pass RLS.
 drop policy if exists markys_finance_categories_access on public.markys_finance_categories;
