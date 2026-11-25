@@ -90,6 +90,13 @@ begin
     raise exception 'Anonymous listing of clinic slideshow media must be removed';
   end if;
 
+  if has_function_privilege('authenticated','app_private.markys_get_queue_internal()','execute')
+     or has_function_privilege('anon','app_private.markys_get_queue_internal()','execute')
+     or has_function_privilege('public','app_private.markys_get_queue_internal()','execute')
+     or not has_function_privilege('service_role','app_private.markys_get_queue_internal()','execute') then
+    raise exception 'Legacy global queue helper must not be executable by client roles';
+  end if;
+
   -- Definitive clinic role model: Administration is operational and tenant-scoped,
   -- while the legacy Financeiro role must not retain financial permissions.
   if not exists (
