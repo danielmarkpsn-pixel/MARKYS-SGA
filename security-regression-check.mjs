@@ -35,6 +35,7 @@ assert.match(masterUsers, /caller\.role !== "master"/, "A Edge Function deve con
 assert.doesNotMatch(adminLogins, /<option value="financeiro">/, "Financeiro não pode ser uma função nova.");
 assert.match(masterUsers, /new Set\(\["recepcao", "profissional", "admin_clinica"\]\)/, "A Edge Function deve aceitar somente os três perfis operacionais.");
 assert.match(roleMigration, /markys_sga_queue_write_tenant/, "A migração deve atualizar a autorização da RPC de fila.");
+assert.match(roleMigration, /revoke all on function app_private\.markys_get_queue_internal\(\) from public, anon, authenticated/i, "A RPC legada de fila não pode continuar acessível a usuários autenticados.");
 assert.match(roleMigration, /regexp_replace\(v_def,[\s\S]*v_role not in[\s\S]*admin_clinica/, "As RPCs de fila devem receber o perfil Administração com validação explícita.");
 assert.match(roleMigration, /Não foi possível incluir admin_clinica na autorização de exclusão da fila/, "A migração deve falhar se a permissão de exclusão não for atualizada.");
 assert.match(roleMigration, /bucket_id <> 'markys-sga-documents'/, "A política restritiva de documentos não pode bloquear outros buckets.");
