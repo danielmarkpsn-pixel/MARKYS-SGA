@@ -32,6 +32,9 @@ assert.match(auth, /adminLoginsMode && profile\.role !== "master"/, "A rota de g
 assert.match(adminLogins, /client\.auth\.getUser\(\)/, "A página de gestão deve validar sessão antes de carregar dados.");
 assert.match(adminLogins, /profile\.role!=="master"/, "A página de gestão deve bloquear a interface para perfis não-Master.");
 assert.match(masterUsers, /caller\.role !== "master"/, "A Edge Function deve continuar protegendo operações de clínicas e logins.");
+assert.match(masterUsers, /\.eq\("clinic_id", clinicId\)[\s\S]*\.eq\("active", true\)[\s\S]*\.neq\("role", "master"\)/, "Desativar uma clínica deve selecionar os perfis ativos do tenant, preservando o Master.");
+assert.match(masterUsers, /ban_duration: "876000h"/, "Desativar uma clínica deve bloquear também as sessões Auth das contas afetadas.");
+assert.match(admin, /Reative individualmente os logins necessários/, "A interface deve informar que reabrir uma clínica não reativa contas automaticamente.");
 assert.doesNotMatch(adminLogins, /<option value="financeiro">/, "Financeiro não pode ser uma função nova.");
 assert.match(masterUsers, /new Set\(\["recepcao", "profissional", "admin_clinica"\]\)/, "A Edge Function deve aceitar somente os três perfis operacionais.");
 assert.match(roleMigration, /markys_sga_queue_write_tenant/, "A migração deve atualizar a autorização da RPC de fila.");
