@@ -157,7 +157,7 @@ async function loadClinics(){
   });
   const toggle=document.createElement("button");toggle.type="button";toggle.className="btn small";toggle.textContent=clinic.active?"Desativar clínica":"Ativar clínica";
   toggle.disabled=clinic.id==="00000000-0000-4000-8000-000000000001"&&clinic.active;
-  toggle.title=toggle.disabled?"A Clínica Principal não pode ser desativada.":clinic.active?"Bloqueia todos os logins e operações desta clínica.":"Libera os logins ativos desta clínica.";
+  toggle.title=toggle.disabled?"A Clínica Principal não pode ser desativada.":clinic.active?"Desativa os perfis da clínica e bloqueia novas sessões.":"Reabre a clínica; o Master deverá reativar individualmente os logins necessários.";
   toggle.addEventListener("click",async()=>{
    const nextActive=!clinic.active;
    const warning=nextActive
@@ -165,7 +165,7 @@ async function loadClinics(){
     : "DESATIVAR "+clinic.name+"?\n\nIsso bloqueia o acesso e interrompe a operação desta clínica.";
    if(!confirm(warning))return;
    toggle.disabled=true;
-   try{await adminCall({action:"update_clinic",clinic_id:clinic.id,name:clinic.name,active:nextActive});await loadClinics();showMessage(nextActive?"Clínica ativada.":"Clínica desativada e bloqueada.",true);}
+   try{const result=await adminCall({action:"update_clinic",clinic_id:clinic.id,name:clinic.name,active:nextActive});await loadClinics();const detail=nextActive?"Clínica reaberta. Reative individualmente os logins necessários.":"Clínica bloqueada; "+(result.disabled_users||0)+" perfil(is) desativado(s).";showMessage(result.warning?detail+" "+result.warning:detail,true);}
    catch(error){showMessage(error.message);}
    finally{toggle.disabled=false;}
   });
