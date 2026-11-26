@@ -66,6 +66,7 @@ assert.equal(isSupportedMediaType("image/jpeg"), true, "JPEG deve ser permitido 
 assert.equal(isSupportedMediaType("video/mp4"), true, "MP4 deve ser permitido na mídia pública.");
 assert.equal(isSupportedMediaType("image/svg+xml"), false, "SVG deve ser rejeitado na mídia pública.");
 assert.equal(isSupportedMediaType("application/octet-stream"), false, "Arquivos binários genéricos devem ser rejeitados.");
+assert.ok(cloud.includes(String.raw`const supportedMediaType = /^(image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm|ogg|quicktime|x-m4v))$/i;`), "O cliente deve limitar uploads aos formatos de mídia permitidos pela API pública.");
 assert.equal(absoluteSignedUrl("/object/sign/markys-sga-media/clinics/example/media/foto.jpg?token=x"),
   "https://vibybosdqavejvqsuvph.supabase.co/storage/v1/object/sign/markys-sga-media/clinics/example/media/foto.jpg?token=x",
   "URLs relativas assinadas devem ser normalizadas para o host do Supabase do SGA.");
