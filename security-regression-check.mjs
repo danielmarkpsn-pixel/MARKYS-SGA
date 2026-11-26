@@ -46,6 +46,7 @@ assert.match(roleMigration, /bucket_id <> 'markys-sga-documents'/, "A política 
 assert.match(roleMigration, /bucket_id <> 'markys-sga-media'/, "A política restritiva de mídia não pode bloquear outros buckets.");
 assert.match(roleMigration, /drop policy if exists markys_sga_media_tenant_read/, "A política de leitura de mídia deve ser substituída para incluir Administração.");
 assert.match(roleMigration, /drop policy if exists markys_sga_media_tenant_update/, "A política de atualização de mídia deve ser substituída para incluir Administração.");
+assert.match(roleMigration, /drop policy if exists markys_sga_staff_queue_broadcast_read on realtime\.messages/i, "A política legada de broadcast global deve ser removida para impedir leitura cruzada entre clínicas.");
 assert.match(roleMigration, /role in \('master','admin_clinica'\)/, "O módulo financeiro deve ser exclusivo da Administração e Master.");
 assert.match(roleMigration, /current_user_clinic_id\(\)::text/, "O acesso de Administração ao Storage deve continuar isolado por clínica.");
 assert.match(cloud, /vibybosdqavejvqsuvph\.supabase\.co/, "O cliente deve apontar para o Supabase do SGA.");
