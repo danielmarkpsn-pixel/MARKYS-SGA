@@ -31,7 +31,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.youtube.com https://s.ytimg.com; connect-src 'self' https://vibybosdqavejvqsuvph.supabase.co wss://vibybosdqavejvqsuvph.supabase.co https://vibybosdqavejvqsuvph.storage.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vibybosdqavejvqsuvph.supabase.co https://vibybosdqavejvqsuvph.storage.supabase.co; media-src 'self' data: blob:; connect-src 'self' https://vibybosdqavejvqsuvph.supabase.co wss://vibybosdqavejvqsuvph.supabase.co https://vibybosdqavejvqsuvph.storage.supabase.co; frame-src 'self' https:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
         },
         {
           "key": "X-Content-Type-Options",
@@ -51,7 +51,7 @@
         },
         {
           "key": "Strict-Transport-Security",
-          "value": "max-age=31536000"
+          "value": "max-age=31536000; includeSubDomains"
         }
       ]
     }

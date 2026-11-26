@@ -5,8 +5,16 @@
   if (!window.supabase || typeof window.supabase.createClient !== "function") {
     throw new Error("Biblioteca de conexão com o Supabase não foi carregada.");
   }
+  // The public waiting-room display must never read, reuse, refresh or persist
+  // a staff session from this browser profile. It only calls same-origin public APIs.
+  const publicDisplayMode = new URLSearchParams(location.search).get("painel") === "1" ||
+    location.pathname === "/sala" || location.pathname === "/sala/";
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    auth: {
+      persistSession: !publicDisplayMode,
+      autoRefreshToken: !publicDisplayMode,
+      detectSessionInUrl: !publicDisplayMode
+    }
   });
   // The public waiting-room queue is fetched through the same-origin API,
   // which applies a short in-memory cache and reads from the MARKYS SGA Supabase project.
@@ -135,7 +143,7 @@
       let active = true;
       let channel = null;
       authReady.then(async profile => {
-        if (!active || !profile || !["master", "recepcao", "profissional"].includes(profile.role)) return;
+        if (!active || !profile || !["master", "recepcao", "profissional", "admin_clinica"].includes(profile.role)) return;
         const { data: sessionData } = await client.auth.getSession();
         if (sessionData && sessionData.session && client.realtime && typeof client.realtime.setAuth === "function") {
           await client.realtime.setAuth(sessionData.session.access_token);
@@ -276,8 +284,8 @@
     },
     async uploadPatientDocument(patientId, file) {
       await authReady;
-      if (!currentProfile || !["master", "recepcao"].includes(currentProfile.role)) {
-        throw new Error("Somente a recepção pode anexar documentos de pacientes.");
+      if (!currentProfile || !["master", "recepcao", "admin_clinica"].includes(currentProfile.role)) {
+        throw new Error("Somente Recepção, Administração da clínica ou Master podem anexar documentos de pacientes.");
       }
       if (!file || file.size > 50 * 1024 * 1024 || (file.type && file.type !== "application/pdf")) {
         throw new Error("Anexe um PDF válido de até 50 MB.");
@@ -301,7 +309,21 @@
     async listSlideshow() {
       await authReady;
       const isPublicScreen = new URLSearchParams(location.search).get("painel") === "1" || location.pathname === "/sala" || location.pathname === "/sala/";
-      const clinicId = isPublicScreen ? publicClinicId : (currentProfile && currentProfile.role === "master" ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001") : currentProfile && currentProfile.clinic_id);
+      if (isPublicScreen) {
+        const clinicSlug = (new URLSearchParams(location.search).get("clinic") || "clinica-principal").trim();
+        const response = await fetch("/api/public-media?clinic=" + encodeURIComponent(clinicSlug), {
+          method: "GET", cache: "no-store", credentials: "same-origin"
+        });
+        if (!response.ok) throw new Error("Não foi possível carregar as mídias públicas da clínica.");
+        const payload = await response.json();
+        if (!payload || payload.clinic_slug !== clinicSlug || !Array.isArray(payload.items)) {
+          throw new Error("A resposta de mídia pública é inválida.");
+        }
+        return payload.items;
+      }
+      const clinicId = currentProfile && currentProfile.role === "master"
+        ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001")
+        : currentProfile && currentProfile.clinic_id;
       if (!clinicId) throw new Error("Não foi possível identificar a clínica para listar a mídia.");
       const prefix = "clinics/" + clinicId + "/media";
       const { data, error } = await client.storage.from("markys-sga-media").list(prefix, {
@@ -311,7 +333,7 @@
       const files = (data || []).filter(item => item && item.id && item.name);
       return await Promise.all(files.map(async item => {
         const path = prefix + "/" + item.name;
-        const signedUrl = client.storage.from("markys-sga-media").getPublicUrl(path).data.publicUrl;
+        const signedUrl = await createSignedUrl("markys-sga-media", path);
         const displayName = item.name.replace(/^\d+_/, "");
         const type = item.metadata && (item.metadata.mimetype || item.metadata.contentType) ||
           (/\.(mp4|webm|ogg|mov|m4v)$/i.test(displayName) ? "video/" + displayName.split(".").pop().toLowerCase() :
@@ -321,11 +343,12 @@
     },
     async uploadSlideshow(file, onProgress) {
       await authReady;
-      if (!currentProfile || !["master", "recepcao"].includes(currentProfile.role)) {
-        throw new Error("Somente a recepção pode enviar fotos e vídeos para a sala.");
+      if (!currentProfile || !["master", "recepcao", "admin_clinica"].includes(currentProfile.role)) {
+        throw new Error("Somente Recepção, Administração da clínica ou Master podem enviar fotos e vídeos para a sala.");
       }
-      if (!file || !/^(image|video)\//i.test(file.type) || file.size > 52428800) {
-        throw new Error("Envie uma foto ou vídeo de até 50 MB.");
+      const supportedMediaType = /^(image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm|ogg|quicktime|x-m4v))$/i;
+      if (!file || !supportedMediaType.test(file.type) || file.size > 52428800) {
+        throw new Error("Envie uma imagem PNG, JPEG, GIF, WebP ou AVIF, ou vídeo MP4, WebM, OGG, MOV ou M4V de até 50 MB.");
       }
       const clinicId = currentProfile.role === "master" ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001") : currentProfile.clinic_id;
       if (!clinicId) throw new Error("Sua conta não está vinculada a uma clínica.");

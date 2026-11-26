@@ -30,7 +30,7 @@ function corsHeaders(origin = productionAppUrl) {
   };
 }
 
-const allowedRoles = new Set(["recepcao", "profissional", "sala", "financeiro"]);
+const allowedRoles = new Set(["recepcao", "profissional", "admin_clinica"]);
 
 function json(body: unknown, status = 200, origin = productionAppUrl) {
   return new Response(JSON.stringify(body), {
@@ -149,13 +149,55 @@ Deno.serve(async (req: Request) => {
     if (clinicId === "00000000-0000-4000-8000-000000000001" && active === false) {
       return respond({ error: "A clínica que contém os dados atuais não pode ser bloqueada nesta fase." }, 403);
     }
+
+    let disabledUsers = 0;
+    let authBanFailures = 0;
+    if (active === false) {
+      // Disable tenant profiles before changing the clinic flag. This also blocks
+      // already-issued JWTs wherever RLS checks profiles.active. Auth bans prevent
+      // disabled accounts from starting or refreshing sessions.
+      const { data: activeProfiles, error: profilesError } = await admin.from("profiles")
+        .select("id")
+        .eq("clinic_id", clinicId)
+        .eq("active", true)
+        .neq("role", "master");
+      if (profilesError) {
+        return respond({ error: "Não foi possível bloquear os logins da clínica. O status da clínica não foi alterado." }, 500);
+      }
+
+      const profileIds = (activeProfiles || []).map(profile => profile.id).filter(Boolean);
+      if (profileIds.length) {
+        const { data: disabledProfiles, error: disableError } = await admin.from("profiles")
+          .update({ active: false, updated_at: new Date().toISOString() })
+          .in("id", profileIds)
+          .select("id");
+        if (disableError) {
+          return respond({ error: "Não foi possível desativar os perfis. O status da clínica não foi alterado." }, 500);
+        }
+        disabledUsers = (disabledProfiles || []).length;
+        for (const profile of disabledProfiles || []) {
+          const { error: banError } = await admin.auth.admin.updateUserById(profile.id, {
+            ban_duration: "876000h",
+          });
+          if (banError) authBanFailures += 1;
+        }
+      }
+    }
+
     const { data: clinic, error } = await admin.from("markys_clinics")
       .update({ name, active, updated_at: new Date().toISOString() })
       .eq("id", clinicId)
       .select("id, name, slug, active, created_at").maybeSingle();
-    if (error) return respond({ error: "Não foi possível atualizar a clínica." }, 500);
+    if (error) return respond({ error: "Não foi possível atualizar a clínica. Os logins afetados permanecem bloqueados por segurança." }, 500);
     if (!clinic) return respond({ error: "Clínica não encontrada." }, 404);
-    return respond({ clinic });
+    return respond({
+      clinic,
+      disabled_users: disabledUsers,
+      auth_ban_failures: authBanFailures,
+      warning: authBanFailures
+        ? "Algumas sessões não puderam ser banidas no Auth. Os perfis permanecem inativos e devem ser revisados."
+        : null,
+    });
   }
 
   if (body.action === "list_users") {
