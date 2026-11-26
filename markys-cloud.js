@@ -5,8 +5,16 @@
   if (!window.supabase || typeof window.supabase.createClient !== "function") {
     throw new Error("Biblioteca de conexão com o Supabase não foi carregada.");
   }
+  // The public waiting-room display must never read, reuse, refresh or persist
+  // a staff session from this browser profile. It only calls same-origin public APIs.
+  const publicDisplayMode = new URLSearchParams(location.search).get("painel") === "1" ||
+    location.pathname === "/sala" || location.pathname === "/sala/";
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    auth: {
+      persistSession: !publicDisplayMode,
+      autoRefreshToken: !publicDisplayMode,
+      detectSessionInUrl: !publicDisplayMode
+    }
   });
   // The public waiting-room queue is fetched through the same-origin API,
   // which applies a short in-memory cache and reads from the MARKYS SGA Supabase project.
