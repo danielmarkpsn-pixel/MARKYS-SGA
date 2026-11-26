@@ -12,7 +12,7 @@ const roleMigration = read("./supabase/migrations/20261124120000_markys_sga_clin
 const publicApi = read("./api/public-queue.js");
 const publicMediaApi = read("./api/public-media.js");
 const vercel = JSON.parse(read("./vercel.json"));
-const { default: publicMediaHandler, inferType, isSupportedMediaType } = await import("./api/public-media.js");
+const { default: publicMediaHandler, inferType, isSupportedMediaType, absoluteSignedUrl } = await import("./api/public-media.js");
 const migration = read("./supabase/migrations/20261123070000_require_recent_auth_for_queue_deletions.sql");
 const mediaMigration = read("./supabase/migrations/20261123130000_private_tenant_media.sql");
 const databaseTests = read("./supabase/tests/security_regression.sql");
@@ -66,6 +66,13 @@ assert.equal(isSupportedMediaType("image/jpeg"), true, "JPEG deve ser permitido 
 assert.equal(isSupportedMediaType("video/mp4"), true, "MP4 deve ser permitido na mídia pública.");
 assert.equal(isSupportedMediaType("image/svg+xml"), false, "SVG deve ser rejeitado na mídia pública.");
 assert.equal(isSupportedMediaType("application/octet-stream"), false, "Arquivos binários genéricos devem ser rejeitados.");
+assert.equal(absoluteSignedUrl("/object/sign/markys-sga-media/clinics/example/media/foto.jpg?token=x"),
+  "https://vibybosdqavejvqsuvph.supabase.co/storage/v1/object/sign/markys-sga-media/clinics/example/media/foto.jpg?token=x",
+  "URLs relativas assinadas devem ser normalizadas para o host do Supabase do SGA.");
+assert.equal(absoluteSignedUrl("https://evil.example/storage/v1/object/sign/markys-sga-media/file.jpg?token=x"), "",
+  "A API não pode devolver URLs assinadas de um host externo.");
+assert.equal(absoluteSignedUrl("https://vibybosdqavejvqsuvph.supabase.co/other/path"), "",
+  "A API deve aceitar somente caminhos de objeto assinado do Storage.");
 assert.match(cloud, /api\/public-media\?clinic=/, "A tela pública deve carregar mídia pela API isolada por clínica.");
 assert.match(cloud, /createSignedUrl\("markys-sga-media"/, "O painel autenticado deve usar URLs assinadas para mídia privada.");
 assert.doesNotMatch(cloud, /getPublicUrl\(path\)/, "O cliente não deve gerar URLs públicas de mídia clínica.");
