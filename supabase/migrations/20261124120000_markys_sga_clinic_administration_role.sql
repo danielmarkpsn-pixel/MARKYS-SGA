@@ -86,6 +86,10 @@ with check (bucket_id='markys-sga-media' and private.current_active_role()=any(a
 create policy markys_sga_media_delete on storage.objects for delete to authenticated
 using (bucket_id='markys-sga-media' and private.current_active_role()=any(array['master','recepcao','admin_clinica']::text[]));
 
+-- Remove the former global staff topic policy. The app now subscribes only to
+-- clinic-scoped topics; keeping the legacy policy would allow cross-clinic
+-- subscribers to read broadcasts published on the old shared topic.
+drop policy if exists markys_sga_staff_queue_broadcast_read on realtime.messages;
 drop policy if exists markys_sga_staff_tenant_queue_broadcast_read on realtime.messages;
 create policy markys_sga_staff_tenant_queue_broadcast_read on realtime.messages for select to authenticated
 using ((select realtime.topic()) like 'markys-sga-queue-clinic-%' and exists(
