@@ -277,7 +277,7 @@
     async uploadPatientDocument(patientId, file) {
       await authReady;
       if (!currentProfile || !["master", "recepcao", "admin_clinica"].includes(currentProfile.role)) {
-        throw new Error("Somente a recepção pode anexar documentos de pacientes.");
+        throw new Error("Somente Recepção, Administração da clínica ou Master podem anexar documentos de pacientes.");
       }
       if (!file || file.size > 50 * 1024 * 1024 || (file.type && file.type !== "application/pdf")) {
         throw new Error("Anexe um PDF válido de até 50 MB.");
@@ -336,10 +336,11 @@
     async uploadSlideshow(file, onProgress) {
       await authReady;
       if (!currentProfile || !["master", "recepcao", "admin_clinica"].includes(currentProfile.role)) {
-        throw new Error("Somente a recepção pode enviar fotos e vídeos para a sala.");
+        throw new Error("Somente Recepção, Administração da clínica ou Master podem enviar fotos e vídeos para a sala.");
       }
-      if (!file || !/^(image|video)\//i.test(file.type) || file.size > 52428800) {
-        throw new Error("Envie uma foto ou vídeo de até 50 MB.");
+      const supportedMediaType = /^(image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm|ogg|quicktime|x-m4v))$/i;
+      if (!file || !supportedMediaType.test(file.type) || file.size > 52428800) {
+        throw new Error("Envie uma imagem PNG, JPEG, GIF, WebP ou AVIF, ou vídeo MP4, WebM, OGG, MOV ou M4V de até 50 MB.");
       }
       const clinicId = currentProfile.role === "master" ? (currentProfile.clinic_id || "00000000-0000-4000-8000-000000000001") : currentProfile.clinic_id;
       if (!clinicId) throw new Error("Sua conta não está vinculada a uma clínica.");
