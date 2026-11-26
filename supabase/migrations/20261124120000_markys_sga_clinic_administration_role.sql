@@ -32,7 +32,10 @@ begin
   v_def := regexp_replace(v_def,
     'v_role not in \(''master'',\s*''recepcao''\)',
     'v_role not in (''master'', ''recepcao'', ''admin_clinica'')', 'g');
-  if position('v_role not in (''master'', ''recepcao'', ''admin_clinica'')' in v_def)=0 then
+  if position('v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')' in v_def)=0 then
+    raise exception 'Não foi possível incluir admin_clinica na autorização de gravação da fila';
+  end if;
+  if position('admin_clinica' in v_def)=0 then
     raise exception 'Não foi possível incluir admin_clinica na autorização de exclusão da fila';
   end if;
   if position('admin_clinica' in v_def)=0 then
