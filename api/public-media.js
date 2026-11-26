@@ -46,11 +46,23 @@ async function upstream(path, options = {}) {
     cache: "no-store"
   });
 }
-function absoluteSignedUrl(value) {
+export function absoluteSignedUrl(value) {
   if (typeof value !== "string" || !value) return "";
-  if (/^https?:\/\//i.test(value)) return value;
-  if (value.startsWith("/storage/v1/")) return SUPABASE_URL + value;
-  return SUPABASE_URL + "/storage/v1" + (value.startsWith("/") ? value : "/" + value);
+  try {
+    const base = new URL(SUPABASE_URL);
+    const target = /^https?:\/\//i.test(value)
+      ? value
+      : value.startsWith("/storage/v1/")
+        ? base.origin + value
+        : base.origin + "/storage/v1" + (value.startsWith("/") ? value : "/" + value);
+    const candidate = new URL(target);
+    if (base.protocol !== "https:" || candidate.protocol !== "https:" ||
+        candidate.origin !== base.origin ||
+        !candidate.pathname.startsWith("/storage/v1/object/sign/")) return "";
+    return candidate.toString();
+  } catch (_) {
+    return "";
+  }
 }
 export function isSupportedMediaType(type) {
   return /^(image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm|ogg|quicktime|x-m4v))$/i.test(type);
