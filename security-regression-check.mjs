@@ -41,7 +41,8 @@ assert.match(roleMigration, /markys_sga_queue_write_tenant/, "A migração deve 
 assert.doesNotMatch(roleMigration, /\bend\s+\$;/, "Blocos DO da migração de Administração devem encerrar com delimitador SQL válido.");
 assert.match(roleMigration, /revoke all on function app_private\.markys_get_queue_internal\(\) from public, anon, authenticated/i, "A RPC legada de fila não pode continuar acessível a usuários autenticados.");
 assert.match(roleMigration, /regexp_replace\(v_def,[\s\S]*v_role not in[\s\S]*admin_clinica/, "As RPCs de fila devem receber o perfil Administração com validação explícita.");
-assert.match(roleMigration, /Não foi possível incluir admin_clinica na autorização de exclusão da fila/, "A migração deve falhar se a permissão de exclusão não for atualizada.");
+assert.match(roleMigration, /v_role not in \(''master'', ''recepcao'', ''admin_clinica''\)/, "A migração deve validar explicitamente o perfil Administração na permissão de exclusão.");
+assert.match(roleMigration, /reauth_required[\s\S]*auth_time|auth_time[\s\S]*reauth_required/i, "A migração deve preservar a reautenticação recente para exclusões.");
 assert.match(roleMigration, /bucket_id <> 'markys-sga-documents'/, "A política restritiva de documentos não pode bloquear outros buckets.");
 assert.match(roleMigration, /bucket_id <> 'markys-sga-media'/, "A política restritiva de mídia não pode bloquear outros buckets.");
 assert.match(roleMigration, /drop policy if exists markys_sga_media_tenant_read/, "A política de leitura de mídia deve ser substituída para incluir Administração.");
@@ -51,6 +52,8 @@ assert.match(roleMigration, /role in \('master','admin_clinica'\)/, "O módulo f
 assert.match(roleMigration, /current_user_clinic_id\(\)::text/, "O acesso de Administração ao Storage deve continuar isolado por clínica.");
 assert.match(cloud, /vibybosdqavejvqsuvph\.supabase\.co/, "O cliente deve apontar para o Supabase do SGA.");
 assert.doesNotMatch(cloud, /qzjkoyqm/i, "O cliente não pode apontar para o projeto Supabase do FAVMED.");
+assert.match(cloud, /persistSession: !publicDisplayMode/, "A sala pública não pode persistir nem reutilizar sessão de funcionário.");
+assert.match(cloud, /autoRefreshToken: !publicDisplayMode/, "A sala pública não pode renovar sessão de funcionário.");
 assert.doesNotMatch(publicApi, /qzjkoyqm/i, "A API pública não pode apontar para o projeto Supabase do FAVMED.");
 assert.doesNotMatch(publicApi, /(?:cpf|birthDate)\s*:/i, "A API pública não deve serializar CPF ou nascimento.");
 assert.match(publicApi, /RATE_LIMIT_MAX = 300/, "A API pública deve limitar requisições por IP.");
