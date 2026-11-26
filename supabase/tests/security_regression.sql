@@ -113,10 +113,10 @@ begin
   if v_queue_get_definition not ilike '%admin_clinica%' then
     raise exception 'Clinic Administration must be authorized to read the tenant queue';
   end if;
-  if v_definition not ilike '%if v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')%' then
+  if v_definition not ilike '%v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')%' then
     raise exception 'Clinic Administration must be authorized to read/write the tenant queue';
   end if;
-  if v_definition not ilike '%if v_role not in (''master'', ''recepcao'', ''admin_clinica'')%' then
+  if v_definition not ilike '%v_role not in (''master'', ''recepcao'', ''admin_clinica'')%' then
     raise exception 'Clinic Administration must be authorized to delete queue records';
   end if;
   if v_definition not ilike '%auth_time%'
