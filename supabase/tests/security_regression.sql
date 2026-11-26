@@ -114,7 +114,7 @@ begin
     raise exception 'Clinic Administration must be authorized to read the tenant queue';
   end if;
   if v_definition not ilike '%admin_clinica%'
-     or v_definition not ilike '%v_role not in (''master'', ''recepcao'', ''admin_clinica'')%' then
+     or v_definition not ilike '%v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')%' then
     raise exception 'Clinic Administration must be authorized to write and delete queue records with recent reauthentication';
   end if;
 
