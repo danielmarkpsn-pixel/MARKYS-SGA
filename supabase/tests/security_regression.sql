@@ -113,9 +113,15 @@ begin
   if v_queue_get_definition not ilike '%admin_clinica%' then
     raise exception 'Clinic Administration must be authorized to read the tenant queue';
   end if;
-  if v_definition not ilike '%admin_clinica%'
-     or v_definition not ilike '%v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')%' then
-    raise exception 'Clinic Administration must be authorized to write and delete queue records with recent reauthentication';
+  if v_definition not ilike '%if v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')%' then
+    raise exception 'Clinic Administration must be authorized to read/write the tenant queue';
+  end if;
+  if v_definition not ilike '%if v_role not in (''master'', ''recepcao'', ''admin_clinica'')%' then
+    raise exception 'Clinic Administration must be authorized to delete queue records';
+  end if;
+  if v_definition not ilike '%auth_time%'
+     or v_definition not ilike '%reauth_required%' then
+    raise exception 'Queue deletion must continue to require recent password reauthentication';
   end if;
 
   select pg_get_functiondef('public.markys_create_service_document(uuid,text,text,text,text,date,jsonb)'::regprocedure)
