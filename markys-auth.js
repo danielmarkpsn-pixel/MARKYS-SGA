@@ -290,8 +290,8 @@
     return;
   }
 
-  // The hallway display is intentionally public and read-only. It uses a
-  // separate anonymous Supabase client and never inherits a staff session.
+  // The hallway display is intentionally public and read-only. markys-cloud.js
+  // creates a non-persistent client for this route, so no staff session is inherited.
   if (publicMode) {
     cloud.resolveAuth({ role: "public_display", active: true });
     root.classList.remove("markys-sga-auth-checking", "markys-auth-checking");
