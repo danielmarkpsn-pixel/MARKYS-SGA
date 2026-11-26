@@ -32,14 +32,17 @@ begin
   v_def := regexp_replace(v_def,
     'v_role not in \(''master'',\s*''recepcao''\)',
     'v_role not in (''master'', ''recepcao'', ''admin_clinica'')', 'g');
-  if position('v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')' in v_def)=0 then
-    raise exception 'Não foi possível incluir admin_clinica na autorização de gravação da fila';
+  -- Validate the general queue permission and the separate delete permission.
+  -- The delete gate must retain recent-auth enforcement and explicitly include Administration.
+  if position('if v_role not in (''master'', ''recepcao'', ''profissional'', ''admin_clinica'')' in lower(v_def))=0 then
+    raise exception 'A RPC de fila deve autorizar Master, Recepção, Profissional e Administração da clínica';
   end if;
-  if position('admin_clinica' in v_def)=0 then
-    raise exception 'Não foi possível incluir admin_clinica na autorização de exclusão da fila';
+  if position('if v_role not in (''master'', ''recepcao'', ''admin_clinica'')' in lower(v_def))=0 then
+    raise exception 'A exclusão da fila deve autorizar Master, Recepção e Administração da clínica';
   end if;
-  if position('admin_clinica' in v_def)=0 then
-    raise exception 'Não foi possível incluir admin_clinica na autorização de gravação da fila';
+  if position('reauth_required' in lower(v_def))=0
+     or position('auth_time' in lower(v_def))=0 then
+    raise exception 'A exclusão da fila deve exigir reautenticação recente';
   end if;
   execute v_def;
 end $$;
