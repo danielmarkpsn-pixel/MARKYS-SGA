@@ -75,19 +75,25 @@ input, textarea, select { text-transform: none !important; }
 .reception-workspace .form-module>summary{font-size:15px;line-height:1.4}
 .reception-nav-btn{font-size:13px;line-height:1.35;min-height:46px}
 @media(max-width:760px){.reception-layout:not(.panel-open){grid-template-columns:1fr}.reception-layout.panel-open{grid-template-columns:1fr}}
-/* Tiles de seleção sem checkbox quadrado visível */
-.service-option{position:relative;cursor:pointer;border:1px solid #dce5e9;border-radius:9px;padding:9px 10px;background:#fff;transition:.15s;line-height:1.35}
-.service-option input[type="checkbox"]{position:absolute;opacity:0;width:1px!important;height:1px!important;overflow:hidden;pointer-events:none}
-.service-option:has(input[type="checkbox"]:checked){border-color:#102a56;background:#edf4ff;color:#102a56;box-shadow:inset 0 0 0 1px #102a56}
-.service-option:has(input[type="checkbox"]:focus-visible){outline:2px solid #3976bf;outline-offset:2px}
-.reception-workspace #patientForm[data-active="salas"],.reception-workspace #patientForm[data-active="exames"]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
-.reception-workspace #patientForm[data-active="salas"] .reception-module[data-module="salas"],.reception-workspace #patientForm[data-active="salas"] .reception-module[data-module="exames"],.reception-workspace #patientForm[data-active="exames"] .reception-module[data-module="salas"],.reception-workspace #patientForm[data-active="exames"] .reception-module[data-module="exames"]{display:block!important}
-.reception-workspace #patientForm[data-active="salas"]>button[type="submit"],.reception-workspace #patientForm[data-active="exames"]>button[type="submit"]{display:none}
-.reception-workspace #editRooms{display:none!important}
+/* Seleção em cartões somente no editor de pacientes; cadastro original preservado */
+#editPatientModule .service-option{position:relative;cursor:pointer;border:1px solid #dce5e9;border-radius:9px;padding:9px 10px;background:#fff;transition:.15s;line-height:1.35}
+#editPatientModule .service-option input[type="checkbox"]{position:absolute;opacity:0;width:1px!important;height:1px!important;overflow:hidden;pointer-events:none}
+#editPatientModule .service-option:has(input[type="checkbox"]:checked){border-color:#102a56;background:#edf4ff;color:#102a56;box-shadow:inset 0 0 0 1px #102a56}
+#editPatientModule .service-option:has(input[type="checkbox"]:focus-visible){outline:2px solid #3976bf;outline-offset:2px}
+#editPatientModule .module-content .field:has(#editRoomOptions){grid-column:1/2}
+#editPatientModule .module-content .field:has(#editExamEditDropdown){grid-column:2/3}
+#editPatientModule #editRooms{display:none!important}
 .edit-room-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:10px;border:1px solid #dce5e9;border-radius:10px;background:#fbfdfe}
 .edit-room-picker .service-option{font-size:12px}
-.edit-exams-group{margin:9px 0}.edit-exams-group>strong{display:block;margin:0 0 6px;font-size:12px;color:#536a74}
-@media(max-width:760px){.reception-workspace #patientForm[data-active="salas"],.reception-workspace #patientForm[data-active="exames"]{grid-template-columns:1fr}}
+#editExamEditDropdown{border:1px solid #dce5e9;border-radius:10px;background:#fff}
+#editExamEditDropdown>summary{cursor:pointer;padding:10px 12px;font-weight:600;list-style:none}
+#editExamEditDropdown>summary::-webkit-details-marker{display:none}
+#editExamEditDropdown[open]>summary{border-bottom:1px solid #dce5e9}
+#editExamEditDropdown .module-content{display:block!important;padding:10px;max-height:360px;overflow:auto}
+#editExamEditDropdown .service-options{display:flex;flex-wrap:wrap;gap:7px}
+#editExamEditDropdown .service-option{font-size:12px}
+#editExamEditDropdown .field{margin:4px 0}
+@media(max-width:760px){#editPatientModule .module-content .field:has(#editRoomOptions),#editPatientModule .module-content .field:has(#editExamEditDropdown){grid-column:1/-1}}
 </style>
 
 <style>
@@ -180,7 +186,7 @@ html.markys-sga-auth-checking body{visibility:hidden}
 </details>
     <button class="btn primary full" type="submit">＋ Cadastrar paciente e gerar ficha</button>
    </form>
-    <details class="form-module" id="editPatientModule" hidden><summary>Dados do paciente selecionado</summary><div class="module-content"><div class="field"><label for="editPatientSelect">PACIENTE</label><select id="editPatientSelect"><option value="">Selecione um paciente</option></select></div><div class="field"><label for="editPatientName">NOME DO PACIENTE</label><input id="editPatientName" maxlength="120" required></div><div class="field"><label for="editCpf">CPF</label><input id="editCpf" maxlength="14"></div><div class="field"><label for="editBirth">DATA DE NASCIMENTO</label><input id="editBirth" type="date"></div><div class="field"><label for="editInsurance">CONVÊNIO</label><input id="editInsurance" maxlength="100"></div><div class="field"><label for="editJob">FUNÇÃO</label><input id="editJob" maxlength="100"></div><div class="field"><label for="editCompany">EMPRESA</label><input id="editCompany" maxlength="160"></div><div class="field"><label for="editPatientPdf">ADICIONAR / SUBSTITUIR PDF DO PACIENTE</label><input id="editPatientPdf" type="file" accept="application/pdf,.pdf"><p class="sub" style="margin:6px 0 0">Opcional, até 50 MB online (10 MB no modo local).</p></div><div class="field"><label for="editRooms">SALAS / ATENDIMENTOS (SELEÇÃO MÚLTIPLA)</label><div class="edit-room-picker" id="editRoomOptions"></div><select id="editRooms" multiple size="4" aria-hidden="true"><option value="Sala 1">Sala 1 — RX</option><option value="Sala 2">Sala 2 — Coleta / laboratório</option><option value="Sala 3">Sala 3 — Audiometria / exames complementares</option><option value="Sala 4">Sala 4 — Exames complementares</option></select></div><div class="field"><label class="service-option" style="white-space:normal"><input type="checkbox" id="editAsoPending"> ASO ainda pendente</label></div><div class="field"><label>MARCAR EXAMES ESPECÍFICOS (OS MARCADOS SERÃO ADICIONADOS; OS EXISTENTES SERÃO PRESERVADOS)</label><div class="service-options" id="editExamOptions"></div></div><button class="btn primary full" type="button" id="savePatientEdits">Salvar alterações / adicionar exames</button></div></details>
+    <details class="form-module" id="editPatientModule" hidden><summary>Dados do paciente selecionado</summary><div class="module-content"><div class="field"><label for="editPatientSelect">PACIENTE</label><select id="editPatientSelect"><option value="">Selecione um paciente</option></select></div><div class="field"><label for="editPatientName">NOME DO PACIENTE</label><input id="editPatientName" maxlength="120" required></div><div class="field"><label for="editCpf">CPF</label><input id="editCpf" maxlength="14"></div><div class="field"><label for="editBirth">DATA DE NASCIMENTO</label><input id="editBirth" type="date"></div><div class="field"><label for="editInsurance">CONVÊNIO</label><input id="editInsurance" maxlength="100"></div><div class="field"><label for="editJob">FUNÇÃO</label><input id="editJob" maxlength="100"></div><div class="field"><label for="editCompany">EMPRESA</label><input id="editCompany" maxlength="160"></div><div class="field"><label for="editPatientPdf">ADICIONAR / SUBSTITUIR PDF DO PACIENTE</label><input id="editPatientPdf" type="file" accept="application/pdf,.pdf"><p class="sub" style="margin:6px 0 0">Opcional, até 50 MB online (10 MB no modo local).</p></div><div class="field"><label for="editRooms">SALAS / ATENDIMENTOS</label><div class="edit-room-picker" id="editRoomOptions"></div><select id="editRooms" multiple size="4" aria-hidden="true"><option value="Sala 1">Sala 1 — RX</option><option value="Sala 2">Sala 2 — Coleta / laboratório</option><option value="Sala 3">Sala 3 — Audiometria / exames complementares</option><option value="Sala 4">Sala 4 — Exames complementares</option></select></div><div class="field"><label>MARCAR EXAMES ESPECÍFICOS</label><details id="editExamEditDropdown"><summary>Selecionar exames específicos e ASO</summary><div class="module-content"><div class="field"><label class="service-option" style="white-space:normal"><input type="checkbox" id="editAsoPending"> ASO ainda pendente</label><p class="sub" style="margin:6px 0 0">Este marcador não confirma a realização do ASO.</p></div><div class="service-options" id="editExamOptions"></div></div></details></div><button class="btn primary full" type="button" id="savePatientEdits">Salvar alterações / adicionar exames</button></div></details>
    </section>
      <section class="panel">
    <div class="queuehead"><div><h3>Pacientes na fila</h3><p class="sub">Chame, repita a chamada ou finalize o atendimento.</p></div><div class="queue-filters"><input class="search" id="search" placeholder="Buscar paciente…" aria-label="Buscar paciente"><label class="date-filter"><span>DATA</span><input id="patientDateFilter" type="date" aria-label="Filtrar pacientes pela data"></label></div></div>
@@ -670,14 +676,14 @@ function openReceptionModule(name,toggle=true){
  if(layout){layout.classList.add("panel-open");layout.dataset.activeModule=name;}
  receptionNavButtons.forEach(button=>button.classList.toggle("active",button.dataset.openModule===name));
  document.querySelectorAll("#patientForm .reception-module").forEach(module=>{
-  const active=(name==="salas"||name==="exames")?["salas","exames"].includes(module.dataset.module):module.dataset.module===name;
+  const active=module.dataset.module===name;
   module.style.display=active?"block":"none";
   if(active)module.open=true;
  });
  if(receptionForm)receptionForm.dataset.active=name;
  if(receptionEdit)receptionEdit.hidden=name!=="editar";
  if(name==="editar"&&typeof refreshEditPatientOptions==="function")refreshEditPatientOptions();
- const titles={cadastro:"Cadastrar Paciente",editar:"Editar Pacientes","tipo-exame":"Tipo de Exame",salas:"Salas / Atendimentos e Exames Específicos",exames:"Salas / Atendimentos e Exames Específicos"};
+ const titles={cadastro:"Cadastrar Paciente",editar:"Editar Pacientes","tipo-exame":"Tipo de Exame",salas:"Salas / Atendimentos",exames:"Marcar Exames Específicos"};
  if(receptionTitle)receptionTitle.textContent=titles[name]||"Recepção";
 }
 receptionNavButtons.forEach(button=>button.addEventListener("click",()=>openReceptionModule(button.dataset.openModule)));
