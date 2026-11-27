@@ -32,7 +32,7 @@ begin
   if v_role='profissional' and (not v_found or v_patient is null or
    (v_current-array['status','serviceStates','activeService','calledAt','calledService','calledLabel','callDisplayMode','attendingAt','attendedAt','exitTime','releasedAt']::text[])
    is distinct from
-   (v_patient-array['status','serviceStates','activeService','calledAt','calledService','calledLabel','callDisplayMode','attendingAt','attendedAt','exitTime','releasedAt']::text[]) then
+   (v_patient-array['status','serviceStates','activeService','calledAt','calledService','calledLabel','callDisplayMode','attendingAt','attendedAt','exitTime','releasedAt']::text[])) then
    raise exception 'Profissional só pode alterar andamento dos atendimentos existentes' using errcode='42501';
   end if;
 
