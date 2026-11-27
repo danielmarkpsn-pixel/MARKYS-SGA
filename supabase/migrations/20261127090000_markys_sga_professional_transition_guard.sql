@@ -44,9 +44,11 @@ begin
    v_new_states:=v_patient->'serviceStates';
    v_changed_states:=0;
    for v_service in
-    select key from jsonb_object_keys(v_old_states)
-    union
-    select key from jsonb_object_keys(v_new_states)
+    select keys.key from (
+      select key from jsonb_object_keys(v_old_states)
+      union
+      select key from jsonb_object_keys(v_new_states)
+    ) as keys
    loop
     if (v_old_states->v_service) is distinct from (v_new_states->v_service) then
      v_changed_states:=v_changed_states+1;
