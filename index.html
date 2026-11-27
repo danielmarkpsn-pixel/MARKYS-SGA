@@ -271,7 +271,7 @@ $("patientInsurance").addEventListener("change",updateInsurancePricePreview);
 document.addEventListener("change",ev=>{if(ev.target.matches('input[name="examCatalogChoice"]'))updateInsurancePricePreview();});
 
 function serviceForRoom(room){return ROOM_SERVICES[room]||"";}
-function roomForService(p,service){if(/^Recepção [123]$/.test(service))return service;const mapped=Object.keys(ROOM_SERVICES).find(r=>ROOM_SERVICES[r]===service);if(Array.isArray(p.rooms)&&p.rooms.includes(mapped))return mapped;if(p.room&&serviceForRoom(p.room)===service)return p.room;return mapped||p.room||"Sala não definida";}
+function roomForService(p,service){if(service==="Recepção"||/^Recepção [123]$/.test(service))return service;const mapped=Object.keys(ROOM_SERVICES).find(r=>ROOM_SERVICES[r]===service);if(Array.isArray(p.rooms)&&p.rooms.includes(mapped))return mapped;if(p.room&&serviceForRoom(p.room)===service)return p.room;return mapped||p.room||"Sala não definida";}
 function roomsOf(p){if(Array.isArray(p.rooms)&&p.rooms.length)return p.rooms;return p.room?[p.room]:[];}
 function roomsText(p){return roomsOf(p).join(", ")||"Sala não definida";}
 function servicesOf(p){if(Array.isArray(p.services)&&p.services.length)return p.services;return String(p.service||"").split(",").map(s=>s.trim()).filter(Boolean);}
