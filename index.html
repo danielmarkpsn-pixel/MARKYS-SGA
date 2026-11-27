@@ -64,6 +64,16 @@ input, textarea, select { text-transform: none !important; }
 @media(max-width:760px){.reception-layout{grid-template-columns:1fr}.reception-sidebar{position:static}.reception-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.reception-nav-btn{font-size:12px;padding:11px 9px}.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .module-content,.reception-workspace #editPatientModule .module-content{grid-template-columns:1fr}}
 @media(max-width:480px){.reception-nav{grid-template-columns:1fr 1fr}.reception-workspace{padding:14px}}
 
+
+/* PAINEL DE TRABALHO SOB DEMANDA E AJUSTE FINO DOS FORMULÁRIOS */
+.reception-layout:not(.panel-open) .reception-workspace{display:none}
+.reception-layout:not(.panel-open){grid-template-columns:minmax(220px,260px) minmax(0,1fr)}
+.reception-layout.panel-open{grid-template-columns:minmax(230px,17%) minmax(0,1fr)}
+.reception-workspace .field label{font-size:12px;line-height:1.35;letter-spacing:.2px}
+.reception-workspace .field input,.reception-workspace .field select{min-height:46px;font-size:15px}
+.reception-workspace .form-module>summary{font-size:15px;line-height:1.4}
+.reception-nav-btn{font-size:13px;line-height:1.35;min-height:46px}
+@media(max-width:760px){.reception-layout:not(.panel-open){grid-template-columns:1fr}.reception-layout.panel-open{grid-template-columns:1fr}}
 </style>
 
 <style>
@@ -122,7 +132,7 @@ html.markys-sga-auth-checking body{visibility:hidden}
   <aside class="panel reception-sidebar">
    <h3>Recepção</h3><p class="sub">Selecione uma função para abrir no painel de trabalho.</p>
    <nav class="reception-nav" aria-label="Menu da recepção">
-    <button type="button" class="reception-nav-btn active" data-open-module="cadastro">＋ Cadastrar Paciente</button>
+    <button type="button" class="reception-nav-btn" data-open-module="cadastro">＋ Cadastrar Paciente</button>
     <button type="button" class="reception-nav-btn" data-open-module="editar">✎ Editar Pacientes</button>
     <button type="button" class="reception-nav-btn" data-open-module="tipo-exame">▤ Tipo de Exame</button>
     <button type="button" class="reception-nav-btn" data-open-module="salas">▦ Salas / Atendimentos</button>
@@ -628,6 +638,19 @@ const receptionForm=document.getElementById("patientForm");
 const receptionEdit=document.getElementById("editPatientModule");
 const receptionTitle=document.getElementById("receptionWorkspaceTitle");
 function openReceptionModule(name){
+ const layout=document.querySelector(".reception-layout");
+ const isOpen=layout&&layout.classList.contains("panel-open");
+ const current=layout&&layout.dataset.activeModule;
+ if(isOpen&&current===name){
+  layout.classList.remove("panel-open");
+  delete layout.dataset.activeModule;
+  receptionNavButtons.forEach(button=>button.classList.remove("active"));
+  document.querySelectorAll("#patientForm .reception-module").forEach(module=>module.style.display="none");
+  if(receptionForm)delete receptionForm.dataset.active;
+  if(receptionEdit)receptionEdit.hidden=true;
+  return;
+ }
+ if(layout){layout.classList.add("panel-open");layout.dataset.activeModule=name;}
  receptionNavButtons.forEach(button=>button.classList.toggle("active",button.dataset.openModule===name));
  document.querySelectorAll("#patientForm .reception-module").forEach(module=>{
   const active=module.dataset.module===name;
@@ -641,7 +664,6 @@ function openReceptionModule(name){
  if(receptionTitle)receptionTitle.textContent=titles[name]||"Recepção";
 }
 receptionNavButtons.forEach(button=>button.addEventListener("click",()=>openReceptionModule(button.dataset.openModule)));
-openReceptionModule("cadastro");
 
 fillVoices();if("speechSynthesis"in window)window.speechSynthesis.addEventListener("voiceschanged",fillVoices);
 
