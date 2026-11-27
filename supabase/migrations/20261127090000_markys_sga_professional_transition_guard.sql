@@ -60,7 +60,7 @@ begin
      if jsonb_typeof(v_current->'services')='array' then
       v_service_valid:=(v_current->'services') ? v_service;
      elsif coalesce(v_current->>'service','')<>'' then
-      v_service_valid:=v_service=any(regexp_split_to_array(v_current->>'service','\s*,\s*'));
+      v_service_valid:=v_service=any(array(select trim(item) from unnest(string_to_array(v_current->>'service',',')) as split(item));
      else
       v_service_valid:=v_current->>'room'=v_service;
      end if;
