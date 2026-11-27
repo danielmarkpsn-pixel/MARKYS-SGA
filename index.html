@@ -551,7 +551,7 @@ function renderEditExamOptions(p){
  target.innerHTML=Object.entries(groups).map(([room,items])=>"<div style=\"margin:8px 0\"><strong>"+esc(room)+"</strong><div class=\"service-options\">"+items.map(x=>"<label class=\"service-option\"><input type=\"checkbox\" name=\"editExamChoice\" data-room=\""+esc(x.room)+"\" value=\""+esc(x.value)+"\""+(selected(x.room,x.value)?" checked":"")+"> "+esc(x.label)+(x.legacy?" (já cadastrado)":"")+"</label>").join("")+"</div></div>").join("");
 }
 function renderPatientNameSuggestions(){const target=$("patientNameSuggestions");if(!target)return;const unique=new Map();patients.forEach(p=>{const key=String(p.name||"").trim().toLocaleLowerCase("pt-BR");if(key&&!unique.has(key))unique.set(key,p.name);});target.innerHTML=Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(name=>'<option value="'+esc(name)+'"></option>').join("");}
-function openPatientEditor(p){if(typeof openReceptionModule==="function")openReceptionModule("editar");$("editPatientModule").hidden=false;$("editPatientModule").open=true;refreshEditPatientOptions(p.id);$("editPatientName").value=p.name||"";$("editCpf").value=p.cpf||"";$("editBirth").value=p.birthDate||"";$("editInsurance").value=p.insurance||"";$("editJob").value=p.job||"";$("editPatientPdf").value="";Array.from($("editRooms").options).forEach(o=>o.selected=roomsOf(p).includes(o.value));$("editAsoPending").checked=!!p.asoPending;renderEditExamOptions(p);$("editPatientModule").scrollIntoView({behavior:"smooth",block:"start"});}
+function openPatientEditor(p){if(typeof openReceptionModule==="function")openReceptionModule("editar",false);$("editPatientModule").hidden=false;$("editPatientModule").open=true;refreshEditPatientOptions(p.id);$("editPatientName").value=p.name||"";$("editCpf").value=p.cpf||"";$("editBirth").value=p.birthDate||"";$("editInsurance").value=p.insurance||"";$("editJob").value=p.job||"";$("editPatientPdf").value="";Array.from($("editRooms").options).forEach(o=>o.selected=roomsOf(p).includes(o.value));$("editAsoPending").checked=!!p.asoPending;renderEditExamOptions(p);$("editPatientModule").scrollIntoView({behavior:"smooth",block:"start"});}
 $("patientName").addEventListener("change",()=>{const typed=$("patientName").value.trim().toLocaleLowerCase("pt-BR"),p=patients.find(x=>String(x.name||"").trim().toLocaleLowerCase("pt-BR")===typed);if(p){openPatientEditor(p);notify("Paciente localizado. Os dados cadastrados foram carregados na edição.");}});
 
 $("editPatientSelect").addEventListener("change",()=>{const p=patients.find(x=>String(x.id)===$("editPatientSelect").value);if(p)openPatientEditor(p);});
@@ -637,11 +637,11 @@ const receptionNavButtons=[...document.querySelectorAll("[data-open-module]")];
 const receptionForm=document.getElementById("patientForm");
 const receptionEdit=document.getElementById("editPatientModule");
 const receptionTitle=document.getElementById("receptionWorkspaceTitle");
-function openReceptionModule(name){
+function openReceptionModule(name,toggle=true){
  const layout=document.querySelector(".reception-layout");
  const isOpen=layout&&layout.classList.contains("panel-open");
  const current=layout&&layout.dataset.activeModule;
- if(isOpen&&current===name){
+ if(toggle&&isOpen&&current===name){
   layout.classList.remove("panel-open");
   delete layout.dataset.activeModule;
   receptionNavButtons.forEach(button=>button.classList.remove("active"));
