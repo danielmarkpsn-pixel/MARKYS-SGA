@@ -44,8 +44,8 @@ input, textarea, select { text-transform: none !important; }
 .reception-workspace .service-options{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;padding:14px}
 .reception-workspace .service-option{font-size:13px;gap:9px}
 .reception-workspace #patientForm>.reception-module:not([data-module="cadastro"]){display:none}
-.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .module-content{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}
-.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .field:nth-child(5){grid-column:1/-1}
+.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .module-content{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;row-gap:4px}.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .field{margin:5px 0}.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .field input,.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .field select{min-height:40px;padding:8px 10px}.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .field:nth-child(6){grid-column:1/-1}
+.reception-workspace #patientForm>.reception-module[data-module="cadastro"] .field:nth-child(5){grid-column:auto}
 .reception-workspace #patientForm>.reception-module[data-module="cadastro"] .field:nth-child(6){grid-column:1/-1}
 .reception-workspace #patientForm>button[type="submit"]{max-width:360px;margin-top:6px}
 .reception-workspace #patientForm>button[type="submit"]{display:none}
@@ -56,7 +56,7 @@ input, textarea, select { text-transform: none !important; }
 .reception-workspace #editPatientModule{margin:0}
 .reception-workspace #editPatientModule[hidden]{display:none!important}
 .reception-workspace #editPatientModule:not([hidden]){display:block}
-.reception-workspace #editPatientModule .module-content{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+.reception-workspace #editPatientModule .module-content{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 12px;padding:8px 12px}.reception-workspace #editPatientModule .module-content .field{margin:5px 0}.reception-workspace #editPatientModule .module-content .field input,.reception-workspace #editPatientModule .module-content .field select{min-height:40px;padding:8px 10px}
 .reception-workspace #editPatientModule .module-content .field:last-of-type{grid-column:1/-1}
 .reception-sidebar .voicebox{margin-top:12px}
 .reception-sidebar .footnote{margin-top:16px}
@@ -157,7 +157,7 @@ html.markys-sga-auth-checking body{visibility:hidden}
 <div class="field"><label for="patientName">NOME DO PACIENTE *</label><input id="patientName" maxlength="100" list="patientNameSuggestions" autocomplete="off" placeholder="Digite ou selecione um paciente cadastrado" required><datalist id="patientNameSuggestions"></datalist></div>
 <div class="field"><label for="patientCpf">CPF</label><input id="patientCpf" maxlength="14" placeholder="000.000.000-00" required></div>
 <div class="field"><label for="patientBirth">DATA DE NASCIMENTO</label><input id="patientBirth" type="date" required></div>
-<div class="field"><label for="patientInsurance">CONVÊNIO *</label><select id="patientInsurance" required><option value="">Selecione o convênio</option><option value="particular">Particular / sem convênio</option></select><div class="sub" id="insurancePricePreview" style="margin-top:6px">Selecione o convênio para consultar a tabela de valores.</div></div>
+<div class="field"><label for="patientInsurance">CONVÊNIO *</label><select id="patientInsurance" required><option value="">Selecione o convênio</option><option value="particular">Particular / sem convênio</option></select><div class="sub" id="insurancePricePreview" style="display:none"></div></div>
 <div class="field"><label for="patientJob">FUNÇÃO</label><input id="patientJob" maxlength="100" placeholder="Função / cargo" required></div><div class="field"><label for="patientCompany">EMPRESA</label><input id="patientCompany" maxlength="160" placeholder="Empresa do paciente"></div><div class="field"><label for="patientPdf">DOCUMENTO DO PACIENTE (PDF — OPCIONAL)</label><input id="patientPdf" type="file" accept="application/pdf,.pdf"><p class="sub" style="margin:6px 0 0">Ex.: CNH Digital ou pedido médico digitalizado. Máximo de 50 MB online (10 MB no modo local).</p></div>
     </div></details>
     <details class="form-module reception-module" data-module="tipo-exame"><summary>Tipo de Exame / Atendimento</summary><div class="module-content"><div class="field"><label>TIPO DE EXAME / ATENDIMENTO *</label><div class="service-options"><label class="service-option"><input type="checkbox" name="examTypes" value="Admissional"> Admissional</label><label class="service-option"><input type="checkbox" name="examTypes" value="Demissional"> Demissional</label><label class="service-option"><input type="checkbox" name="examTypes" value="Periódico"> Periódico</label><label class="service-option"><input type="checkbox" name="examTypes" value="Retorno"> Retorno</label><label class="service-option"><input type="checkbox" name="examTypes" value="Mudança de riscos"> Mudança de riscos</label><label class="service-option"><input type="checkbox" name="examTypes" value="Particular"> Particular</label><label class="service-option"><input type="checkbox" name="examTypes" value="Pontual"> Pontual</label><label class="service-option"><input type="checkbox" name="examTypes" value="Consulta Ocupacional"> Consulta Ocupacional</label><label class="service-option"><input type="checkbox" name="examTypes" value="Concurso"> Concurso</label></div></div></div></details>
