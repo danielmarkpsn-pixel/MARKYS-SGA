@@ -13,7 +13,7 @@ for (const required of [
   "v_old_status='Chamado' and v_new_status in ('Atendendo','Aguardando','Chamado')",
   "v_old_status='Atendendo' and v_new_status='Liberado'",
   "Profissional não pode alterar serviço não vinculado ao paciente",
-  "v_service=any(array(select trim(item) from unnest(string_to_array(v_current->>'service',',')) as split(item))",
+  "v_service=any(array(select trim(item) from unnest(string_to_array(v_current->>'service',',')) as split(item)))",
   "markys_sga_queue_write_tenant"
 ]) {
   if (!migration.includes(required)) throw new Error("Proteção SQL ausente: " + required);
