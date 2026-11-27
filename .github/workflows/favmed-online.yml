@@ -98,6 +98,9 @@ jobs:
           console.log("MARKYS SGA root application checks passed.");
           NODE
 
+      - name: Professional queue transition regression checks
+        run: node scripts/check-professional-transitions.mjs
+
       - name: Security basics (segredos, senhas fixas, projeto Supabase, dependências, cabeçalhos)
         run: node scripts/check-security-basics.mjs
 
