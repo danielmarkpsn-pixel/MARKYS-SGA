@@ -541,7 +541,7 @@ function renderEditExamOptions(p){
  target.innerHTML=Object.entries(groups).map(([room,items])=>"<div style=\"margin:8px 0\"><strong>"+esc(room)+"</strong><div class=\"service-options\">"+items.map(x=>"<label class=\"service-option\"><input type=\"checkbox\" name=\"editExamChoice\" data-room=\""+esc(x.room)+"\" value=\""+esc(x.value)+"\""+(selected(x.room,x.value)?" checked":"")+"> "+esc(x.label)+(x.legacy?" (já cadastrado)":"")+"</label>").join("")+"</div></div>").join("");
 }
 function renderPatientNameSuggestions(){const target=$("patientNameSuggestions");if(!target)return;const unique=new Map();patients.forEach(p=>{const key=String(p.name||"").trim().toLocaleLowerCase("pt-BR");if(key&&!unique.has(key))unique.set(key,p.name);});target.innerHTML=Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(name=>'<option value="'+esc(name)+'"></option>').join("");}
-function openPatientEditor(p){$("editPatientModule").hidden=false;$("editPatientModule").open=true;refreshEditPatientOptions(p.id);$("editPatientName").value=p.name||"";$("editCpf").value=p.cpf||"";$("editBirth").value=p.birthDate||"";$("editInsurance").value=p.insurance||"";$("editJob").value=p.job||"";$("editPatientPdf").value="";Array.from($("editRooms").options).forEach(o=>o.selected=roomsOf(p).includes(o.value));$("editAsoPending").checked=!!p.asoPending;renderEditExamOptions(p);$("editPatientModule").scrollIntoView({behavior:"smooth",block:"start"});}
+function openPatientEditor(p){if(typeof openReceptionModule==="function")openReceptionModule("editar");$("editPatientModule").hidden=false;$("editPatientModule").open=true;refreshEditPatientOptions(p.id);$("editPatientName").value=p.name||"";$("editCpf").value=p.cpf||"";$("editBirth").value=p.birthDate||"";$("editInsurance").value=p.insurance||"";$("editJob").value=p.job||"";$("editPatientPdf").value="";Array.from($("editRooms").options).forEach(o=>o.selected=roomsOf(p).includes(o.value));$("editAsoPending").checked=!!p.asoPending;renderEditExamOptions(p);$("editPatientModule").scrollIntoView({behavior:"smooth",block:"start"});}
 $("patientName").addEventListener("change",()=>{const typed=$("patientName").value.trim().toLocaleLowerCase("pt-BR"),p=patients.find(x=>String(x.name||"").trim().toLocaleLowerCase("pt-BR")===typed);if(p){openPatientEditor(p);notify("Paciente localizado. Os dados cadastrados foram carregados na edição.");}});
 
 $("editPatientSelect").addEventListener("change",()=>{const p=patients.find(x=>String(x.id)===$("editPatientSelect").value);if(p)openPatientEditor(p);});
@@ -636,6 +636,7 @@ function openReceptionModule(name){
  });
  if(receptionForm)receptionForm.dataset.active=name;
  if(receptionEdit)receptionEdit.hidden=name!=="editar";
+ if(name==="editar"&&typeof refreshEditPatientOptions==="function")refreshEditPatientOptions();
  const titles={cadastro:"Cadastrar Paciente",editar:"Editar Pacientes","tipo-exame":"Tipo de Exame",salas:"Salas / Atendimentos",exames:"Exames Específicos"};
  if(receptionTitle)receptionTitle.textContent=titles[name]||"Recepção";
 }
