@@ -42,11 +42,11 @@ input, textarea, select { text-transform: none !important; }
 
 <section class="panel">
 <h2>Criar novo login</h2>
-<p class="sub">Informe o nome e o e-mail. O convite para definir a senha será enviado por e-mail. O acesso aos módulos é definido pela função atribuída a cada login. O perfil Financeiro acessa somente o módulo financeiro.</p>
+<p class="sub">Informe o nome e o e-mail. O convite para definir a senha será enviado por e-mail. O acesso aos módulos é definido pela função atribuída a cada login. O perfil Financeiro acessa Financeiro e Recepção. O Administrador acessa todos os módulos operacionais.</p>
 <form id="create-form">
 <div><label for="display-name">Nome do usuário</label><input id="display-name" name="display_name" maxlength="120" required></div>
 <div><label for="email">E-mail</label><input id="email" name="email" type="email" maxlength="254" required></div>
-<div><label for="role">Função</label><select id="role" name="role" required><option value="">Selecione a função</option><option value="recepcao">Recepção</option><option value="profissional">Profissional</option><option value="financeiro">Financeiro</option></select></div>
+<div><label for="role">Função</label><select id="role" name="role" required><option value="">Selecione a função</option><option value="recepcao">Recepção</option><option value="profissional">Profissional</option><option value="financeiro">Financeiro</option><option value="administrador">Administrador</option></select></div>
 <div><label for="user-clinic">Clínica</label><select id="user-clinic" name="clinic_id" required><option value="">Carregando clínicas…</option></select></div>
 <button class="btn" id="create-button" type="submit">Criar login</button>
 </form>
@@ -86,7 +86,7 @@ async function adminCall(body){
  return data;
 }
 function roleLabel(role){
- return role==="recepcao"?"Recepção":role==="profissional"?"Profissional":role==="financeiro"?"Financeiro":role==="master"?"Master":role==="sala"?"Sala (legado)":role||"—";
+ return role==="recepcao"?"Recepção":role==="profissional"?"Profissional":role==="financeiro"?"Financeiro":role==="administrador"?"Administrador":role==="master"?"Master":role==="sala"?"Sala (legado)":role||"—";
 }
 function renderUsers(users){
  if(!users.length){usersContainer.textContent="Nenhum login cadastrado.";return;}
@@ -105,7 +105,7 @@ function renderUsers(users){
    select.setAttribute("aria-label","Função de "+(user.display_name||"usuário"));
    select.style.cssText="min-width:140px;padding:7px;border:1px solid #cbd9df;border-radius:8px;background:#fff";
    const current=document.createElement("option");current.value=user.role||"";current.textContent=roleLabel(user.role);current.selected=true;select.appendChild(current);
-   ["recepcao","profissional","financeiro"].filter(value=>value!==user.role).forEach(value=>{
+   ["recepcao","profissional","financeiro","administrador"].filter(value=>value!==user.role).forEach(value=>{
     const option=document.createElement("option");option.value=value;option.textContent=roleLabel(value);select.appendChild(option);
    });
    const save=document.createElement("button");save.type="button";save.className="btn small";save.textContent="Salvar função";save.style.marginLeft="6px";
@@ -197,7 +197,7 @@ form.addEventListener("submit",async event=>{
  event.preventDefault();createButton.disabled=true;createButton.textContent="Enviando convite…";showMessage("");
  try{
   const selectedRole=form.elements.role.value;
-  if(!["recepcao","profissional","financeiro"].includes(selectedRole))throw new Error("Selecione Recepção, Profissional ou Financeiro.");
+  if(!["recepcao","profissional","financeiro","administrador"].includes(selectedRole))throw new Error("Selecione Recepção, Profissional, Financeiro ou Administrador.");
   const clinicId=form.elements.clinic_id.value;
   if(!clinicId)throw new Error("Selecione a clínica do usuário.");
   const data=await adminCall({action:"create_user",display_name:form.elements.display_name.value.trim(),email:form.elements.email.value.trim(),role:selectedRole,clinic_id:clinicId});
