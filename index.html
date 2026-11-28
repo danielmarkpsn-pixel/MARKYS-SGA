@@ -247,10 +247,8 @@ html.markys-sga-auth-checking body{visibility:hidden}
     </div></details>
     <details class="form-module reception-module" data-module="tipo-exame"><summary>Tipo de Exame / Atendimento</summary><div class="module-content"><div class="field"><label>TIPO DE EXAME / ATENDIMENTO *</label><div class="service-options"><label class="service-option"><input type="checkbox" name="examTypes" value="Admissional"> Admissional</label><label class="service-option"><input type="checkbox" name="examTypes" value="Demissional"> Demissional</label><label class="service-option"><input type="checkbox" name="examTypes" value="Periódico"> Periódico</label><label class="service-option"><input type="checkbox" name="examTypes" value="Retorno"> Retorno</label><label class="service-option"><input type="checkbox" name="examTypes" value="Mudança de riscos"> Mudança de riscos</label><label class="service-option"><input type="checkbox" name="examTypes" value="Particular"> Particular</label><label class="service-option"><input type="checkbox" name="examTypes" value="Pontual"> Pontual</label><label class="service-option"><input type="checkbox" name="examTypes" value="Consulta Ocupacional"> Consulta Ocupacional</label><label class="service-option"><input type="checkbox" name="examTypes" value="Concurso"> Concurso</label></div></div></div></details>
     <details class="form-module reception-module" data-module="salas"><summary>Salas / Atendimentos</summary><div class="module-content"><div class="field"><label>SALAS / ATENDIMENTOS * (MARQUE TODOS)</label><div class="service-options" id="roomOptions"><div class="sub">Carregando salas cadastradas...</div></div><p class="sub" style="margin:8px 0 0">Marque uma ou mais salas e selecione todos os exames solicitados.</p></div></div></details>
-    <details class="form-module reception-module" data-module="exames"><summary>Marcar Exames Específicos</summary><div class="module-content"><div class="field"><label class="service-option" style="white-space:normal"><input type="checkbox" id="asoPending"> Indicativo: este paciente ainda vai fazer ASO (pendente na fila)</label><p class="sub" style="margin:6px 0 0">Este marcador não confirma a realização do ASO.</p></div><div id="examRoomOptions"><div class="sub">Carregando exames cadastrados...</div></div>
-
-</details>
-    <button class="btn primary full" type="submit">＋ Cadastrar paciente e gerar ficha</button>
+    <details class="form-module reception-module" data-module="exames"><summary>Marcar Exames Específicos</summary><div class="module-content"><div class="field"><label class="service-option" style="white-space:normal"><input type="checkbox" id="asoPending"> Indicativo: este paciente ainda vai fazer ASO (pendente na fila)</label><p class="sub" style="margin:6px 0 0">Este marcador não confirma a realização do ASO.</p></div><div id="examRoomOptions"><div class="sub">Carregando exames cadastrados...</div></div></div></details>
+    <button class="btn primary full" type="submit" id="registerPatientSubmit">＋ Cadastrar paciente e gerar ficha</button>
    </form>
     <details class="form-module" id="editPatientModule" hidden>
       <summary>Dados do paciente selecionado</summary>
@@ -772,7 +770,7 @@ function openReceptionModule(name,toggle=true){
  if(layout){layout.classList.add("panel-open");layout.dataset.activeModule=name;}
  receptionNavButtons.forEach(button=>button.classList.toggle("active",button.dataset.openModule===name));
  document.querySelectorAll("#patientForm .reception-module").forEach(module=>{
-  const active=module.dataset.module===name;
+  const active=name==="cadastro"||module.dataset.module===name;
   module.style.display=active?"block":"none";
   if(active)module.open=true;
  });
@@ -858,5 +856,14 @@ if(publicMode){
 .reception-layout .reception-workspace .edit-exam-room .service-options {grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:6px!important;padding:8px!important}
 @media(max-width:760px){.reception-layout .reception-workspace{padding:12px!important}.reception-layout .reception-nav-btn{font-size:11.5px!important}}
 </style>
-</body>
+<style id="registration-flow-button-placement">
+/* Fluxo completo do cadastro: todos os passos em sequência, botão após exames */
+#patientForm[data-active="cadastro"] .reception-module{display:block!important}
+#patientForm[data-active="cadastro"] #registerPatientSubmit{display:block!important;margin-top:12px}
+#patientForm:not([data-active="cadastro"]) #registerPatientSubmit{display:none!important}
+#patientForm[data-active="cadastro"] .reception-module[data-module="cadastro"],
+#patientForm[data-active="cadastro"] .reception-module[data-module="tipo-exame"],
+#patientForm[data-active="cadastro"] .reception-module[data-module="salas"],
+#patientForm[data-active="cadastro"] .reception-module[data-module="exames"]{margin-bottom:10px}
+</style></body>
 </html>
