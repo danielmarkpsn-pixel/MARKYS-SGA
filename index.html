@@ -669,35 +669,28 @@ function refreshEditPatientOptions(selectedId){const sel=$("editPatientSelect");
 function renderEditExamOptions(p){
  const target=$("editExamOptions");if(!target)return;
  const current=p&&p.examsByRoom&&typeof p.examsByRoom==="object"?p.examsByRoom:{};
- const catalogRoot=$("examRoomOptions");
- const sourceRooms=catalogRoot?Array.from(catalogRoot.querySelectorAll(":scope > details")):[];
- const selected=(room,value)=>(Array.isArray(current[room])?current[room]:[]).some(x=>String(x)===String(value));
- if(sourceRooms.length){
-  target.replaceChildren(...sourceRooms.map(source=>{
-   const roomNode=source.cloneNode(true);
-   roomNode.classList.remove("edit-exam-room");
-   roomNode.querySelectorAll('input[name="examCatalogChoice"]').forEach(input=>{
-    input.name="editExamChoice";
-    input.checked=selected(input.dataset.room||"",input.value);
-   });
-   return roomNode;
-  }));
-  return;
- }
- const catalog=(typeof receptionServiceCatalog!=="undefined"&&Array.isArray(receptionServiceCatalog))?receptionServiceCatalog:[];
+ const catalog=Array.isArray(receptionServiceCatalog)?receptionServiceCatalog:[];
  const groups={};
  catalog.forEach(x=>{
   if(!x||!x.room_name||!x.exam_name)return;
   const room=String(x.room_name);
-  if(!groups[room])groups[room]={attendance:x.attendance_name||"",items:[]};
-  if(x.attendance_name)groups[room].attendance=x.attendance_name;
-  if(!groups[room].items.some(y=>String(y)===String(x.exam_name)))groups[room].items.push(x.exam_name);
+  if(!groups[room])groups[room]=[];
+  if(!groups[room].some(y=>String(y.exam_name)===String(x.exam_name)))groups[room].push(x);
  });
  Object.entries(current).forEach(([room,values])=>{
-  if(!groups[room])groups[room]={attendance:"",items:[]};
-  (Array.isArray(values)?values:[]).forEach(value=>{if(!groups[room].items.some(x=>String(x)===String(value)))groups[room].items.push(value);});
+  if(!groups[room])groups[room]=[];
+  (Array.isArray(values)?values:[]).forEach(value=>{
+   if(!groups[room].some(x=>String(x.exam_name)===String(value)))groups[room].push({room_name:room,attendance_name:ROOM_SERVICES[room]||"",exam_name:value});
+  });
  });
- target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+(group.items.length?group.items.map(value=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(room)+'" value="'+esc(value)+'"'+(selected(room,value)?' checked':'')+'> '+esc(value)+'</label>').join(""):'<div class="sub">Nenhum exame específico ativo nesta sala.</div>')+'</div></div></details>').join("")||'<div class="sub">Aguardando o carregamento do catálogo de exames.</div>';
+ target.innerHTML=Object.entries(groups).map(([room,items])=>{
+  const attendance=items.find(x=>x.attendance_name)?.attendance_name||"";
+  const choices=items.map(x=>{
+   const checked=(Array.isArray(current[room])?current[room]:[]).some(value=>String(value)===String(x.exam_name));
+   return '<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(room)+'" value="'+esc(x.exam_name)+'"'+(checked?' checked':'')+'> '+esc(x.exam_name)+'</label>';
+  }).join("");
+  return '<details class="form-module" style="margin:8px 0"><summary>'+esc(room)+(attendance?' — '+esc(attendance):'')+'</summary><div class="module-content"><div class="service-options">'+choices+'</div></div></details>';
+ }).join("")||'<div class="sub">Nenhum exame ativo cadastrado.</div>';
 }
 function renderPatientNameSuggestions(){const target=$("patientNameSuggestions");if(!target)return;const unique=new Map();patients.forEach(p=>{const key=String(p.name||"").trim().toLocaleLowerCase("pt-BR");if(key&&!unique.has(key))unique.set(key,p.name);});target.innerHTML=Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(name=>'<option value="'+esc(name)+'"></option>').join("");}
 function renderEditRoomPicker(){const select=$("editRooms"),target=$("editRoomOptions");if(!select||!target)return;target.innerHTML=Array.from(select.options).map(o=>'<label class="service-option"><input type="checkbox" data-edit-room="'+esc(o.value)+'"'+(o.selected?" checked":"")+"> "+esc(o.text)+"</label>").join("");target.querySelectorAll("input[data-edit-room]").forEach(box=>box.addEventListener("change",()=>{const option=Array.from(select.options).find(o=>o.value===box.dataset.editRoom);if(option)option.selected=box.checked;}));}
