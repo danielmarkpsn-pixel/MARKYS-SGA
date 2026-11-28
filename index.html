@@ -657,19 +657,22 @@ $("voiceSelect").addEventListener("change",()=>{const voice=choosePortugueseFema
 function refreshEditPatientOptions(selectedId){const sel=$("editPatientSelect");if(!sel)return;const old=selectedId||sel.value;sel.innerHTML='<option value="">Selecione um paciente</option>'+patients.filter(p=>p.day===todayKey).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");if(old)sel.value=String(old);}
 function renderEditExamOptions(p){
  const target=$("editExamOptions");if(!target)return;
- const current=p.examsByRoom&&typeof p.examsByRoom==="object"?p.examsByRoom:{};
- const roomFallback={"Sala 1":"RX","Sala 2":"Coleta / laboratório","Sala 3":"Audiometria","Sala 4":"Exames complementares","Sala 5":"Coleta PCCU"};
- const rooms={...roomFallback,...ROOM_SERVICES};
+ const current=p&&p.examsByRoom&&typeof p.examsByRoom==="object"?p.examsByRoom:{};
+ const fallback={"Sala 1":"RX","Sala 2":"Coleta / laboratório","Sala 3":"Audiometria","Sala 4":"Exames complementares","Sala 5":"Coleta PCCU"};
+ const configured=(typeof ROOM_SERVICES!=="undefined"&&ROOM_SERVICES&&typeof ROOM_SERVICES==="object")?ROOM_SERVICES:{};
  const groups={};
- Object.entries(rooms).forEach(([room,attendance])=>groups[room]={attendance,items:[]});
- receptionServiceCatalog.forEach(x=>{
-  const room=x.room_name;if(!room)return;
+ Object.entries(fallback).forEach(([room,attendance])=>groups[room]={attendance,items:[]});
+ Object.entries(configured).forEach(([room,attendance])=>{if(!groups[room])groups[room]={attendance:attendance||"",items:[]};else if(attendance)groups[room].attendance=attendance;});
+ const catalog=(typeof receptionServiceCatalog!=="undefined"&&Array.isArray(receptionServiceCatalog))?receptionServiceCatalog:[];
+ catalog.forEach(x=>{
+  if(!x||!x.room_name||!x.exam_name)return;
+  const room=String(x.room_name);
   if(!groups[room])groups[room]={attendance:x.attendance_name||"",items:[]};
-  groups[room].attendance=x.attendance_name||groups[room].attendance;
+  if(x.attendance_name)groups[room].attendance=x.attendance_name;
   if(!groups[room].items.some(y=>String(y.value)===String(x.exam_name)))groups[room].items.push({value:x.exam_name,label:x.exam_name});
  });
  Object.entries(current).forEach(([room,values])=>{
-  if(!groups[room])groups[room]={attendance:ROOM_SERVICES[room]||"",items:[]};
+  if(!groups[room])groups[room]={attendance:configured[room]||"",items:[]};
   (Array.isArray(values)?values:[]).forEach(value=>{
    if(!groups[room].items.some(y=>String(y.value)===String(value)))groups[room].items.push({value,label:String(value),legacy:true});
   });
