@@ -658,23 +658,24 @@ function refreshEditPatientOptions(selectedId){const sel=$("editPatientSelect");
 function renderEditExamOptions(p){
  const target=$("editExamOptions");if(!target)return;
  const current=p.examsByRoom&&typeof p.examsByRoom==="object"?p.examsByRoom:{};
- // Usa o mesmo catálogo do cadastro; se ele ainda não estiver pronto, lê a lista já renderizada no cadastro.
- let knownItems=receptionServiceCatalog.map(x=>({room:x.room_name,attendance:x.attendance_name||ROOM_SERVICES[x.room_name]||"",value:x.exam_name,label:x.exam_name}));
- if(!knownItems.length){
-  document.querySelectorAll('#examRoomOptions details').forEach(section=>{
-   const heading=section.querySelector("summary")?.textContent?.trim()||"";
-   const split=heading.split(/\\s+[—–-]\\s+/);const room=(split.shift()||"").trim();const attendance=split.join(" — ");
-   section.querySelectorAll('input[name="examCatalogChoice"]').forEach(input=>{
-    const label=input.closest("label")?.textContent?.trim()||input.value;
-    knownItems.push({room,attendance,value:input.value,label});
-   });
+ const roomFallback={"Sala 1":"RX","Sala 2":"Coleta / laboratório","Sala 3":"Audiometria","Sala 4":"Exames complementares","Sala 5":"Coleta PCCU"};
+ const rooms={...roomFallback,...ROOM_SERVICES};
+ const groups={};
+ Object.entries(rooms).forEach(([room,attendance])=>groups[room]={attendance,items:[]});
+ receptionServiceCatalog.forEach(x=>{
+  const room=x.room_name;if(!room)return;
+  if(!groups[room])groups[room]={attendance:x.attendance_name||"",items:[]};
+  groups[room].attendance=x.attendance_name||groups[room].attendance;
+  if(!groups[room].items.some(y=>String(y.value)===String(x.exam_name)))groups[room].items.push({value:x.exam_name,label:x.exam_name});
+ });
+ Object.entries(current).forEach(([room,values])=>{
+  if(!groups[room])groups[room]={attendance:ROOM_SERVICES[room]||"",items:[]};
+  (Array.isArray(values)?values:[]).forEach(value=>{
+   if(!groups[room].items.some(y=>String(y.value)===String(value)))groups[room].items.push({value,label:String(value),legacy:true});
   });
- }
- const known=new Set(knownItems.map(x=>x.room+"|"+x.value));const all=[...knownItems];
- Object.entries(current).forEach(([room,values])=>(Array.isArray(values)?values:[]).forEach(value=>{if(!known.has(room+"|"+value))all.push({room,attendance:ROOM_SERVICES[room]||"",value,label:String(value),legacy:true});}));
- const selected=(room,value)=>(Array.isArray(current[room])?current[room]:[]).some(x=>String(x)===String(value));const groups={};
- all.forEach(x=>{if(!x.room)return;if(!groups[x.room])groups[x.room]={attendance:x.attendance||ROOM_SERVICES[x.room]||"",items:[]};if(!groups[x.room].items.some(y=>String(y.value)===String(x.value)))groups[x.room].items.push(x);});
- target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module edit-exam-room"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+group.items.map(x=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(x.room)+'" value="'+esc(x.value)+'"'+(selected(x.room,x.value)?' checked':'')+'> '+esc(x.label)+(x.legacy?' (já cadastrado)':'')+'</label>').join("")+'</div></div></details>').join("")||'<div class="sub">Nenhum exame ativo cadastrado no catálogo. Confira o cadastro de exames específicos.</div>';
+ });
+ const selected=(room,value)=>(Array.isArray(current[room])?current[room]:[]).some(x=>String(x)===String(value));
+ target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module edit-exam-room"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+(group.items.length?group.items.map(x=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(room)+'" value="'+esc(x.value)+'"'+(selected(room,x.value)?' checked':'')+'> '+esc(x.label)+(x.legacy?' (já cadastrado)':'')+'</label>').join(""):'<div class="sub">Nenhum exame específico ativo nesta sala.</div>')+'</div></div></details>').join("");
 }
 function renderPatientNameSuggestions(){const target=$("patientNameSuggestions");if(!target)return;const unique=new Map();patients.forEach(p=>{const key=String(p.name||"").trim().toLocaleLowerCase("pt-BR");if(key&&!unique.has(key))unique.set(key,p.name);});target.innerHTML=Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(name=>'<option value="'+esc(name)+'"></option>').join("");}
 function renderEditRoomPicker(){const select=$("editRooms"),target=$("editRoomOptions");if(!select||!target)return;target.innerHTML=Array.from(select.options).map(o=>'<label class="service-option"><input type="checkbox" data-edit-room="'+esc(o.value)+'"'+(o.selected?" checked":"")+"> "+esc(o.text)+"</label>").join("");target.querySelectorAll("input[data-edit-room]").forEach(box=>box.addEventListener("change",()=>{const option=Array.from(select.options).find(o=>o.value===box.dataset.editRoom);if(option)option.selected=box.checked;}));}
