@@ -665,27 +665,35 @@ function refreshEditPatientOptions(selectedId){const sel=$("editPatientSelect");
 function renderEditExamOptions(p){
  const target=$("editExamOptions");if(!target)return;
  const current=p&&p.examsByRoom&&typeof p.examsByRoom==="object"?p.examsByRoom:{};
- const fallback={"Sala 1":"RX","Sala 2":"Coleta / laboratório","Sala 3":"Audiometria","Sala 4":"Exames complementares","Sala 5":"Coleta PCCU"};
- const configured=(typeof ROOM_SERVICES!=="undefined"&&ROOM_SERVICES&&typeof ROOM_SERVICES==="object")?ROOM_SERVICES:{};
- const groups={};
- Object.entries(fallback).forEach(([room,attendance])=>groups[room]={attendance,items:[]});
- Object.entries(configured).forEach(([room,attendance])=>{if(!groups[room])groups[room]={attendance:attendance||"",items:[]};else if(attendance)groups[room].attendance=attendance;});
+ const catalogRoot=$("examRoomOptions");
+ const sourceRooms=catalogRoot?Array.from(catalogRoot.querySelectorAll(":scope > details")):[];
+ const selected=(room,value)=>(Array.isArray(current[room])?current[room]:[]).some(x=>String(x)===String(value));
+ if(sourceRooms.length){
+  target.replaceChildren(...sourceRooms.map(source=>{
+   const roomNode=source.cloneNode(true);
+   roomNode.classList.add("edit-exam-room");
+   roomNode.querySelectorAll('input[name="examCatalogChoice"]').forEach(input=>{
+    input.name="editExamChoice";
+    input.checked=selected(input.dataset.room||"",input.value);
+   });
+   return roomNode;
+  }));
+  return;
+ }
  const catalog=(typeof receptionServiceCatalog!=="undefined"&&Array.isArray(receptionServiceCatalog))?receptionServiceCatalog:[];
+ const groups={};
  catalog.forEach(x=>{
   if(!x||!x.room_name||!x.exam_name)return;
   const room=String(x.room_name);
   if(!groups[room])groups[room]={attendance:x.attendance_name||"",items:[]};
   if(x.attendance_name)groups[room].attendance=x.attendance_name;
-  if(!groups[room].items.some(y=>String(y.value)===String(x.exam_name)))groups[room].items.push({value:x.exam_name,label:x.exam_name});
+  if(!groups[room].items.some(y=>String(y)===String(x.exam_name)))groups[room].items.push(x.exam_name);
  });
  Object.entries(current).forEach(([room,values])=>{
-  if(!groups[room])groups[room]={attendance:configured[room]||"",items:[]};
-  (Array.isArray(values)?values:[]).forEach(value=>{
-   if(!groups[room].items.some(y=>String(y.value)===String(value)))groups[room].items.push({value,label:String(value),legacy:true});
-  });
+  if(!groups[room])groups[room]={attendance:"",items:[]};
+  (Array.isArray(values)?values:[]).forEach(value=>{if(!groups[room].items.some(x=>String(x)===String(value)))groups[room].items.push(value);});
  });
- const selected=(room,value)=>(Array.isArray(current[room])?current[room]:[]).some(x=>String(x)===String(value));
- target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module edit-exam-room"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+(group.items.length?group.items.map(x=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(room)+'" value="'+esc(x.value)+'"'+(selected(room,x.value)?' checked':'')+'> '+esc(x.label)+(x.legacy?' (já cadastrado)':'')+'</label>').join(""):'<div class="sub">Nenhum exame específico ativo nesta sala.</div>')+'</div></div></details>').join("");
+ target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module edit-exam-room"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+(group.items.length?group.items.map(value=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(room)+'" value="'+esc(value)+'"'+(selected(room,value)?' checked':'')+'> '+esc(value)+'</label>').join(""):'<div class="sub">Nenhum exame específico ativo nesta sala.</div>')+'</div></div></details>').join("")||'<div class="sub">Aguardando o carregamento do catálogo de exames.</div>';
 }
 function renderPatientNameSuggestions(){const target=$("patientNameSuggestions");if(!target)return;const unique=new Map();patients.forEach(p=>{const key=String(p.name||"").trim().toLocaleLowerCase("pt-BR");if(key&&!unique.has(key))unique.set(key,p.name);});target.innerHTML=Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(name=>'<option value="'+esc(name)+'"></option>').join("");}
 function renderEditRoomPicker(){const select=$("editRooms"),target=$("editRoomOptions");if(!select||!target)return;target.innerHTML=Array.from(select.options).map(o=>'<label class="service-option"><input type="checkbox" data-edit-room="'+esc(o.value)+'"'+(o.selected?" checked":"")+"> "+esc(o.text)+"</label>").join("");target.querySelectorAll("input[data-edit-room]").forEach(box=>box.addEventListener("change",()=>{const option=Array.from(select.options).find(o=>o.value===box.dataset.editRoom);if(option)option.selected=box.checked;}));}
@@ -702,7 +710,7 @@ $("savePatientEdits").addEventListener("click",async()=>{const p=patients.find(x
   if(!upload.ok)throw new Error("Falha ao salvar o PDF no servidor local.");
   p.document={name:editFile.name,url:"/documentos/"+encodeURIComponent(p.id)+".pdf"};
  }
-}catch(err){notify(err.message||"Não foi possível salvar o PDF.");return;}}p.cpf=$("editCpf").value.trim();p.birthDate=$("editBirth").value;p.insurance=$("editInsurance").value.trim();p.job=$("editJob").value.trim();p.companyName=$("editCompany").value.trim();const selectedRooms=Array.from($("editRooms").selectedOptions).map(o=>o.value);if(!selectedRooms.length){notify("Selecione pelo menos uma sala.");return;}const oldStates=p.serviceStates||{},nextServices=selectedRooms.map(serviceForRoom).filter(Boolean);p.rooms=selectedRooms;p.room=selectedRooms[0];p.services=nextServices;p.service=nextServices.join(", ");p.serviceStates=Object.fromEntries(nextServices.map(s=>[s,oldStates[s]||{status:"Aguardando",updatedAt:Date.now()}]));p.asoPending=$("editAsoPending").checked;p.examsByRoom=p.examsByRoom||{};const extras=Array.from(document.querySelectorAll('input[name="editExamChoice"]:checked')).map(x=>({room:x.dataset.room,exam:x.value}));for(const item of extras){const room=item.room,exam=item.exam;p.examsByRoom[room]=Array.isArray(p.examsByRoom[room])?p.examsByRoom[room]:[];if(!p.examsByRoom[room].includes(exam)){p.examsByRoom[room].push(exam);if(!selectedRooms.includes(room)){selectedRooms.push(room);const roomOption=Array.from($("editRooms").options).find(o=>o.value===room);if(roomOption)roomOption.selected=true;}}}renderEditRoomPicker();save();render();refreshEditPatientOptions(p.id);notify("Dados do paciente atualizados e exames adicionados.");});
+}catch(err){notify(err.message||"Não foi possível salvar o PDF.");return;}}p.cpf=$("editCpf").value.trim();p.birthDate=$("editBirth").value;p.insurance=$("editInsurance").value.trim();p.job=$("editJob").value.trim();p.companyName=$("editCompany").value.trim();const selectedRooms=Array.from($("editRooms").selectedOptions).map(o=>o.value);if(!selectedRooms.length){notify("Selecione pelo menos uma sala.");return;}const oldStates=p.serviceStates||{},nextServices=selectedRooms.map(serviceForRoom).filter(Boolean);p.rooms=selectedRooms;p.room=selectedRooms[0];p.services=nextServices;p.service=nextServices.join(", ");p.serviceStates=Object.fromEntries(nextServices.map(s=>[s,oldStates[s]||{status:"Aguardando",updatedAt:Date.now()}]));p.asoPending=$("editAsoPending").checked;const extras=Array.from(document.querySelectorAll('input[name="editExamChoice"]:checked')).map(x=>({room:x.dataset.room,exam:x.value}));p.examsByRoom={};for(const item of extras){const room=item.room,exam=item.exam;p.examsByRoom[room]=Array.isArray(p.examsByRoom[room])?p.examsByRoom[room]:[];if(!p.examsByRoom[room].includes(exam))p.examsByRoom[room].push(exam);if(!selectedRooms.includes(room)){selectedRooms.push(room);const roomOption=Array.from($("editRooms").options).find(o=>o.value===room);if(roomOption)roomOption.selected=true;}}renderEditRoomPicker();save();render();refreshEditPatientOptions(p.id);notify("Dados do paciente atualizados e exames adicionados.");});
 function requestDeletePassword(local){return new Promise(resolve=>{const overlay=document.createElement("div");overlay.style.cssText="position:fixed;inset:0;z-index:10000;background:#10232dcc;display:grid;place-items:center;padding:18px";const box=document.createElement("form");box.style.cssText="background:#fff;padding:22px;border-radius:14px;width:min(360px,100%);box-shadow:0 12px 45px #0004";box.innerHTML='<h3 style="margin:0 0 8px">Autorização para excluir</h3><p style="margin:0 0 12px;color:#637984;font-size:13px">'+(local?'Digite EXCLUIR para confirmar.':'Digite a senha da sua conta para confirmar.')+'</p><input type="'+(local?'text':'password')+'" autocomplete="off" required aria-label="Confirmação de exclusão" style="width:100%;padding:12px;border:1px solid #cbd9df;border-radius:9px;margin-bottom:14px"><div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn ghost" data-cancel>Cancelar</button><button class="btn primary" type="submit">Autorizar</button></div>';document.body.appendChild(overlay);overlay.appendChild(box);const input=box.querySelector("input");const close=value=>{overlay.remove();resolve(value);};box.querySelector("[data-cancel]").addEventListener("click",()=>close(null));box.addEventListener("submit",e=>{e.preventDefault();close(input.value);});overlay.addEventListener("click",e=>{if(e.target===overlay)close(null);});input.focus();});}
 async function authorizeDeletion(){
  const cloudMode=!!(window.MARKYS_CLOUD&&!window.MARKYS_LOCAL_MODE);
