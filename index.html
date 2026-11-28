@@ -362,7 +362,7 @@ async function loadServiceCatalog(){
   const groups={};receptionServiceCatalog.forEach(x=>{if(!groups[x.room_name])groups[x.room_name]=[];if(!groups[x.room_name].some(y=>y.exam_name===x.exam_name))groups[x.room_name].push(x);});
   $("examRoomOptions").innerHTML=Object.entries(groups).map(([room,items])=>'<details class="form-module" style="margin:8px 0"><summary>'+esc(room)+' — '+esc(items[0].attendance_name)+'</summary><div class="module-content"><div class="service-options">'+items.map(x=>'<label class="service-option"><input type="checkbox" name="examCatalogChoice" data-room="'+esc(room)+'" value="'+esc(x.exam_name)+'"> '+esc(x.exam_name)+'</label>').join("")+'</div></div></details>').join("")||'<div class="sub">Nenhum exame ativo cadastrado.</div>';
   const editRooms=$("editRooms");if(editRooms){const old=Array.from(editRooms.selectedOptions).map(o=>o.value);editRooms.innerHTML=Object.entries(map).map(([room,attendance])=>'<option value="'+esc(room)+'">'+esc(room)+' — '+esc(attendance)+'</option>').join("");Array.from(editRooms.options).forEach(o=>o.selected=old.includes(o.value));if(typeof renderEditRoomPicker==="function")renderEditRoomPicker();}
-  const activeEditPatient=patients.find(p=>String(p.id)===$("editPatientSelect")?.value);if(activeEditPatient&&$("editPatientModule")&&!$("editPatientModule").hidden)renderEditExamOptions(activeEditPatient);
+  const activeEditPatient=patients.find(p=>String(p.id)===$("editPatientSelect")?.value);if(activeEditPatient)renderEditExamOptions(activeEditPatient);
  }catch(e){$("roomOptions").innerHTML='<div class="sub">Não foi possível carregar as salas e exames.</div>';}
 }
 async function loadInsuranceCatalog(){
@@ -658,12 +658,23 @@ function refreshEditPatientOptions(selectedId){const sel=$("editPatientSelect");
 function renderEditExamOptions(p){
  const target=$("editExamOptions");if(!target)return;
  const current=p.examsByRoom&&typeof p.examsByRoom==="object"?p.examsByRoom:{};
- const knownItems=receptionServiceCatalog.map(x=>({room:x.room_name,attendance:x.attendance_name||ROOM_SERVICES[x.room_name]||"",value:x.exam_name,label:x.exam_name}));
+ // Usa o mesmo catálogo do cadastro; se ele ainda não estiver pronto, lê a lista já renderizada no cadastro.
+ let knownItems=receptionServiceCatalog.map(x=>({room:x.room_name,attendance:x.attendance_name||ROOM_SERVICES[x.room_name]||"",value:x.exam_name,label:x.exam_name}));
+ if(!knownItems.length){
+  document.querySelectorAll('#examRoomOptions details').forEach(section=>{
+   const heading=section.querySelector("summary")?.textContent?.trim()||"";
+   const split=heading.split(/\\s+[—–-]\\s+/);const room=(split.shift()||"").trim();const attendance=split.join(" — ");
+   section.querySelectorAll('input[name="examCatalogChoice"]').forEach(input=>{
+    const label=input.closest("label")?.textContent?.trim()||input.value;
+    knownItems.push({room,attendance,value:input.value,label});
+   });
+  });
+ }
  const known=new Set(knownItems.map(x=>x.room+"|"+x.value));const all=[...knownItems];
  Object.entries(current).forEach(([room,values])=>(Array.isArray(values)?values:[]).forEach(value=>{if(!known.has(room+"|"+value))all.push({room,attendance:ROOM_SERVICES[room]||"",value,label:String(value),legacy:true});}));
  const selected=(room,value)=>(Array.isArray(current[room])?current[room]:[]).some(x=>String(x)===String(value));const groups={};
- all.forEach(x=>{if(!groups[x.room])groups[x.room]={attendance:x.attendance||ROOM_SERVICES[x.room]||"",items:[]};if(!groups[x.room].items.some(y=>y.value===x.value))groups[x.room].items.push(x);});
- target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module edit-exam-room"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+group.items.map(x=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(x.room)+'" value="'+esc(x.value)+'"'+(selected(x.room,x.value)?' checked':'')+'> '+esc(x.label)+(x.legacy?' (já cadastrado)':'')+'</label>').join("")+'</div></div></details>').join("")||'<div class="sub">Nenhum exame ativo cadastrado.</div>';
+ all.forEach(x=>{if(!x.room)return;if(!groups[x.room])groups[x.room]={attendance:x.attendance||ROOM_SERVICES[x.room]||"",items:[]};if(!groups[x.room].items.some(y=>String(y.value)===String(x.value)))groups[x.room].items.push(x);});
+ target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module edit-exam-room"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+group.items.map(x=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(x.room)+'" value="'+esc(x.value)+'"'+(selected(x.room,x.value)?' checked':'')+'> '+esc(x.label)+(x.legacy?' (já cadastrado)':'')+'</label>').join("")+'</div></div></details>').join("")||'<div class="sub">Nenhum exame ativo cadastrado no catálogo. Confira o cadastro de exames específicos.</div>';
 }
 function renderPatientNameSuggestions(){const target=$("patientNameSuggestions");if(!target)return;const unique=new Map();patients.forEach(p=>{const key=String(p.name||"").trim().toLocaleLowerCase("pt-BR");if(key&&!unique.has(key))unique.set(key,p.name);});target.innerHTML=Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(name=>'<option value="'+esc(name)+'"></option>').join("");}
 function renderEditRoomPicker(){const select=$("editRooms"),target=$("editRoomOptions");if(!select||!target)return;target.innerHTML=Array.from(select.options).map(o=>'<label class="service-option"><input type="checkbox" data-edit-room="'+esc(o.value)+'"'+(o.selected?" checked":"")+"> "+esc(o.text)+"</label>").join("");target.querySelectorAll("input[data-edit-room]").forEach(box=>box.addEventListener("change",()=>{const option=Array.from(select.options).find(o=>o.value===box.dataset.editRoom);if(option)option.selected=box.checked;}));}
