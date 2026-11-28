@@ -100,6 +100,7 @@ input, textarea, select { text-transform: none !important; }
 #editPatientModule .edit-room-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:14px;border:1px solid #dce5e9;border-radius:10px;background:#fbfdfe}
 #editPatientModule .edit-room-picker .service-option{min-height:42px;font-size:12px}
 #editPatientModule .edit-exam-accordions{display:flex;flex-direction:column;gap:8px}
+#editPatientModule #editExamOptions{display:flex!important;flex-direction:column!important;gap:8px!important;visibility:visible!important;min-height:1px}
 #editPatientModule .edit-exam-room{border:1px solid #dce5e9;border-radius:11px;overflow:hidden;background:#fff}
 #editPatientModule .edit-exam-room>summary{cursor:pointer;list-style:none;padding:17px 18px;background:#eef4ff;color:#102a56;font-weight:800}
 #editPatientModule .edit-exam-room>summary::-webkit-details-marker{display:none}
@@ -274,7 +275,13 @@ html.markys-sga-auth-checking body{visibility:hidden}
           <summary>MARCAR EXAMES ESPECÍFICOS</summary>
           <div class="edit-section-content">
             <div class="field"><label class="service-option edit-aso-option" style="white-space:normal"><input type="checkbox" id="editAsoPending"> INDICATIVO: ESTE PACIENTE AINDA VAI FAZER ASO (PENDENTE NA FILA)</label><p class="sub" style="margin:6px 0 0">ESTE MARCADOR NÃO CONFIRMA A REALIZAÇÃO DO ASO.</p></div>
-            <div id="editExamOptions" class="edit-exam-accordions"></div>
+            <div id="editExamOptions" class="edit-exam-accordions" style="display:flex!important;flex-direction:column!important;gap:8px!important">
+              <details class="form-module edit-exam-room"><summary>Sala 1 — RX</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module edit-exam-room"><summary>Sala 2 — Coleta / laboratório</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module edit-exam-room"><summary>Sala 3 — Audiometria</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module edit-exam-room"><summary>Sala 4 — Exames complementares</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module edit-exam-room"><summary>SALA 5 — COLETA PCCU</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+            </div>
           </div>
         </details>
         <button class="btn primary edit-save-button" type="button" id="savePatientEdits">Salvar alterações</button>
