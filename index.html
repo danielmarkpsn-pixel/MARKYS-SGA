@@ -280,11 +280,11 @@ html.markys-sga-auth-checking body{visibility:hidden}
           <div class="edit-section-content">
             <div class="field"><label class="service-option edit-aso-option" style="white-space:normal"><input type="checkbox" id="editAsoPending"> INDICATIVO: ESTE PACIENTE AINDA VAI FAZER ASO (PENDENTE NA FILA)</label><p class="sub" style="margin:6px 0 0">ESTE MARCADOR NÃO CONFIRMA A REALIZAÇÃO DO ASO.</p></div>
             <div id="editExamOptions" class="edit-exam-accordions" style="display:flex!important;flex-direction:column!important;gap:8px!important">
-              <details class="form-module edit-exam-room"><summary>Sala 1 — RX</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
-              <details class="form-module edit-exam-room"><summary>Sala 2 — Coleta / laboratório</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
-              <details class="form-module edit-exam-room"><summary>Sala 3 — Audiometria</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
-              <details class="form-module edit-exam-room"><summary>Sala 4 — Exames complementares</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
-              <details class="form-module edit-exam-room"><summary>SALA 5 — COLETA PCCU</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module"><summary>Sala 1 — RX</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module"><summary>Sala 2 — Coleta / laboratório</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module"><summary>Sala 3 — Audiometria</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module"><summary>Sala 4 — Exames complementares</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
+              <details class="form-module"><summary>SALA 5 — COLETA PCCU</summary><div class="module-content"><div class="service-options"><div class="sub">Nenhum exame específico ativo nesta sala.</div></div></div></details>
             </div>
           </div>
         </details>
@@ -675,7 +675,7 @@ function renderEditExamOptions(p){
  if(sourceRooms.length){
   target.replaceChildren(...sourceRooms.map(source=>{
    const roomNode=source.cloneNode(true);
-   roomNode.classList.add("edit-exam-room");
+   roomNode.classList.remove("edit-exam-room");
    roomNode.querySelectorAll('input[name="examCatalogChoice"]').forEach(input=>{
     input.name="editExamChoice";
     input.checked=selected(input.dataset.room||"",input.value);
@@ -697,7 +697,7 @@ function renderEditExamOptions(p){
   if(!groups[room])groups[room]={attendance:"",items:[]};
   (Array.isArray(values)?values:[]).forEach(value=>{if(!groups[room].items.some(x=>String(x)===String(value)))groups[room].items.push(value);});
  });
- target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module edit-exam-room"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+(group.items.length?group.items.map(value=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(room)+'" value="'+esc(value)+'"'+(selected(room,value)?' checked':'')+'> '+esc(value)+'</label>').join(""):'<div class="sub">Nenhum exame específico ativo nesta sala.</div>')+'</div></div></details>').join("")||'<div class="sub">Aguardando o carregamento do catálogo de exames.</div>';
+ target.innerHTML=Object.entries(groups).map(([room,group])=>'<details class="form-module"><summary>'+esc(room)+(group.attendance?' — '+esc(group.attendance):'')+'</summary><div class="module-content"><div class="service-options">'+(group.items.length?group.items.map(value=>'<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(room)+'" value="'+esc(value)+'"'+(selected(room,value)?' checked':'')+'> '+esc(value)+'</label>').join(""):'<div class="sub">Nenhum exame específico ativo nesta sala.</div>')+'</div></div></details>').join("")||'<div class="sub">Aguardando o carregamento do catálogo de exames.</div>';
 }
 function renderPatientNameSuggestions(){const target=$("patientNameSuggestions");if(!target)return;const unique=new Map();patients.forEach(p=>{const key=String(p.name||"").trim().toLocaleLowerCase("pt-BR");if(key&&!unique.has(key))unique.set(key,p.name);});target.innerHTML=Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(name=>'<option value="'+esc(name)+'"></option>').join("");}
 function renderEditRoomPicker(){const select=$("editRooms"),target=$("editRoomOptions");if(!select||!target)return;target.innerHTML=Array.from(select.options).map(o=>'<label class="service-option"><input type="checkbox" data-edit-room="'+esc(o.value)+'"'+(o.selected?" checked":"")+"> "+esc(o.text)+"</label>").join("");target.querySelectorAll("input[data-edit-room]").forEach(box=>box.addEventListener("change",()=>{const option=Array.from(select.options).find(o=>o.value===box.dataset.editRoom);if(option)option.selected=box.checked;}));}
@@ -899,9 +899,11 @@ if(publicMode){
 #patientForm[data-active="exames"] .reception-module[data-module="exames"]{display:block!important}
 #patientForm #registerPatientSubmit{display:none!important}
 #patientForm[data-active="exames"] #registerPatientSubmit{display:block!important;margin-top:12px}
-</style><style id="edit-exams-match-registration">
-/* EDITAR PACIENTES: mesma grade responsiva e densidade do cadastro */
+</style><style id="edit-exams-exact-registration-parity">
+/* Editar reutiliza a mesma estrutura e apresentação dos grupos do Cadastro. */
+#editPatientModule #editExamsModule .edit-section-content{padding:8px 12px 12px!important}
 #editPatientModule #editExamOptions .service-options{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:6px!important;padding:8px!important}
 #editPatientModule #editExamOptions .service-option{font-size:11px!important;line-height:1.35!important;padding:6px 8px!important;gap:6px!important;border-radius:9px!important}
+#editPatientModule #editExamOptions .form-module>summary{background:#eff5ff!important;color:var(--teal)!important;padding:11px 13px!important;font-size:12px!important;font-weight:800!important}
 </style></body>
 </html>
