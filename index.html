@@ -823,5 +823,40 @@ if(publicMode){
 }
 })();
 </script>
+
+<style id="compact-supabase-ui-final">
+/* FINAL OVERRIDE: tipografia compacta estilo Supabase (sobrescreve regras antigas) */
+.reception-layout .reception-sidebar,
+.reception-layout .reception-workspace,
+.reception-layout .reception-main {font-size:12px!important;line-height:1.4!important}
+.reception-layout .reception-sidebar h3,
+.reception-layout .reception-workspace h3,
+.reception-layout .reception-workspace-head h3 {font-size:15px!important;line-height:1.3!important;margin:3px 0 6px!important}
+.reception-layout .reception-workspace h4,
+.reception-layout .reception-sidebar h4 {font-size:13px!important;line-height:1.3!important}
+.reception-layout .reception-sidebar p,
+.reception-layout .reception-workspace p,
+.reception-layout .reception-sidebar .sub,
+.reception-layout .reception-workspace .sub {font-size:11px!important;line-height:1.4!important}
+.reception-layout .reception-nav-btn {font-size:12px!important;font-weight:600!important;padding:8px 10px!important;min-height:34px!important;line-height:1.25!important}
+.reception-layout .reception-workspace .form-module>summary,
+.reception-layout .reception-workspace .edit-section>summary {font-size:12px!important;padding:10px 12px!important;line-height:1.3!important;font-weight:650!important}
+.reception-layout .reception-workspace .module-content,
+.reception-layout .reception-workspace .edit-section-content {font-size:12px!important;padding:7px 10px 10px!important}
+.reception-layout .reception-workspace .field {margin:8px 0!important}
+.reception-layout .reception-workspace .field label {font-size:10.5px!important;line-height:1.3!important;margin-bottom:3px!important;font-weight:600!important}
+.reception-layout .reception-workspace .field input,
+.reception-layout .reception-workspace .field select {font-size:12px!important;min-height:34px!important;padding:6px 8px!important;line-height:1.3!important}
+.reception-layout .reception-workspace .service-option,
+.reception-layout .reception-workspace label {font-size:11px!important;line-height:1.35!important}
+.reception-layout .reception-workspace .service-option {padding:6px 8px!important;gap:6px!important}
+.reception-layout .reception-workspace .service-options {gap:6px!important;padding:8px!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important}
+.reception-layout .reception-workspace button,
+.reception-layout .reception-main .btn {font-size:11.5px!important;line-height:1.3!important;padding:7px 9px!important;min-height:32px!important}
+.reception-layout .reception-workspace .edit-exam-room>summary {font-size:12px!important;padding:9px 11px!important}
+.reception-layout .reception-workspace .edit-exam-room .service-option {font-size:11px!important;padding:6px 7px!important}
+.reception-layout .reception-workspace .edit-exam-room .service-options {grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:6px!important;padding:8px!important}
+@media(max-width:760px){.reception-layout .reception-workspace{padding:12px!important}.reception-layout .reception-nav-btn{font-size:11.5px!important}}
+</style>
 </body>
 </html>
