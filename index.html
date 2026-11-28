@@ -81,7 +81,40 @@ input, textarea, select { text-transform: none !important; }
 #patientForm .service-option:has(input[type="checkbox"]:checked),#editPatientModule .service-option:has(input[type="checkbox"]:checked){border-color:#16a34a;background:#e9f9ee;color:#166534;box-shadow:inset 0 0 0 1px #16a34a}
 #patientForm .service-option:has(input[type="checkbox"]:focus-visible),#editPatientModule .service-option:has(input[type="checkbox"]:focus-visible){outline:2px solid #22a05a;outline-offset:2px}
 #patientForm #roomOptions .service-option{min-height:42px}
-/* Edição de pacientes conforme referência: dados no topo, salas no centro e exames abaixo */
+/* CORREÇÃO LAYOUT RECEPÇÃO: preserva painel/fila, formulário de edição em 3 blocos verticais */
+.reception-main{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:18px}
+.reception-main>.reception-workspace{min-width:0;align-self:start}
+.reception-main>section.panel:not(.reception-workspace){min-width:0;align-self:start}
+.reception-workspace #editPatientModule .edit-patient-layout{display:flex!important;flex-direction:column!important;gap:14px;padding:12px}
+#editPatientModule .edit-data-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px}
+#editPatientModule .edit-data-grid .field{margin:3px 0;min-width:0}
+#editPatientModule .edit-data-grid .edit-pdf-field{grid-column:2/4}
+#editPatientModule .edit-section{display:block!important;border:1px solid #dce5e9;border-radius:12px;background:#fff;overflow:hidden}
+#editPatientModule .edit-section>summary{cursor:pointer;list-style:none;padding:17px 18px;background:#eef4ff;color:#102a56;font-weight:800}
+#editPatientModule .edit-section>summary::-webkit-details-marker{display:none}
+#editPatientModule .edit-section>summary:after{content:"−";float:right;font-size:18px;line-height:1}
+#editPatientModule .edit-section:not([open])>summary:after{content:"+"}
+#editPatientModule .edit-section-content{padding:14px 16px}
+#editPatientModule .edit-section-content>.field{margin:0 0 10px}
+#editPatientModule #editRooms{display:none!important}
+#editPatientModule .edit-room-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:14px;border:1px solid #dce5e9;border-radius:10px;background:#fbfdfe}
+#editPatientModule .edit-room-picker .service-option{min-height:42px;font-size:12px}
+#editPatientModule .edit-exam-accordions{display:flex;flex-direction:column;gap:8px}
+#editPatientModule .edit-exam-room{border:1px solid #dce5e9;border-radius:11px;overflow:hidden;background:#fff}
+#editPatientModule .edit-exam-room>summary{cursor:pointer;list-style:none;padding:17px 18px;background:#eef4ff;color:#102a56;font-weight:800}
+#editPatientModule .edit-exam-room>summary::-webkit-details-marker{display:none}
+#editPatientModule .edit-exam-room>summary:after{content:"+";float:right}
+#editPatientModule .edit-exam-room[open]>summary:after{content:"−"}
+#editPatientModule .edit-exam-room-options{padding:12px;display:flex;flex-wrap:wrap;gap:7px}
+#editPatientModule .edit-exam-room-options .service-option{font-size:12px}
+#editPatientModule .edit-aso-option{border:1px solid #dce5e9;border-radius:9px;padding:10px 12px}
+#savePatientEdits{width:auto!important;min-width:160px;max-width:220px;padding:10px 20px;margin:0;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;font-size:13px}
+.queuehead{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.queue-filters{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:0 1 520px;min-width:280px}
+.queue-filters .search{flex:1 1 260px;min-width:200px}
+.queue-filters .date-filter{flex:0 0 230px;min-width:230px}
+@media(max-width:760px){#editPatientModule .edit-data-grid{grid-template-columns:1fr}#editPatientModule .edit-data-grid .edit-pdf-field{grid-column:1/-1}#editPatientModule .edit-room-picker{grid-template-columns:repeat(2,minmax(0,1fr)}#savePatientEdits{max-width:100%}.queuehead{align-items:stretch}.queue-filters{flex:1 1 100%;min-width:0;justify-content:stretch}.queue-filters .search,.queue-filters .date-filter{flex:1 1 100%;min-width:0}}
+
 #editPatientModule .edit-patient-layout{display:flex!important;flex-direction:column;gap:14px;padding:12px}
 #editPatientModule .edit-data-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px}
 #editPatientModule .edit-data-grid .field{margin:3px 0;min-width:0}
@@ -215,7 +248,7 @@ html.markys-sga-auth-checking body{visibility:hidden}
         <details class="edit-section" id="editRoomsModule" open>
           <summary>SALAS / ATENDIMENTOS</summary>
           <div class="edit-section-content">
-            <div class="field"><label for="editRooms">SALAS / ATENDIMENTOS * (MARQUE TODOS)</label><div class="edit-room-picker" id="editRoomOptions"></div><select id="editRooms" multiple size="4" aria-hidden="true"><option value="Sala 1">Sala 1 — RX</option><option value="Sala 2">Sala 2 — Coleta / laboratório</option><option value="Sala 3">Sala 3 — Audiometria</option><option value="Sala 4">Sala 4 — Exames complementares</option><option value="Sala 5">Sala 5 — Coleta PCCU</option></select></div>
+            <div class="field"><label for="editRooms">SALAS / ATENDIMENTOS</label><div class="edit-room-picker" id="editRoomOptions"></div><select id="editRooms" multiple size="5" aria-hidden="true"><option value="Sala 1">Sala 1 — RX</option><option value="Sala 2">Sala 2 — Coleta / laboratório</option><option value="Sala 3">Sala 3 — Audiometria</option><option value="Sala 4">Sala 4 — Exames complementares</option><option value="Sala 5">Sala 5 — Coleta PCCU</option></select></div>
             <p class="sub">MARQUE UMA OU MAIS SALAS E SELECIONE TODOS OS EXAMES SOLICITADOS.</p>
           </div>
         </details>
@@ -223,14 +256,15 @@ html.markys-sga-auth-checking body{visibility:hidden}
           <summary>MARCAR EXAMES ESPECÍFICOS</summary>
           <div class="edit-section-content">
             <div class="field"><label class="service-option edit-aso-option" style="white-space:normal"><input type="checkbox" id="editAsoPending"> INDICATIVO: ESTE PACIENTE AINDA VAI FAZER ASO (PENDENTE NA FILA)</label><p class="sub" style="margin:6px 0 0">ESTE MARCADOR NÃO CONFIRMA A REALIZAÇÃO DO ASO.</p></div>
-            <div class="service-options edit-exam-accordions" id="editExamOptions"></div>
+            <div id="editExamOptions" class="edit-exam-accordions"></div>
           </div>
         </details>
-        <button class="btn primary" type="button" id="savePatientEdits">Salvar alterações</button>
+        <button class="btn primary edit-save-button" type="button" id="savePatientEdits">Salvar alterações</button>
       </div>
-    </details></div><button class="btn primary full" type="button" id="savePatientEdits">Salvar alterações</button></div></details>
+    </details>
+    </form>
    </section>
-     <section class="panel">
+   <section class="panel">
    <div class="queuehead"><div><h3>Pacientes na fila</h3><p class="sub">Chame, repita a chamada ou finalize o atendimento.</p></div><div class="queue-filters"><input class="search" id="search" placeholder="Buscar paciente…" aria-label="Buscar paciente"><label class="date-filter"><span>DATA</span><input id="patientDateFilter" type="date" aria-label="Filtrar pacientes pela data"></label></div></div>
    <div class="patient-list" id="patientList"></div>
    <nav class="pagination" id="patientPagination" aria-label="Paginação da fila"></nav>
