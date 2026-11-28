@@ -101,17 +101,7 @@ input, textarea, select { text-transform: none !important; }
 #editPatientModule .edit-room-picker .service-option{min-height:42px;font-size:12px}
 #editPatientModule .edit-exam-accordions{display:flex;flex-direction:column;gap:8px}
 #editPatientModule #editExamOptions{display:flex!important;flex-direction:column!important;align-items:stretch;gap:8px!important;visibility:visible!important;min-height:1px}
-#editPatientModule #editExamOptions .edit-exam-room{width:100%;margin:8px 0!important;min-width:0}
-#editPatientModule #editExamOptions .service-options{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important;gap:6px!important;padding:9px!important}
-#editPatientModule #editExamOptions .service-option{font-size:11.5px!important;line-height:1.3!important;gap:6px!important;padding:7px 8px!important;border-radius:7px}
-#editPatientModule #editExamOptions .edit-exam-room>summary{padding:11px 13px!important;font-size:13px!important;line-height:1.3!important}
-#editPatientModule .edit-exam-room{border:1px solid #dce5e9;border-radius:11px;overflow:hidden;background:#fff}
-#editPatientModule .edit-exam-room>summary{cursor:pointer;list-style:none;padding:17px 18px;background:#eef4ff;color:#102a56;font-weight:800}
-#editPatientModule .edit-exam-room>summary::-webkit-details-marker{display:none}
 #editPatientModule .edit-exam-room>summary:after{content:"+";float:right}
-#editPatientModule .edit-exam-room[open]>summary:after{content:"−"}
-#editPatientModule .edit-exam-room-options{padding:12px;display:flex;flex-wrap:wrap;gap:7px}
-#editPatientModule .edit-exam-room-options .service-option{font-size:12px}
 #editPatientModule .edit-aso-option{border:1px solid #dce5e9;border-radius:9px;padding:10px 12px}
 #savePatientEdits{width:auto!important;min-width:160px;max-width:220px;padding:10px 20px;margin:0;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;font-size:13px}
 .queuehead{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
@@ -135,13 +125,7 @@ input, textarea, select { text-transform: none !important; }
 #editPatientModule .edit-room-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:14px;border:1px solid #dce5e9;border-radius:10px;background:#fbfdfe}
 #editPatientModule .edit-room-picker .service-option{min-height:42px;font-size:12px}
 #editPatientModule .edit-exam-accordions{display:flex;flex-direction:column;gap:8px}
-#editPatientModule .edit-exam-room{border:1px solid #dce5e9;border-radius:11px;overflow:hidden;background:#fff}
-#editPatientModule .edit-exam-room>summary{cursor:pointer;list-style:none;padding:17px 18px;background:#eef4ff;color:#102a56;font-weight:800}
-#editPatientModule .edit-exam-room>summary::-webkit-details-marker{display:none}
 #editPatientModule .edit-exam-room>summary:after{content:"+";float:right}
-#editPatientModule .edit-exam-room[open]>summary:after{content:"−"}
-#editPatientModule .edit-exam-room-options{padding:12px;display:flex;flex-wrap:wrap;gap:7px}
-#editPatientModule .edit-exam-room-options .service-option{font-size:12px}
 #editPatientModule .edit-aso-option{border:1px solid #dce5e9;border-radius:9px;padding:10px 12px}
 #savePatientEdits{width:auto!important;min-width:170px;max-width:220px;padding:10px 20px;margin:0;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;font-size:13px;align-self:flex-start}
 @media(max-width:760px){#editPatientModule .edit-data-grid{grid-template-columns:1fr}#editPatientModule .edit-data-grid .edit-pdf-field{grid-column:1/-1}#editPatientModule .edit-room-picker{grid-template-columns:repeat(2,minmax(0,1fr))}#savePatientEdits{max-width:100%}}
@@ -160,8 +144,6 @@ input, textarea, select { text-transform: none !important; }
 .reception-workspace .service-option{font-size:11.5px!important;line-height:1.3!important;gap:6px!important;padding:7px 8px!important;border-radius:7px}
 .reception-workspace .service-options{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important;gap:6px!important;padding:9px!important}
 .reception-workspace #editPatientModule .edit-data-grid{gap:7px 10px}
-#editPatientModule .edit-exam-room{margin:7px 0!important;border-radius:8px}
-#editPatientModule .edit-exam-room>summary{background:#eff5ff!important;color:#102a56;padding:11px 13px!important;font-size:13px!important;font-weight:700!important}
 #editPatientModule .edit-exam-room .service-options{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important;padding:9px!important;gap:6px!important}
 #editPatientModule .edit-exam-room .service-option{font-size:11.5px!important;padding:7px 8px!important}
 #editPatientModule .edit-aso-option{font-size:11.5px!important;padding:8px 10px!important}
@@ -361,6 +343,30 @@ function notify(msg){const el=$("toast");el.textContent=msg;el.classList.add("sh
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 let ROOM_SERVICES={"Sala 1":"RX","Sala 2":"Coleta / laboratório","Sala 3":"Audiometria","Sala 4":"Exames complementares"};
 let insuranceCatalog=[],insurancePriceCatalog=[],receptionServiceCatalog=[];
+function renderExamRoomGroups(selectedByRoom,checkboxName){
+ const selected=selectedByRoom&&typeof selectedByRoom==="object"?selectedByRoom:{};
+ const groups={};
+ (Array.isArray(receptionServiceCatalog)?receptionServiceCatalog:[]).forEach(x=>{
+  if(!x||!x.room_name||!x.exam_name)return;
+  const room=String(x.room_name);
+  if(!groups[room])groups[room]=[];
+  if(!groups[room].some(y=>String(y.exam_name)===String(x.exam_name)))groups[room].push(x);
+ });
+ Object.entries(selected).forEach(([room,values])=>{
+  if(!groups[room])groups[room]=[];
+  (Array.isArray(values)?values:[]).forEach(value=>{
+   if(!groups[room].some(x=>String(x.exam_name)===String(value)))groups[room].push({room_name:room,attendance_name:ROOM_SERVICES[room]||"",exam_name:value});
+  });
+ });
+ return Object.entries(groups).map(([room,items])=>{
+  const attendance=items.find(x=>x.attendance_name)?.attendance_name||"";
+  const choices=items.map(x=>{
+   const checked=(Array.isArray(selected[room])?selected[room]:[]).some(value=>String(value)===String(x.exam_name));
+   return '<label class="service-option"><input type="checkbox" name="'+checkboxName+'" data-room="'+esc(room)+'" value="'+esc(x.exam_name)+'"'+(checked?' checked':'')+'> '+esc(x.exam_name)+'</label>';
+  }).join("");
+  return '<details class="form-module" style="margin:8px 0"><summary>'+esc(room)+(attendance?' — '+esc(attendance):'')+'</summary><div class="module-content"><div class="service-options">'+choices+'</div></div></details>';
+ }).join("")||'<div class="sub">Nenhum exame ativo cadastrado.</div>';
+}
 async function loadServiceCatalog(){
  if(!window.MARKYS_CLOUD||window.MARKYS_LOCAL_MODE)return;
  try{
@@ -370,8 +376,7 @@ async function loadServiceCatalog(){
   receptionServiceCatalog=data||[];
   const map={};receptionServiceCatalog.forEach(x=>{map[x.room_name]=x.attendance_name;});ROOM_SERVICES=map;
   $("roomOptions").innerHTML=Object.entries(map).map(([room,attendance])=>'<label class="service-option"><input type="checkbox" name="rooms" value="'+esc(room)+'"> '+esc(room)+' — '+esc(attendance)+'</label>').join("")||'<div class="sub">Nenhuma sala/atendimento ativo.</div>';
-  const groups={};receptionServiceCatalog.forEach(x=>{if(!groups[x.room_name])groups[x.room_name]=[];if(!groups[x.room_name].some(y=>y.exam_name===x.exam_name))groups[x.room_name].push(x);});
-  $("examRoomOptions").innerHTML=Object.entries(groups).map(([room,items])=>'<details class="form-module" style="margin:8px 0"><summary>'+esc(room)+' — '+esc(items[0].attendance_name)+'</summary><div class="module-content"><div class="service-options">'+items.map(x=>'<label class="service-option"><input type="checkbox" name="examCatalogChoice" data-room="'+esc(room)+'" value="'+esc(x.exam_name)+'"> '+esc(x.exam_name)+'</label>').join("")+'</div></div></details>').join("")||'<div class="sub">Nenhum exame ativo cadastrado.</div>';
+  $("examRoomOptions").innerHTML=renderExamRoomGroups({}, "examCatalogChoice");
   const editRooms=$("editRooms");if(editRooms){const old=Array.from(editRooms.selectedOptions).map(o=>o.value);editRooms.innerHTML=Object.entries(map).map(([room,attendance])=>'<option value="'+esc(room)+'">'+esc(room)+' — '+esc(attendance)+'</option>').join("");Array.from(editRooms.options).forEach(o=>o.selected=old.includes(o.value));if(typeof renderEditRoomPicker==="function")renderEditRoomPicker();}
   const activeEditPatient=patients.find(p=>String(p.id)===$("editPatientSelect")?.value);if(activeEditPatient)renderEditExamOptions(activeEditPatient);
  }catch(e){$("roomOptions").innerHTML='<div class="sub">Não foi possível carregar as salas e exames.</div>';}
@@ -669,28 +674,7 @@ function refreshEditPatientOptions(selectedId){const sel=$("editPatientSelect");
 function renderEditExamOptions(p){
  const target=$("editExamOptions");if(!target)return;
  const current=p&&p.examsByRoom&&typeof p.examsByRoom==="object"?p.examsByRoom:{};
- const catalog=Array.isArray(receptionServiceCatalog)?receptionServiceCatalog:[];
- const groups={};
- catalog.forEach(x=>{
-  if(!x||!x.room_name||!x.exam_name)return;
-  const room=String(x.room_name);
-  if(!groups[room])groups[room]=[];
-  if(!groups[room].some(y=>String(y.exam_name)===String(x.exam_name)))groups[room].push(x);
- });
- Object.entries(current).forEach(([room,values])=>{
-  if(!groups[room])groups[room]=[];
-  (Array.isArray(values)?values:[]).forEach(value=>{
-   if(!groups[room].some(x=>String(x.exam_name)===String(value)))groups[room].push({room_name:room,attendance_name:ROOM_SERVICES[room]||"",exam_name:value});
-  });
- });
- target.innerHTML=Object.entries(groups).map(([room,items])=>{
-  const attendance=items.find(x=>x.attendance_name)?.attendance_name||"";
-  const choices=items.map(x=>{
-   const checked=(Array.isArray(current[room])?current[room]:[]).some(value=>String(value)===String(x.exam_name));
-   return '<label class="service-option"><input type="checkbox" name="editExamChoice" data-room="'+esc(room)+'" value="'+esc(x.exam_name)+'"'+(checked?' checked':'')+'> '+esc(x.exam_name)+'</label>';
-  }).join("");
-  return '<details class="form-module" style="margin:8px 0"><summary>'+esc(room)+(attendance?' — '+esc(attendance):'')+'</summary><div class="module-content"><div class="service-options">'+choices+'</div></div></details>';
- }).join("")||'<div class="sub">Nenhum exame ativo cadastrado.</div>';
+ target.innerHTML=renderExamRoomGroups(current,"editExamChoice");
 }
 function renderPatientNameSuggestions(){const target=$("patientNameSuggestions");if(!target)return;const unique=new Map();patients.forEach(p=>{const key=String(p.name||"").trim().toLocaleLowerCase("pt-BR");if(key&&!unique.has(key))unique.set(key,p.name);});target.innerHTML=Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(name=>'<option value="'+esc(name)+'"></option>').join("");}
 function renderEditRoomPicker(){const select=$("editRooms"),target=$("editRoomOptions");if(!select||!target)return;target.innerHTML=Array.from(select.options).map(o=>'<label class="service-option"><input type="checkbox" data-edit-room="'+esc(o.value)+'"'+(o.selected?" checked":"")+"> "+esc(o.text)+"</label>").join("");target.querySelectorAll("input[data-edit-room]").forEach(box=>box.addEventListener("change",()=>{const option=Array.from(select.options).find(o=>o.value===box.dataset.editRoom);if(option)option.selected=box.checked;}));}
@@ -892,11 +876,5 @@ if(publicMode){
 #patientForm[data-active="exames"] .reception-module[data-module="exames"]{display:block!important}
 #patientForm #registerPatientSubmit{display:none!important}
 #patientForm[data-active="exames"] #registerPatientSubmit{display:block!important;margin-top:12px}
-</style><style id="edit-exams-exact-registration-parity">
-/* Editar reutiliza a mesma estrutura e apresentação dos grupos do Cadastro. */
-#editPatientModule #editExamsModule .edit-section-content{padding:8px 12px 12px!important}
-#editPatientModule #editExamOptions .service-options{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:6px!important;padding:8px!important}
-#editPatientModule #editExamOptions .service-option{font-size:11px!important;line-height:1.35!important;padding:6px 8px!important;gap:6px!important;border-radius:9px!important}
-#editPatientModule #editExamOptions .form-module>summary{background:#eff5ff!important;color:var(--teal)!important;padding:11px 13px!important;font-size:12px!important;font-weight:800!important}
 </style></body>
 </html>
