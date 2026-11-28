@@ -899,9 +899,9 @@ if(publicMode){
 #patientForm[data-active="exames"] .reception-module[data-module="exames"]{display:block!important}
 #patientForm #registerPatientSubmit{display:none!important}
 #patientForm[data-active="exames"] #registerPatientSubmit{display:block!important;margin-top:12px}
-</style><style id="edit-exams-single-column-card-parity">
-/* EDITAR PACIENTES: cartões de seleção iguais ao cadastro, em coluna única */
-#editPatientModule #editExamOptions .service-options{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:7px!important;padding:10px!important}
-#editPatientModule #editExamOptions .service-option{display:flex!important;width:100%!important;min-height:40px!important;padding:9px 11px!important;align-items:center!important;border-radius:9px!important;line-height:1.35!important}
+</style><style id="edit-exams-match-registration">
+/* EDITAR PACIENTES: mesma grade responsiva e densidade do cadastro */
+#editPatientModule #editExamOptions .service-options{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:6px!important;padding:8px!important}
+#editPatientModule #editExamOptions .service-option{font-size:11px!important;line-height:1.35!important;padding:6px 8px!important;gap:6px!important;border-radius:9px!important}
 </style></body>
 </html>
