@@ -770,9 +770,9 @@ function openReceptionModule(name,toggle=true){
  if(layout){layout.classList.add("panel-open");layout.dataset.activeModule=name;}
  receptionNavButtons.forEach(button=>button.classList.toggle("active",button.dataset.openModule===name));
  document.querySelectorAll("#patientForm .reception-module").forEach(module=>{
-  const active=name==="cadastro"||module.dataset.module===name;
+  const active=module.dataset.module===name;
   module.style.display=active?"block":"none";
-  if(active)module.open=true;
+  module.open=active;
  });
  if(receptionForm)receptionForm.dataset.active=name;
  if(receptionEdit)receptionEdit.hidden=name!=="editar";
@@ -857,13 +857,13 @@ if(publicMode){
 @media(max-width:760px){.reception-layout .reception-workspace{padding:12px!important}.reception-layout .reception-nav-btn{font-size:11.5px!important}}
 </style>
 <style id="registration-flow-button-placement">
-/* Fluxo completo do cadastro: todos os passos em sequência, botão após exames */
-#patientForm[data-active="cadastro"] .reception-module{display:block!important}
-#patientForm[data-active="cadastro"] #registerPatientSubmit{display:block!important;margin-top:12px}
-#patientForm:not([data-active="cadastro"]) #registerPatientSubmit{display:none!important}
+/* Cada item do menu lateral abre somente sua própria etapa. */
+#patientForm .reception-module{display:none}
 #patientForm[data-active="cadastro"] .reception-module[data-module="cadastro"],
-#patientForm[data-active="cadastro"] .reception-module[data-module="tipo-exame"],
-#patientForm[data-active="cadastro"] .reception-module[data-module="salas"],
-#patientForm[data-active="cadastro"] .reception-module[data-module="exames"]{margin-bottom:10px}
+#patientForm[data-active="tipo-exame"] .reception-module[data-module="tipo-exame"],
+#patientForm[data-active="salas"] .reception-module[data-module="salas"],
+#patientForm[data-active="exames"] .reception-module[data-module="exames"]{display:block!important}
+#patientForm #registerPatientSubmit{display:none!important}
+#patientForm[data-active="exames"] #registerPatientSubmit{display:block!important;margin-top:12px}
 </style></body>
 </html>
